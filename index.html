@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="theme-color" content="#D4622D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Valencia">
+<title>Валенсия · 30.05–03.06</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E🍊%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23D4622D'/%3E%3Ctext x='50%25' y='62%25' text-anchor='middle' font-size='130' fill='white'%3E🍊%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+// Inline manifest (registered after DOM ready)
+(function(){
+  const manifest = {
+    name: "Валенсия 30.05–03.06",
+    short_name: "Valencia",
+    description: "Персональный гид по Валенсии",
+    start_url: ".",
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#FBF6EC",
+    theme_color: "#D4622D",
+    icons: [
+      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23D4622D'/%3E%3Ctext x='50%25' y='62%25' text-anchor='middle' font-size='360' fill='white'%3E🍊%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" },
+    ],
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.href = url;
+  document.head.appendChild(link);
+
+  // Try registering a tiny service worker (runtime cache for tiles) if context permits.
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+    const swCode = `
+      const CACHE = "valencia-v1";
+      self.addEventListener("install", e => { self.skipWaiting(); });
+      self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
+      self.addEventListener("fetch", event => {
+        const req = event.request;
+        if (req.method !== "GET") return;
+        const url = new URL(req.url);
+        // Cache OSM/Carto tiles + Leaflet CDN
+        if (url.hostname.includes("tile.openstreetmap.org") || url.hostname.includes("basemaps.cartocdn.com") || url.hostname.includes("unpkg.com")) {
+          event.respondWith(
+            caches.open(CACHE).then(cache =>
+              cache.match(req).then(cached => {
+                const fetchPromise = fetch(req).then(net => { if (net.ok) cache.put(req, net.clone()); return net; }).catch(() => cached);
+                return cached || fetchPromise;
+              })
+            )
+          );
+        }
+      });
+    `;
+    try {
+      const swBlob = new Blob([swCode], { type: "text/javascript" });
+      const swUrl = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl).catch(e => console.warn("SW reg failed:", e.message));
+    } catch (e) { console.warn("SW init failed:", e.message); }
+  }
+})();
+</script>
+<style>
+:root {
+  --bg: #FBF6EC;
+  --bg-soft: #F5EDDD;
+  --card: #FFFFFF;
+  --card-soft: #FAF4E8;
+  --text: #2A2620;
+  --text-soft: #6B6358;
+  --muted: #9A9182;
+  --border: #E6DCC8;
+  --primary: #D4622D;
+  --primary-soft: #F4D9C7;
+  --accent: #1E5F7A;
+  --accent-soft: #CBE0EA;
+  --success: #5A8D54;
+  --warning: #C9A227;
+  --danger: #B5483A;
+  --shadow: 0 2px 8px rgba(60, 40, 20, 0.08);
+  --shadow-lg: 0 8px 32px rgba(60, 40, 20, 0.16);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 22px;
+  --tap: 44px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1A1612;
+    --bg-soft: #221C16;
+    --card: #25201A;
+    --card-soft: #2C261E;
+    --text: #F0E8D8;
+    --text-soft: #BAB0A0;
+    --muted: #7D7568;
+    --border: #3B342B;
+    --primary: #E97B43;
+    --primary-soft: #4A2E1C;
+    --accent: #6FB3CC;
+    --accent-soft: #1E3540;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; font-size: 16px; line-height: 1.5; overscroll-behavior-y: contain; }
+body { padding-top: var(--safe-top); padding-bottom: calc(64px + var(--safe-bottom)); min-height: 100vh; }
+img, svg { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; padding: 0; }
+a { color: var(--accent); text-decoration: none; }
+a:active { opacity: 0.6; }
+input, textarea, select { font: inherit; color: inherit; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; width: 100%; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: var(--primary); }
+textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+/* Header */
+.app-header { position: sticky; top: 0; z-index: 10; background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 70%, transparent 100%); padding: 12px 16px 8px; padding-top: calc(12px + var(--safe-top)); }
+.app-header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.app-header .sub { color: var(--text-soft); font-size: 13px; margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 12px; font-weight: 600; }
+
+/* Main */
+main { padding: 0 16px 24px; }
+.view { display: none; }
+.view.active { display: block; }
+.view h2 { font-size: 22px; font-weight: 700; margin: 16px 0 12px; letter-spacing: -0.01em; }
+.view h3 { font-size: 16px; font-weight: 700; margin: 18px 0 8px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Cards */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+.card-soft { background: var(--card-soft); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+.card h4 { margin: 0 0 6px; font-size: 16px; font-weight: 600; }
+.card .meta { color: var(--text-soft); font-size: 13px; }
+
+/* Place card */
+.place-card { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: transform 0.05s, background 0.15s; }
+.place-card:active { transform: scale(0.99); background: var(--card-soft); }
+.place-card .ico { width: 38px; height: 38px; flex-shrink: 0; background: var(--bg-soft); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.place-card .body { flex: 1; min-width: 0; }
+.place-card .name { font-weight: 600; font-size: 15px; line-height: 1.3; display: flex; align-items: center; gap: 6px; }
+.place-card .name .badge { display: inline-flex; font-size: 11px; padding: 1px 6px; background: var(--accent-soft); color: var(--accent); border-radius: 4px; font-weight: 600; }
+.place-card .name .badge.uniq { background: var(--primary-soft); color: var(--primary); }
+.place-card .meta { color: var(--text-soft); font-size: 12px; margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; }
+.place-card .meta span:not(:first-child)::before { content: "·"; margin-right: 6px; opacity: 0.6; }
+.place-card .status { font-size: 16px; align-self: center; }
+
+/* Status colors */
+.status-visited { color: var(--success); }
+.status-want { color: var(--warning); }
+.status-skip { color: var(--muted); }
+
+/* Tabs */
+nav.tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--card); border-top: 1px solid var(--border); padding-bottom: var(--safe-bottom); box-shadow: 0 -2px 10px rgba(0,0,0,0.04); }
+nav.tabs button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; font-size: 11px; color: var(--text-soft); font-weight: 500; min-height: var(--tap); }
+nav.tabs button .ico { font-size: 22px; line-height: 1; }
+nav.tabs button.active { color: var(--primary); }
+
+/* Filters */
+.filters { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--border); font-size: 13px; color: var(--text-soft); font-weight: 500; cursor: pointer; white-space: nowrap; }
+.chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+.chip.alt.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Search */
+.search-row { display: flex; gap: 8px; margin: 8px 0 4px; }
+.search-row input { flex: 1; }
+.search-row .ico-btn { width: var(--tap); height: var(--tap); display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); flex-shrink: 0; }
+
+/* Modal */
+dialog.modal { border: none; padding: 0; background: var(--card); color: var(--text); border-radius: var(--radius-lg) var(--radius-lg) 0 0; width: 100%; max-width: 600px; max-height: 92vh; margin: auto auto 0; box-shadow: var(--shadow-lg); }
+dialog.modal::backdrop { background: rgba(0, 0, 0, 0.5); }
+dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0.25s ease-out; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-head { position: sticky; top: 0; background: var(--card); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; z-index: 5; }
+.modal-head .grip { width: 36px; height: 4px; background: var(--border); border-radius: 2px; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); }
+.modal-head h3 { flex: 1; margin: 6px 0 0; font-size: 17px; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--text); line-height: 1.3; }
+.modal-head .close { padding: 8px; font-size: 22px; line-height: 1; margin-top: 6px; min-width: var(--tap); min-height: var(--tap); display: flex; align-items: center; justify-content: center; }
+.modal-body { padding: 16px; overflow-y: auto; flex: 1; }
+.modal-foot { padding: 12px 16px calc(12px + var(--safe-bottom)); border-top: 1px solid var(--border); background: var(--card-soft); display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; min-height: 38px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; transition: background 0.15s; }
+.btn:active { transform: scale(0.98); }
+.btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn.accent { background: var(--accent); color: white; border-color: var(--accent); }
+.btn.ghost { background: transparent; }
+.btn.danger { background: var(--danger); color: white; border-color: var(--danger); }
+.btn.success { background: var(--success); color: white; border-color: var(--success); }
+.btn.warning { background: var(--warning); color: white; border-color: var(--warning); }
+.btn.lg { padding: 14px 18px; font-size: 15px; min-height: var(--tap); }
+.btn.full { width: 100%; }
+.btn.tiny { padding: 4px 8px; font-size: 12px; min-height: 28px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Status toggle */
+.status-toggle { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.status-toggle button { padding: 10px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card); font-size: 12px; font-weight: 600; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.status-toggle button .ico { font-size: 18px; }
+.status-toggle button.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+
+/* Description */
+.desc { color: var(--text); line-height: 1.55; font-size: 14.5px; margin: 12px 0; white-space: pre-wrap; }
+.tip { background: linear-gradient(120deg, var(--primary-soft), transparent); padding: 12px 14px; border-radius: var(--radius-sm); margin: 10px 0; font-size: 14px; border-left: 3px solid var(--primary); }
+.tip strong { color: var(--primary); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; margin: 14px 0; font-size: 14px; }
+.kv dt { color: var(--text-soft); font-weight: 500; }
+.kv dd { margin: 0; }
+
+/* Day picker */
+.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }
+.day-tabs::-webkit-scrollbar { display: none; }
+.day-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-size: 13px; cursor: pointer; min-width: 78px; text-align: center; }
+.day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+.day-tab .d { font-weight: 700; font-size: 16px; line-height: 1.1; }
+.day-tab .l { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+.day-tab.today::after { content: ""; display: block; width: 6px; height: 6px; border-radius: 3px; background: var(--success); margin: 4px auto 0; }
+.day-tab.today.active::after { background: white; }
+
+/* Itinerary items */
+.itin-item { display: flex; gap: 12px; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+.itin-item .time { font-weight: 700; font-size: 14px; color: var(--primary); flex-shrink: 0; width: 50px; }
+.itin-item .body { flex: 1; min-width: 0; }
+.itin-item .body .t { font-weight: 600; font-size: 15px; }
+.itin-item .body .n { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+.itin-item .actions { display: flex; gap: 4px; align-items: flex-start; }
+.itin-item .actions button { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 16px; color: var(--text-soft); }
+.itin-item .actions button:active { background: var(--bg-soft); }
+
+/* Stats */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+.stat .n { font-size: 26px; font-weight: 700; }
+.stat .l { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+
+/* Map */
+.map-wrap { position: relative; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 8px 0 12px; }
+#map-leaflet { width: 100%; height: 56vh; min-height: 360px; max-height: 680px; }
+.map-legend { background: var(--card-soft); border-top: 1px solid var(--border); padding: 8px 10px; font-size: 11px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.map-notice { font-size: 12px; color: var(--text-soft); margin: 0 0 6px; line-height: 1.4; }
+
+/* Leaflet customizations */
+.leaflet-container { font: inherit; background: var(--bg-soft); }
+.leaflet-popup-content-wrapper { background: var(--card); color: var(--text); border-radius: var(--radius-sm); }
+.leaflet-popup-tip { background: var(--card); }
+.leaflet-popup-content { margin: 10px 12px; font-size: 13px; line-height: 1.4; }
+.leaflet-popup-content b { font-size: 14px; }
+.leaflet-popup-content .popup-actions { display: flex; gap: 6px; margin-top: 8px; }
+.leaflet-popup-content .popup-actions button, .leaflet-popup-content .popup-actions a { font: inherit; padding: 6px 10px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+.leaflet-popup-content .popup-actions a.alt { background: var(--card-soft); color: var(--text); border: 1px solid var(--border); }
+.leaflet-control-zoom a { background: var(--card) !important; color: var(--text) !important; border-color: var(--border) !important; }
+.leaflet-bar a:hover { background: var(--card-soft) !important; }
+
+/* Custom Leaflet marker (HTML divIcon) */
+.sp-marker { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--card); border: 2px solid var(--accent); border-radius: 50%; font-size: 16px; box-shadow: var(--shadow); }
+.sp-marker.hotel { border-color: var(--primary); }
+.sp-marker.friend { border-color: var(--accent); }
+.sp-marker.airport { border-color: var(--accent); }
+.legend-dot { display: inline-flex; align-items: center; gap: 4px; }
+.legend-dot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lg-sight::before { background: #D4622D; }
+.lg-museum::before { background: #8B4789; }
+.lg-religious::before { background: #6E5837; }
+.lg-park::before { background: #5A8D54; }
+.lg-beach::before { background: #4AA1B8; }
+.lg-food::before { background: #C9A227; }
+.lg-coffee::before { background: #7A5230; }
+.lg-dessert::before { background: #E07E9F; }
+.lg-special::before { background: #1E5F7A; }
+
+/* Toast */
+.toast { position: fixed; bottom: calc(80px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: var(--radius-lg); font-size: 14px; font-weight: 500; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.2s; max-width: 90%; text-align: center; }
+.toast.show { opacity: 1; }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, var(--primary), #E89556); color: white; padding: 20px 18px; border-radius: var(--radius); margin: 4px 0 16px; box-shadow: var(--shadow); }
+.hero h2 { color: white; margin: 0 0 4px; font-size: 22px; }
+.hero p { margin: 0; opacity: 0.92; font-size: 14px; }
+.hero .countdown { display: inline-block; background: rgba(255,255,255,0.22); padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-top: 8px; }
+
+/* Empty state */
+.empty { text-align: center; color: var(--text-soft); padding: 32px 16px; font-size: 14px; }
+.empty .em { font-size: 36px; margin-bottom: 8px; }
+
+/* Lists */
+ul.tight { margin: 8px 0; padding-left: 22px; }
+ul.tight li { margin: 4px 0; font-size: 14px; }
+
+/* Quick action */
+.qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+.qa { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: left; cursor: pointer; }
+.qa:active { background: var(--card-soft); }
+.qa .ico { font-size: 24px; margin-bottom: 4px; }
+.qa .t { font-weight: 600; font-size: 14px; }
+.qa .s { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+
+/* Suggestion */
+.sug { background: var(--accent-soft); border: 1px solid transparent; border-radius: var(--radius); padding: 12px 14px; margin-bottom: 10px; }
+.sug .t { font-weight: 600; font-size: 14px; color: var(--accent); }
+.sug .b { font-size: 13px; margin-top: 4px; }
+
+/* Section divider */
+.divider { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin: 18px 0 8px; }
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* Tag */
+.tag { display: inline-block; padding: 2px 8px; border-radius: 6px; background: var(--bg-soft); color: var(--text-soft); font-size: 11px; font-weight: 500; margin-right: 4px; margin-bottom: 4px; }
+.tag.uniq { background: var(--primary-soft); color: var(--primary); }
+.tag.iconic { background: var(--accent-soft); color: var(--accent); }
+
+/* Quick filter row */
+.qfilt { display: flex; gap: 6px; margin: 8px 0 4px; }
+.qfilt .chip { flex: 1; text-align: center; }
+
+/* Responsive desktop */
+@media (min-width: 720px) {
+  body { padding-bottom: 24px; padding-top: 70px; }
+  nav.tabs { position: fixed; top: 0; bottom: auto; left: 0; right: 0; max-width: 720px; margin: 0 auto; border-top: none; border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); padding-bottom: 0; z-index: 30; }
+  main { max-width: 720px; margin: 0 auto; }
+  .app-header { max-width: 720px; margin: 0 auto; }
+  dialog.modal { border-radius: var(--radius-lg); margin: auto; max-height: 88vh; }
+}
+
+/* SVG map marker */
+.map-marker { cursor: pointer; }
+.map-marker circle { transition: r 0.15s; }
+.map-marker:hover circle, .map-marker.selected circle { r: 8; stroke: white; stroke-width: 2; }
+.map-marker.is-visited circle { stroke: var(--success); stroke-width: 2.5; }
+.map-marker.is-want circle { stroke: var(--warning); stroke-width: 2.5; }
+
+.note-display { background: var(--card-soft); border-left: 3px solid var(--accent); padding: 10px 12px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; margin: 8px 0; }
+
+/* Weather widget */
+.weather-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; line-height: 1.4; }
+.weather-pill:active { transform: scale(0.97); }
+.weather-pill.loading { opacity: 0.5; cursor: progress; }
+.weather-pill.error { background: var(--bg-soft); color: var(--text-soft); }
+
+/* Weather modal contents */
+.w-now { display: flex; gap: 12px; align-items: center; padding: 16px 14px; background: linear-gradient(135deg, var(--accent-soft), transparent); border-radius: var(--radius); margin-bottom: 12px; }
+.w-now .ico { font-size: 56px; line-height: 1; }
+.w-now .body { flex: 1; }
+.w-now .temp { font-size: 36px; font-weight: 700; line-height: 1; }
+.w-now .cond { font-size: 14px; color: var(--text-soft); margin-top: 4px; }
+.w-now .range { font-size: 13px; color: var(--text-soft); margin-top: 4px; }
+.w-tip { background: var(--card-soft); padding: 12px 14px; border-radius: var(--radius); border-left: 3px solid var(--primary); margin-bottom: 12px; font-size: 14px; line-height: 1.5; }
+.w-tip ul { margin: 4px 0 0; padding-left: 18px; }
+.w-tip li { margin: 3px 0; }
+.w-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px; }
+.w-stat { background: var(--card-soft); padding: 10px 8px; border-radius: 10px; text-align: center; }
+.w-stat .n { font-size: 16px; font-weight: 700; }
+.w-stat .l { font-size: 11px; color: var(--text-soft); margin-top: 2px; line-height: 1.2; }
+.w-hourly { overflow-x: auto; display: flex; gap: 4px; padding: 4px 0 10px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+.w-hour { flex-shrink: 0; min-width: 52px; padding: 8px 4px; background: var(--card-soft); border-radius: 10px; text-align: center; }
+.w-hour .h { font-size: 11px; color: var(--text-soft); font-weight: 600; }
+.w-hour .ic { font-size: 20px; line-height: 1; margin: 4px 0; }
+.w-hour .t { font-size: 13px; font-weight: 700; }
+.w-hour .rain { font-size: 10px; color: var(--accent); margin-top: 2px; }
+.w-day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 12px; }
+.w-day-tab { flex-shrink: 0; padding: 8px 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; font-size: 12px; cursor: pointer; min-width: 76px; text-align: center; }
+.w-day-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+.w-day-tab .d { font-weight: 700; font-size: 13px; line-height: 1.1; }
+.w-day-tab .t { font-size: 11px; margin-top: 3px; opacity: 0.9; }
+.w-day-tab .e { font-size: 14px; margin-top: 2px; }
+</style>
+</head>
+<body>
+<header class="app-header">
+  <h1>🍊 Валенсия · 30.05–03.06</h1>
+  <div class="sub" id="header-sub"></div>
+</header>
+
+<dialog class="modal" id="weather-modal">
+  <div class="modal-head">
+    <div class="grip"></div>
+    <h3 id="wm-title">Погода в Валенсии</h3>
+    <button class="close" id="wm-close">✕</button>
+  </div>
+  <div class="modal-body" id="wm-body"></div>
+</dialog>
+
+<main>
+<!-- TODAY -->
+<section class="view active" id="view-today">
+  <div class="hero">
+    <h2 id="today-hero-title">Добро пожаловать</h2>
+    <p id="today-hero-sub"></p>
+    <div class="countdown" id="today-countdown"></div>
+  </div>
+  <div class="day-tabs" id="today-day-tabs"></div>
+  <div id="today-content"></div>
+  <h3>Быстрые действия</h3>
+  <div class="qa-grid">
+    <button class="qa" data-action="random-unique"><div class="ico">🎲</div><div class="t">Случайное уникальное</div><div class="s">Что-то нетипичное</div></button>
+    <button class="qa" data-action="nearby-hotel"><div class="ico">🏨</div><div class="t">Рядом с отелем</div><div class="s">До 1 км от Benimaclet</div></button>
+    <button class="qa" data-action="wishlist"><div class="ico">⭐</div><div class="t">Хочу посетить</div><div class="s">Список желаний</div></button>
+    <button class="qa" data-action="open-now"><div class="ico">🕐</div><div class="t">Открыто сейчас</div><div class="s">По заявленным часам</div></button>
+  </div>
+</section>
+
+<!-- PLAN -->
+<section class="view" id="view-plan">
+  <h2>План поездки</h2>
+  <div class="day-tabs" id="plan-day-tabs"></div>
+  <div id="plan-content"></div>
+</section>
+
+<!-- PLACES -->
+<section class="view" id="view-places">
+  <h2>Места</h2>
+  <div class="search-row">
+    <input id="search-input" type="text" placeholder="Поиск: название, район...">
+    <button class="ico-btn" id="search-clear" title="Очистить">✕</button>
+  </div>
+  <div class="filters" id="cat-filters"></div>
+  <div class="filters" id="status-filters"></div>
+  <div class="qfilt">
+    <button class="chip" data-sort="dist">📍 По расстоянию</button>
+    <button class="chip" data-sort="name">🔤 По имени</button>
+    <button class="chip" data-sort="cat">🏷 По категории</button>
+  </div>
+  <div id="places-stats" class="meta" style="color:var(--text-soft); font-size:13px; margin-bottom:8px"></div>
+  <div id="places-list"></div>
+</section>
+
+<!-- MAP -->
+<section class="view" id="view-map">
+  <h2>Карта</h2>
+  <p class="map-notice">Карта подгружает плитки OpenStreetMap. Откройте раз в WiFi — браузер закеширует тайлы для оффлайн-использования.</p>
+  <div class="filters" id="map-cat-filters"></div>
+  <div class="map-wrap">
+    <div id="map-leaflet"></div>
+    <div class="map-legend" id="map-legend">
+      <span class="legend-dot lg-sight">Достопр.</span>
+      <span class="legend-dot lg-museum">Музей</span>
+      <span class="legend-dot lg-religious">Храм</span>
+      <span class="legend-dot lg-park">Парк</span>
+      <span class="legend-dot lg-beach">Пляж</span>
+      <span class="legend-dot lg-food">Еда</span>
+      <span class="legend-dot lg-coffee">Кофе</span>
+      <span class="legend-dot lg-dessert">Десерт</span>
+      <span class="legend-dot lg-special">Особые</span>
+    </div>
+  </div>
+  <div id="map-info" style="font-size:13px;color:var(--text-soft);margin-top:4px">🏨 Отель · 👤 Друг · ✈️ Аэропорт · цвет точки = категория</div>
+  <div style="margin-top:12px"><button class="btn full" id="open-google-map">📍 Открыть всё в Google Maps</button></div>
+</section>
+
+<!-- ME -->
+<section class="view" id="view-me">
+  <h2>Гид</h2>
+  <div class="stat-grid">
+    <div class="stat"><div class="n" id="stat-visited">0</div><div class="l">Посетил</div></div>
+    <div class="stat"><div class="n" id="stat-want">0</div><div class="l">Хочу</div></div>
+    <div class="stat"><div class="n" id="stat-total">0</div><div class="l">Всего</div></div>
+  </div>
+
+  <div id="guide-sections"></div>
+
+  <input type="file" id="import-file" accept=".json" style="display:none">
+</section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="today" class="active"><div class="ico">🌅</div>Сегодня</button>
+  <button data-tab="plan"><div class="ico">📋</div>План</button>
+  <button data-tab="places"><div class="ico">📍</div>Места</button>
+  <button data-tab="map"><div class="ico">🗺</div>Карта</button>
+  <button data-tab="me"><div class="ico">📖</div>Гид</button>
+</nav>
+
+<dialog class="modal" id="place-modal">
+  <div class="modal-head">
+    <div class="grip"></div>
+    <h3 id="m-title"></h3>
+    <button class="close" id="m-close">✕</button>
+  </div>
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-foot" id="m-foot"></div>
+</dialog>
+
+<dialog class="modal" id="itin-modal">
+  <div class="modal-head">
+    <div class="grip"></div>
+    <h3 id="im-title">Добавить в план</h3>
+    <button class="close" id="im-close">✕</button>
+  </div>
+  <div class="modal-body" id="im-body"></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+// ============================================================
+//  TRIP META
+// ============================================================
+const TRIP = {
+  start: "2026-05-30",
+  end: "2026-06-03",
+  hotel: { name: "Отель в Benimaclet", address: "Carrer del Baró de San Petrillo, 10-12, 46020 València", lat: 39.4838, lng: -0.3505 },
+  friend: { name: "Гость у друга (приблиз.)", address: "≈ La Saïdia / Primado Reig", lat: 39.4848, lng: -0.3735 },
+  airport: { name: "Аэропорт VLC (Manises)", address: "Aeropuerto de Valencia", lat: 39.4893, lng: -0.4815 },
+};
+
+const DAYS = [
+  { id: "d1", date: "2026-05-30", label: "Сб 30.05", title: "Прилёт + друг" },
+  { id: "d2", date: "2026-05-31", label: "Вс 31.05", title: "Старый город" },
+  { id: "d3", date: "2026-06-01", label: "Пн 01.06", title: "Пляж + Cabanyal + подруга" },
+  { id: "d4", date: "2026-06-02", label: "Вт 02.06", title: "Океанариум + Город искусств" },
+  { id: "d5", date: "2026-06-03", label: "Ср 03.06", title: "Уникальное + отъезд" },
+];
+
+const CATEGORIES = {
+  sight: { ru: "Архитектура", emoji: "🏛", color: "#D4622D" },
+  museum: { ru: "Музей", emoji: "🖼", color: "#8B4789" },
+  religious: { ru: "Храм", emoji: "⛪", color: "#6E5837" },
+  market: { ru: "Рынок", emoji: "🥖", color: "#C9A227" },
+  plaza: { ru: "Площадь", emoji: "🏛", color: "#D4622D" },
+  monument: { ru: "Памятник", emoji: "🗿", color: "#D4622D" },
+  park: { ru: "Парк", emoji: "🌳", color: "#5A8D54" },
+  beach: { ru: "Пляж", emoji: "🏖", color: "#4AA1B8" },
+  district: { ru: "Район", emoji: "🏘", color: "#6FB3CC" },
+  food: { ru: "Ресторан", emoji: "🍽", color: "#C9A227" },
+  coffee: { ru: "Кофейня", emoji: "☕", color: "#7A5230" },
+  dessert: { ru: "Десерт", emoji: "🍰", color: "#E07E9F" },
+  activity: { ru: "Активность", emoji: "✨", color: "#1E5F7A" },
+  daytrip: { ru: "Окрестности", emoji: "🚗", color: "#1E5F7A" },
+};
+
+// ============================================================
+//  GUIDE DATA: контакты, транспорт, фразы, блюда, чек-лист
+// ============================================================
+const CONTACTS = [
+  { group: "🆘 Экстренные", items: [
+    { name: "Единая экстренная служба (общая)", value: "112", tel: "112", note: "Полиция, скорая, пожарные. Есть английский." },
+    { name: "Скорая помощь", value: "061", tel: "061" },
+    { name: "Полиция национальная", value: "091", tel: "091" },
+    { name: "Местная полиция Валенсии", value: "092", tel: "092" },
+    { name: "Помощь туристам (англ.)", value: "902 102 112", tel: "902102112" },
+  ]},
+  { group: "🇺🇦 Украина", items: [
+    { name: "Посольство Украины в Мадриде", value: "+34 91 748 9360", tel: "+34917489360", note: "Calle de Ronda de la Abubilla, 52, 28043 Madrid" },
+    { name: "Консул (горячая линия 24/7)", value: "+34 633 600 250", tel: "+34633600250" },
+    { name: "Сайт посольства", value: "spain.mfa.gov.ua", url: "https://spain.mfa.gov.ua/" },
+  ]},
+  { group: "🏨 Размещение", items: [
+    { name: "Адрес отеля", value: "Carrer del Baró de San Petrillo, 10-12, Benimaclet", copy: "Carrer del Baró de San Petrillo, 10-12, 46020 València, España" },
+  ]},
+  { group: "🚖 Такси-приложения", items: [
+    { name: "Cabify", value: "Установить", url: "https://cabify.com/es/valencia", note: "Самое популярное в Испании. Чёткие цены до поездки." },
+    { name: "FreeNow", value: "Установить", url: "https://free-now.com/es/", note: "Объединяет такси и лицензированных перевозчиков." },
+    { name: "Uber", value: "Установить", url: "https://m.uber.com/", note: "Работает в Валенсии. Цена иногда ниже Cabify." },
+    { name: "Bolt", value: "Установить", url: "https://bolt.eu/ru/", note: "Альтернатива, иногда дешевле." },
+    { name: "Радио-такси Валенсии", value: "+34 96 370 33 33", tel: "+34963703333", note: "Классическое такси по звонку." },
+  ]},
+  { group: "🚇 Транспортные приложения", items: [
+    { name: "Metrovalencia (метро+трамвай)", value: "Установить", url: "https://www.metrovalencia.es/" },
+    { name: "EMT València (автобусы)", value: "Установить", url: "https://www.emtvalencia.es/" },
+    { name: "Valenbisi (велики)", value: "Установить", url: "https://www.valenbisi.es/" },
+  ]},
+  { group: "🗺 Карты и переводчик", items: [
+    { name: "Google Maps", value: "Скачать офлайн-карту Валенсии заранее", url: "https://www.google.com/maps" },
+    { name: "Organic Maps / maps.me", value: "Бесплатные оффлайн-карты", url: "https://organicmaps.app/" },
+    { name: "Google Translate", value: "Скачать испанский для оффлайн-перевода", url: "https://translate.google.com/" },
+    { name: "DeepL", value: "Лучше для длинных текстов", url: "https://www.deepl.com/translator" },
+  ]},
+];
+
+// Транспорт — подробно про SUMA и проездные
+const TRANSPORT_INFO = {
+  cards: [
+    {
+      name: "SUMA 10 (Bonometro 10)",
+      price: "8.40 € зоны A+B (зоны AB покрывают центр + пляжи)",
+      best: "★ Самый выгодный для пары на 4 дня. 10 поездок = 0.84 €/поездка.",
+      where: "Автоматы метро (есть в каждой станции), табачные лавки (estanco), киоски прессы.",
+      tip: "Одну карту можно прикладывать несколько раз для нескольких пассажиров (на одну ходку каждому). Берите 1-2 на двоих."
+    },
+    {
+      name: "SUMA 10 ABCD",
+      price: "12.20 €",
+      best: "Если нужен аэропорт (зона D).",
+      where: "То же самое — автоматы метро.",
+      tip: "От аэропорта до Benimaclet через метро L5+L4. Если такси раз — это дороже SUMA10, но проще с чемоданами."
+    },
+    {
+      name: "T1 / T2 / T3 (TuiN)",
+      price: "T1 = 4€/день, T2 = 6.70 €/2 дня, T3 = 9.70 €/3 дня (зоны AB)",
+      best: "Если в один день много поездок (5+) — T1 окупается.",
+      where: "Автоматы метро.",
+      tip: "Для вашего ритма (3-4 поездки/день) Bonometro выгоднее."
+    },
+    {
+      name: "Одна поездка (Senzill)",
+      price: "1.50 € (AB) / 2.40 € (ABCD)",
+      best: "Только если ехать один раз.",
+      where: "Автоматы метро, табачные лавки.",
+      tip: "Невыгодно почти никогда."
+    },
+  ],
+  routes: [
+    { from: "Аэропорт VLC", to: "Benimaclet", how: "Metro L5 → пересадка на L4 → Benimaclet. ~35 мин. С Bonometro ABCD ~1.22 €/ходка." },
+    { from: "Benimaclet", to: "Старый город (Colón/Xàtiva)", how: "Metro L4 (направление Mas del Rosari) или L6 → Colón. ~10 мин." },
+    { from: "Benimaclet", to: "Пляж Malvarrosa", how: "Tram L4 (направление Marítim — конечная). ~20 мин по парку Турия." },
+    { from: "Центр", to: "Ciudad de las Artes", how: "Автобус EMT 95 (от Plaza América). Или пешком 30 мин по Турии." },
+    { from: "Любое место в городе", to: "El Palmar (Albufera)", how: "Автобус EMT 25 от Plaça de Sant Agustí (центр), 40 мин. Или такси ~25 €." },
+  ],
+};
+
+const PHRASES = [
+  { group: "Базовое", items: [
+    { ru: "Здравствуйте", es: "Hola", tr: "О́ла" },
+    { ru: "До свидания", es: "Adiós", tr: "Адйо́с" },
+    { ru: "Спасибо", es: "Gracias", tr: "Гра́сьяс" },
+    { ru: "Пожалуйста (когда просят)", es: "Por favor", tr: "Пор фабо́р" },
+    { ru: "Пожалуйста (в ответ на спасибо)", es: "De nada", tr: "Де на́да" },
+    { ru: "Извините", es: "Perdón / Disculpe", tr: "Пердо́н / Дискульпе" },
+    { ru: "Да / Нет", es: "Sí / No", tr: "Си / Но" },
+    { ru: "Я не говорю по-испански", es: "No hablo español", tr: "Но а́бло эспаньо́ль" },
+    { ru: "Вы говорите по-английски?", es: "¿Habla inglés?", tr: "А́бла инглéс?" },
+    { ru: "Я не понимаю", es: "No entiendo", tr: "Но энтьéндо" },
+  ]},
+  { group: "В кафе / ресторане", items: [
+    { ru: "Столик на двоих, пожалуйста", es: "Una mesa para dos, por favor", tr: "У́на мэ́са па́ра дос, пор фабо́р" },
+    { ru: "Меню, пожалуйста", es: "La carta, por favor", tr: "Ла ка́рта, пор фабо́р" },
+    { ru: "Что порекомендуете?", es: "¿Qué recomienda?", tr: "Кэ рэкомйéнда?" },
+    { ru: "Без алкоголя", es: "Sin alcohol", tr: "Син алько́ль" },
+    { ru: "Я не пью алкоголь", es: "No bebo alcohol", tr: "Но бэ́бо алько́ль" },
+    { ru: "Свежевыжатый сок", es: "Zumo natural", tr: "Су́мо натура́ль" },
+    { ru: "Воду без газа / с газом", es: "Agua sin gas / con gas", tr: "А́гва син гас / кон гас" },
+    { ru: "Кофе с молоком", es: "Café con leche", tr: "Кафэ́ кон лé́че" },
+    { ru: "Счёт, пожалуйста", es: "La cuenta, por favor", tr: "Ла куэ́нта, пор фабо́р" },
+    { ru: "Можно картой?", es: "¿Puedo pagar con tarjeta?", tr: "Пуэ́до пага́р кон тархé́та?" },
+    { ru: "Очень вкусно", es: "Está muy rico / Buenísimo", tr: "Эста́ муй ри́ко / Буэни́симо" },
+    { ru: "У вас есть вегетарианская еда?", es: "¿Tienen comida vegetariana?", tr: "Тйé́нэн коми́да бэхэтарйя́на?" },
+  ]},
+  { group: "Ориентация и транспорт", items: [
+    { ru: "Где находится...?", es: "¿Dónde está...?", tr: "До́нде эста́?" },
+    { ru: "Где туалет?", es: "¿Dónde está el baño?", tr: "До́нде эста́ эль ба́ньо?" },
+    { ru: "Сколько стоит?", es: "¿Cuánto cuesta?", tr: "Куа́нто куэ́ста?" },
+    { ru: "Я ищу...", es: "Estoy buscando...", tr: "Эсто́й буска́ндо…" },
+    { ru: "Метро", es: "Metro", tr: "Мэ́тро" },
+    { ru: "Билет на метро", es: "Un billete de metro", tr: "Ун бильé́тэ де мэ́тро" },
+    { ru: "Карта Bonometro 10", es: "Un Bono 10 zonas AB, por favor", tr: "Ун бо́но дйé́с со́нас а-бэ" },
+    { ru: "Такси", es: "Un taxi", tr: "Ун та́кси" },
+    { ru: "В аэропорт", es: "Al aeropuerto", tr: "Аль аэропуэ́рто" },
+    { ru: "Помогите!", es: "¡Ayuda!", tr: "Аю́да!" },
+    { ru: "Полиция!", es: "¡Policía!", tr: "Полиси́я!" },
+  ]},
+  { group: "Покупки", items: [
+    { ru: "Могу примерить?", es: "¿Puedo probarme?", tr: "Пуэ́до проба́рмэ?" },
+    { ru: "Это слишком дорого", es: "Es demasiado caro", tr: "Эс дэмаси́адо ка́ро" },
+    { ru: "Принимаете карту?", es: "¿Aceptan tarjeta?", tr: "Асэ́птан тархе́та?" },
+    { ru: "Сдача неправильная", es: "El cambio no es correcto", tr: "Эль ка́мбьо но эс коррэ́кто" },
+    { ru: "Можно пакет?", es: "¿Me da una bolsa?", tr: "Мэ да у́на бо́льса?" },
+  ]},
+];
+
+const DISHES = [
+  { name: "Paella Valenciana", emoji: "🥘", desc: "Классика. Рис с курицей, кроликом, белой фасолью (garrofó), зелёной фасолью, шафраном — НИКОГДА с морепродуктами, это валенсийская паэлья. Готовят на дровах из апельсиновых веток.", where: "Casa Carmela, La Sastrería, Nou Racó (Albufera)" },
+  { name: "Arroz a Banda", emoji: "🍚", desc: "Рис с морепродуктами и крепким рыбным бульоном. То что часто ошибочно называют «паэльей с морепродуктами».", where: "Casa Carmela, Restaurant Secret" },
+  { name: "Fideuà", emoji: "🍝", desc: "Похоже на паэлью, но вместо риса — тонкая лапша фидеос. С морепродуктами. Подаётся с алиоли.", where: "La Sastrería, Casa Montaña" },
+  { name: "All i Pebre", emoji: "🐟", desc: "Тушёный угорь из Альбуферы с чесноком, паприкой и картошкой. Только в районе озера. Местный специалитет, который вне Валенсии не попробуете.", where: "Nou Racó, La Colonia de Carmela" },
+  { name: "Horchata + Fartons", emoji: "🥛", desc: "Холодный напиток из чуфы (тигровый орех — корнеплод) с сахаром. Подают со сладкими булочками-фартонами для макания. Ритуал полудня в Валенсии.", where: "Horchatería Daniel (Mercado de Colón), Santa Catalina, Sabores de España" },
+  { name: "Agua de Valencia", emoji: "🥂", desc: "Коктейль из апельсинового сока, кавы, водки и джина. ⚠ Алкогольный. Местный, его сюда из СПб не привезёшь.", where: "Café de las Horas, Sant Jaume" },
+  { name: "Buñuelos de Calabaza", emoji: "🍩", desc: "Жареные тыквенные шарики с сахаром. Сезон — март (Лас-Фальяс), но кое-где круглый год.", where: "Buñoleria El Contraste, рынки" },
+  { name: "Torrija", emoji: "🍞", desc: "Хлеб, замоченный в молоке/яйце с корицей, обжаренный, политый мёдом или сиропом. Подают с мороженым в Panou.", where: "Panou, Doux-Amer" },
+  { name: "Clochinas / Mejillones", emoji: "🦪", desc: "Валенсийские мидии в томатно-перцовом соусе. Сезон июнь-сентябрь — повезло, как раз ваше время.", where: "Любые морские рестораны Cabanyal, Casa Montaña" },
+  { name: "Coca de Llanda", emoji: "🥮", desc: "Пышный кекс на оливковом масле с корицей. Локальная сладость на завтрак.", where: "Семейные пекарни, Mercado Central" },
+  { name: "Pulpo a la gallega", emoji: "🐙", desc: "Не валенсийское (галисийское), но в Валенсии готовят отлично. Осьминог с оливковым маслом и копчёной паприкой.", where: "Casa Montaña, рынки" },
+  { name: "Naranjas Valencianas", emoji: "🍊", desc: "Те самые знаменитые валенсийские апельсины. Купите килограмм на рынке — попробуете разницу.", where: "Mercado Central, Mercado Colón" },
+];
+
+const CHECKLIST_PRE_TRIP = [
+  { id: "checkin", text: "Онлайн-регистрация на рейс за 24-48 ч до вылета" },
+  { id: "boarding", text: "Скачать посадочный талон в Wallet/PDF (на оба перелёта)" },
+  { id: "hotel-confirm", text: "Распечатать или скачать подтверждение брони отеля" },
+  { id: "casacarmela", text: "БРОНЬ Casa Carmela — за 1-2 недели по их сайту/+34 96 371 0073 (только обеды)" },
+  { id: "oceano-tickets", text: "Билет в Океанариум онлайн — экономия ~5 € против кассы (oceanografic.org)" },
+  { id: "bioparc-tickets", text: "Если планируете Bioparc — билет онлайн на bioparcvalencia.es" },
+  { id: "friend-address", text: "Уточнить точный адрес дома друга в Primado Reig" },
+  { id: "podruga-address", text: "Уточнить адрес подруги для ужина в понедельник" },
+  { id: "podruga-gift", text: "Подарок подруге к ужину — вино/цветы/коробка конфет (Sabores de España уже на месте)" },
+  { id: "google-offline", text: "Google Maps: скачать оффлайн-карту Валенсии и Albufera" },
+  { id: "translate-offline", text: "Google Translate: скачать испанский язык для оффлайн-перевода" },
+  { id: "suma-cards", text: "В первый день купить 1-2 карты Bonometro 10 (8.40 € каждая)" },
+  { id: "cash", text: "Снять 100-200 € наличными (на рынке Mercado Central карты не везде)" },
+  { id: "bank-cards", text: "Предупредить банк о поездке в Испанию (если карта может блокироваться)" },
+  { id: "insurance", text: "Медицинская страховка — взять полис, фото загрузить в телефон" },
+  { id: "documents", text: "Скан паспорта в облако (на случай потери)" },
+  { id: "pack-light", text: "Лёгкая одежда + ветровка на вечер (морской ветер прохладный)" },
+  { id: "swimwear", text: "Купальник/плавки + полотенце пляжное" },
+  { id: "sunscreen", text: "Крем от солнца SPF 30+ (под рукой днём)" },
+  { id: "powerbank", text: "Powerbank — на день будет нужен" },
+  { id: "podruga-gift-2", text: "Решить что несёте в гости (вино/цветы/сладкое)" },
+];
+
+const DAILY_TIPS = [
+  "🆓 Сб с 14:00 и Вс — БЕСПЛАТНО: La Lonja, Torres de Serranos, Torres de Quart, музей керамики, музей Фалья.",
+  "🍳 Местные завтракают тостадой с тёртым томатом и оливковым маслом. Простое, дешёвое, аутентичное.",
+  "💤 Сиеста реальна: 14:00-17:00 часть магазинов и кафе закрыта. Большие супермаркеты и сетевые работают.",
+  "🍴 Ужинают поздно — рестораны полупустые до 21:00, основной поток 21:30-23:00.",
+  "💧 Из-под крана пить можно, но местные предпочитают бутилированную (вкус хлора). На рынке вода 0.50€.",
+  "🔌 Розетки type C/F — как в Украине, переходник не нужен.",
+  "💳 Карты принимают почти везде, но на рынке и в небольших барах часто только наличные.",
+  "🏧 Банкомат: пользуйтесь BBVA, Santander, CaixaBank — без комиссии. ИЗБЕГАЙТЕ Euronet — грабит на конверсии.",
+  "🚇 Метро: с 05:00 до 23:30 (Пт-Сб до 00:30). Воскресенье — последний поезд раньше.",
+  "🚲 Valenbisi: один день 13.30 €, регистрация в приложении. Удобно ездить вдвоём.",
+  "🌅 Закат в конце мая ~21:30. Не пропустите — небо над морем розовое.",
+  "🦟 Москиты в Albufera злые на закате. Возьмите репеллент если идёте на лодку.",
+  "💸 Чаевые: не обязательны. Если очень понравилось — 5-10%. Никто не оскорбится за их отсутствие.",
+  "🚨 Карманники: следить за вещами в старом городе, на рынке, на пляже. Чем дороже выглядит — тем большее внимание.",
+  "🌊 Пляж: не оставлять вещи без присмотра. На Malvarrosa — много полиции, относительно безопасно.",
+  "🎟 Большинство музеев бесплатны Сб после 16:00 и Вс. Планируйте посещения музеев именно на эти дни.",
+  "📸 Лучшие фото-точки: Torres de Serranos сверху, L'Umbracle от L'Hemisfèric, Plaza Redonda.",
+  "🛒 Mercado Central: воскресенье — ЗАКРЫТ. Лучшее время — будни до 13:00.",
+  "🎭 Базилика Святой Девы — реальная действующая, в одежде поскромнее. Шорты и майки могут не пустить.",
+  "🌬 Восточный ветер levante приносит влагу. Западный poniente — сухость и жару. В мае обычно солнечно.",
+];
+
+// ============================================================
+//  WEATHER (Open-Meteo, free, no API key)
+// ============================================================
+const WEATHER_CODES = {
+  0: { emoji: "☀️", text: "Ясно" },
+  1: { emoji: "🌤", text: "В основном ясно" },
+  2: { emoji: "⛅", text: "Переменная облачность" },
+  3: { emoji: "☁️", text: "Облачно" },
+  45: { emoji: "🌫", text: "Туман" },
+  48: { emoji: "🌫", text: "Изморозь" },
+  51: { emoji: "🌦", text: "Слабая морось" },
+  53: { emoji: "🌦", text: "Морось" },
+  55: { emoji: "🌦", text: "Сильная морось" },
+  56: { emoji: "🌧", text: "Ледяная морось" },
+  57: { emoji: "🌧", text: "Сильная ледяная морось" },
+  61: { emoji: "🌧", text: "Слабый дождь" },
+  63: { emoji: "🌧", text: "Дождь" },
+  65: { emoji: "🌧", text: "Сильный дождь" },
+  66: { emoji: "🌧", text: "Ледяной дождь" },
+  67: { emoji: "🌧", text: "Сильный ледяной дождь" },
+  71: { emoji: "🌨", text: "Слабый снег" },
+  73: { emoji: "🌨", text: "Снег" },
+  75: { emoji: "🌨", text: "Сильный снег" },
+  77: { emoji: "🌨", text: "Снежные крупы" },
+  80: { emoji: "🌦", text: "Ливень" },
+  81: { emoji: "🌧", text: "Сильный ливень" },
+  82: { emoji: "⛈", text: "Очень сильный ливень" },
+  85: { emoji: "🌨", text: "Снежный шквал" },
+  86: { emoji: "🌨", text: "Сильный снежный шквал" },
+  95: { emoji: "⛈", text: "Гроза" },
+  96: { emoji: "⛈", text: "Гроза с градом" },
+  99: { emoji: "⛈", text: "Сильная гроза с градом" },
+};
+function wcode(c) { return WEATHER_CODES[c] || { emoji: "❓", text: "—" }; }
+
+async function fetchWeather(force = false) {
+  // Cache: if fetched less than 30 min ago, reuse
+  if (!force && state.weather && state.weatherFetchedAt && (Date.now() - state.weatherFetchedAt) < 30 * 60 * 1000) {
+    return state.weather;
+  }
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=39.47&longitude=-0.376&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,precipitation&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,weather_code,wind_speed_10m,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,precipitation_probability_max,sunrise,sunset,uv_index_max,wind_speed_10m_max&timezone=Europe%2FMadrid&forecast_days=14";
+  try {
+    const r = await fetch(url, { cache: "default" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    state.weather = data;
+    state.weatherFetchedAt = Date.now();
+    saveState();
+    return data;
+  } catch (e) {
+    console.warn("Weather fetch failed:", e.message);
+    return state.weather; // return stale if available
+  }
+}
+
+function clothingTips(maxT, minT, rainProb, code, uvMax, windMax) {
+  const tips = [];
+  if (maxT >= 30) tips.push("🌞 Жара: лёгкая одежда, шорты, кепка, крем SPF 30+");
+  else if (maxT >= 25) tips.push("😎 Тепло: футболка + лёгкие штаны/шорты, очки");
+  else if (maxT >= 20) tips.push("🌤 Комфортно: футболка днём, лёгкая кофта на вечер");
+  else if (maxT >= 15) tips.push("🧥 Прохладно: футболка с длинным рукавом или свитер");
+  else if (maxT >= 10) tips.push("🧣 Свежо: куртка лёгкая");
+  else tips.push("🥶 Холодно: тёплая куртка обязательно");
+
+  if (maxT - minT >= 9) tips.push("🌡 Большой перепад между днём и ночью — ветровка на вечер");
+  if (minT < 16) tips.push("🌙 Вечером прохладно: кофта/худи");
+
+  if (rainProb >= 70) tips.push("☔ Высокая вероятность дождя — зонт обязательно, водоотталкивающая обувь");
+  else if (rainProb >= 40) tips.push("🌂 Возможен дождь — захватите зонт");
+  else if (rainProb >= 20) tips.push("🌦 Шанс дождя небольшой, можно без зонта");
+
+  if (code >= 95) tips.push("⚡ Возможна гроза — лучше планы на крытое (музеи, рынки)");
+  if (uvMax && uvMax >= 8) tips.push("☀️ UV высокий — крем SPF 30+, шляпа, в 12-16 не загорать");
+  else if (uvMax && uvMax >= 6) tips.push("☀️ UV умеренный — крем SPF 20+");
+  if (windMax && windMax >= 30) tips.push("💨 Сильный ветер — лёгкие платья и шляпы могут улететь");
+
+  return tips;
+}
+
+function renderWeatherPill() {
+  const pill = $("#weather-pill");
+  if (!pill) return;
+  const w = state.weather;
+  if (!w || !w.current) {
+    pill.className = "weather-pill loading";
+    pill.textContent = "⛅ погода…";
+    return;
+  }
+  const c = w.current;
+  const code = wcode(c.weather_code);
+  pill.className = "weather-pill";
+  pill.textContent = `${code.emoji} ${Math.round(c.temperature_2m)}° · ${code.text}`;
+}
+
+function ensureWeatherPill() {
+  if ($("#weather-pill")) return;
+  const sub = $("#header-sub");
+  if (!sub) return;
+  const btn = el("button", { class: "weather-pill loading", id: "weather-pill", onclick: openWeatherModal }, "⛅ погода…");
+  sub.appendChild(btn);
+}
+
+function openWeatherModal() {
+  const w = state.weather;
+  if (!w) {
+    toast("Подгружаю погоду...");
+    fetchWeather().then(() => { renderWeatherPill(); openWeatherModal(); });
+    return;
+  }
+  // Select default day: current trip day, else first trip day, else today
+  if (!state.weatherSelectedDate) {
+    const today = todayIso();
+    const inTrip = DAYS.find(d => d.date === today);
+    if (inTrip) state.weatherSelectedDate = today;
+    else if (daysUntil(TRIP.start) > 0 && daysUntil(TRIP.start) <= 14) state.weatherSelectedDate = TRIP.start;
+    else state.weatherSelectedDate = today;
+    saveState();
+  }
+  renderWeatherModal();
+  $("#weather-modal").showModal();
+}
+
+function renderWeatherModal() {
+  const body = $("#wm-body");
+  const w = state.weather;
+  if (!w || !w.daily) {
+    body.innerHTML = '<div class="empty">Не удалось загрузить прогноз. Проверьте интернет.</div>';
+    return;
+  }
+  const selDate = state.weatherSelectedDate;
+  body.innerHTML = "";
+
+  // Day tabs (TRIP days + today if in range)
+  const tabsRow = el("div", { class: "w-day-tabs" });
+  const today = todayIso();
+  const days = w.daily.time.map((d, i) => ({ date: d, idx: i }));
+  // Show trip days that are within forecast range
+  const visible = [];
+  if (!DAYS.find(d => d.date === today) && days.find(d => d.date === today)) {
+    visible.push({ date: today, label: "Сегодня", emoji: null, isToday: true });
+  }
+  DAYS.forEach(d => {
+    if (days.find(x => x.date === d.date)) visible.push({ date: d.date, label: d.label.split(" ")[0] + "\n" + d.label.split(" ")[1], emoji: null, isToday: d.date === today });
+  });
+  // Fallback if no trip days in range — show first 5 days from API
+  if (!visible.length) {
+    days.slice(0, 5).forEach(d => visible.push({ date: d.date, label: new Date(d.date).toLocaleDateString("ru", { weekday: "short", day: "numeric", month: "numeric" }), emoji: null }));
+  }
+  visible.forEach(v => {
+    const dailyIdx = days.findIndex(d => d.date === v.date);
+    const emoji = dailyIdx >= 0 ? wcode(w.daily.weather_code[dailyIdx]).emoji : "❓";
+    const tMax = dailyIdx >= 0 ? Math.round(w.daily.temperature_2m_max[dailyIdx]) : "?";
+    const tab = el("button", {
+      class: "w-day-tab" + (v.date === selDate ? " active" : ""),
+      onclick: () => { state.weatherSelectedDate = v.date; saveState(); renderWeatherModal(); }
+    });
+    const lblParts = v.label.split("\n");
+    tab.appendChild(el("div", { class: "d" }, lblParts[0]));
+    if (lblParts[1]) tab.appendChild(el("div", { class: "t" }, lblParts[1]));
+    tab.appendChild(el("div", { class: "e" }, emoji + " " + tMax + "°"));
+    tabsRow.appendChild(tab);
+  });
+  body.appendChild(tabsRow);
+
+  const dailyIdx = w.daily.time.indexOf(selDate);
+  if (dailyIdx < 0) {
+    body.appendChild(el("div", { class: "empty" }, "Нет прогноза на эту дату (за пределами 14 дней). Откройте ближе к поездке."));
+    return;
+  }
+  const dCode = w.daily.weather_code[dailyIdx];
+  const dInfo = wcode(dCode);
+  const tMax = w.daily.temperature_2m_max[dailyIdx];
+  const tMin = w.daily.temperature_2m_min[dailyIdx];
+  const rainSum = w.daily.precipitation_sum[dailyIdx];
+  const rainProb = w.daily.precipitation_probability_max[dailyIdx];
+  const sunrise = w.daily.sunrise[dailyIdx];
+  const sunset = w.daily.sunset[dailyIdx];
+  const uvMax = w.daily.uv_index_max[dailyIdx];
+  const windMax = w.daily.wind_speed_10m_max[dailyIdx];
+
+  // Now block — use daily summary
+  const now = el("div", { class: "w-now" });
+  now.appendChild(el("div", { class: "ico" }, dInfo.emoji));
+  const nb = el("div", { class: "body" });
+  nb.appendChild(el("div", { class: "temp" }, `${Math.round(tMax)}°`));
+  nb.appendChild(el("div", { class: "cond" }, dInfo.text));
+  nb.appendChild(el("div", { class: "range" }, `Ночью ${Math.round(tMin)}° · Днём до ${Math.round(tMax)}°`));
+  now.appendChild(nb);
+  body.appendChild(now);
+
+  // Stat grid: rain, wind, sunrise, sunset, UV
+  const stats = el("div", { class: "w-stats" });
+  stats.appendChild(statCell(`${rainProb || 0}%`, "Шанс дождя"));
+  stats.appendChild(statCell(`${(rainSum || 0).toFixed(1)} мм`, "Осадков"));
+  stats.appendChild(statCell(`${Math.round(windMax || 0)} км/ч`, "Ветер max"));
+  body.appendChild(stats);
+
+  const stats2 = el("div", { class: "w-stats" });
+  stats2.appendChild(statCell(sunrise ? sunrise.slice(11, 16) : "—", "Рассвет"));
+  stats2.appendChild(statCell(sunset ? sunset.slice(11, 16) : "—", "Закат"));
+  stats2.appendChild(statCell((uvMax || 0).toFixed(1), "UV-индекс"));
+  body.appendChild(stats2);
+
+  // Clothing tips
+  const tips = clothingTips(tMax, tMin, rainProb, dCode, uvMax, windMax);
+  if (tips.length) {
+    const tipBox = el("div", { class: "w-tip" });
+    tipBox.appendChild(el("div", { style: "font-weight:700;margin-bottom:4px" }, "Рекомендации"));
+    const ul = el("ul", null);
+    tips.forEach(t => ul.appendChild(el("li", null, t)));
+    tipBox.appendChild(ul);
+    body.appendChild(tipBox);
+  }
+
+  // Hourly forecast (00-23 for selected date)
+  body.appendChild(el("h3", { style: "margin:16px 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-soft)" }, "Почасовой прогноз"));
+  const hourly = el("div", { class: "w-hourly" });
+  if (w.hourly && w.hourly.time) {
+    w.hourly.time.forEach((t, i) => {
+      if (!t.startsWith(selDate)) return;
+      const hour = t.slice(11, 16);
+      const code = wcode(w.hourly.weather_code[i]);
+      const temp = Math.round(w.hourly.temperature_2m[i]);
+      const rain = w.hourly.precipitation_probability[i];
+      const cell = el("div", { class: "w-hour" });
+      cell.appendChild(el("div", { class: "h" }, hour));
+      cell.appendChild(el("div", { class: "ic" }, code.emoji));
+      cell.appendChild(el("div", { class: "t" }, temp + "°"));
+      if (rain >= 10) cell.appendChild(el("div", { class: "rain" }, "💧 " + rain + "%"));
+      hourly.appendChild(cell);
+    });
+  }
+  body.appendChild(hourly);
+
+  // Footer: source + refresh
+  const foot = el("div", { style: "margin-top:14px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-soft);display:flex;justify-content:space-between;align-items:center" });
+  const age = state.weatherFetchedAt ? Math.round((Date.now() - state.weatherFetchedAt) / 60000) : "?";
+  foot.appendChild(el("div", null, `Источник: Open-Meteo · обновлено ${age} мин назад`));
+  foot.appendChild(el("button", { class: "btn tiny", onclick: async () => { toast("Обновляю..."); await fetchWeather(true); renderWeatherPill(); renderWeatherModal(); } }, "↻ Обновить"));
+  body.appendChild(foot);
+}
+
+function statCell(n, l) {
+  const c = el("div", { class: "w-stat" });
+  c.appendChild(el("div", { class: "n" }, n));
+  c.appendChild(el("div", { class: "l" }, l));
+  return c;
+}
+
+// Taxi deep-link helpers
+function getTaxiUrls(lat, lng, name) {
+  const enc = encodeURIComponent(name || "Место");
+  return [
+    { app: "Cabify", url: `cabify://journey?destination[latitude]=${lat}&destination[longitude]=${lng}&destination[name]=${enc}`, fallback: "https://cabify.com/es/valencia" },
+    { app: "FreeNow", url: `freenow://order?dropoff_lat=${lat}&dropoff_lng=${lng}`, fallback: "https://free-now.com/es/" },
+    { app: "Uber", url: `uber://?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${enc}`, fallback: `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${enc}` },
+    { app: "Bolt", url: `https://bolt.eu/order/?destinationLat=${lat}&destinationLng=${lng}`, fallback: "https://bolt.eu/" },
+  ];
+}
+
+// ============================================================
+//  PLACES — 75+ точек по Валенсии
+// ============================================================
+const PLACES = [
+  // === АРХИТЕКТУРА И ИСТОРИЯ — Ciutat Vella ===
+  { id: "catedral", name: "Catedral de València (La Seu)", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de l'Almoina, s/n, 46003 València", lat: 39.4756, lng: -0.3753,
+    desc: "Кафедральный собор XIII в. — готика, барокко, неоклассика в одном здании. Главное — Святая Чаша (Santo Cáliz), которую Ватикан официально признал реликвией, использовавшейся на Тайной вечере. Внутри также два полотна Гойи.",
+    tip: "Бесплатно с 17:30 будни (только зал). Платный билет включает аудиогид. Чаша — в боковой капелле справа.",
+    price: "Собор 9 € · с башней 11 €", hours: "Пн-Сб 10:30–18:30, Вс 14:00–18:30",
+    web: "https://catedraldevalencia.es", tags: ["iconic", "unique", "must"], unique: true },
+
+  { id: "miguelete", name: "Torre del Miguelete (Micalet)", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça de la Reina, 46001 València", lat: 39.4757, lng: -0.3754,
+    desc: "Колокольня собора XIV в., 51 м. 207 ступеней по винтовой лестнице — и сверху лучшая панорама старого города, крыш с черепицей и моря на горизонте.",
+    tip: "Подниматься перед закатом — небо становится оранжевым над оранжевыми крышами. Лестница узкая, без лифта.",
+    price: "8 €", hours: "10:00–19:00", tags: ["viewpoint", "iconic"], unique: false },
+
+  { id: "basilica-virgen", name: "Basílica de la Virgen", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 6, 46001 València", lat: 39.4762, lng: -0.3752,
+    desc: "Барочная базилика XVII в. с овальным куполом и фресками Паломино. Главное — статуя Пресвятой Девы Заступницы (Mare de Déu dels Desamparats), покровительницы города.",
+    tip: "Можно зайти бесплатно. Прямо рядом — Plaza de la Virgen с фонтаном Турия.",
+    price: "Бесплатно", hours: "07:00–14:00, 16:30–21:00", tags: ["iconic"], unique: false },
+
+  { id: "plaza-virgen", name: "Plaza de la Virgen", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 46001 València", lat: 39.4763, lng: -0.3754,
+    desc: "Атмосферное сердце старого города. В центре — фонтан Турия с возлежащим стариком (река) и нимфами (8 оросительных каналов). По периметру: базилика, собор, дворец Женералитат.",
+    tip: "Сесть на ступеньки фонтана с орчатой — лучший момент Валенсии. По четвергам в 12:00 — заседание Водяного трибунала под открытым небом, самая древняя действующая судебная инстанция Европы.",
+    price: "Бесплатно", hours: "Всегда", tags: ["iconic", "must"], unique: true },
+
+  { id: "plaza-reina", name: "Plaza de la Reina", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de la Reina, 46003 València", lat: 39.4751, lng: -0.3754,
+    desc: "Парадная площадь у собора, недавно реконструированная — стала пешеходной с фонтанами и пальмами. Здесь начинается «нулевой километр» Валенсии.",
+    tip: "Поужинать в одной из кафешек по периметру — сидя смотреть на Miguelete.",
+    price: "Бесплатно", hours: "Всегда", tags: [], unique: false },
+
+  { id: "plaza-redonda", name: "Plaza Redonda", emoji: "⭕", cat: "plaza", district: "Ciutat Vella", address: "Plaça Redona, 46001 València", lat: 39.4742, lng: -0.3760,
+    desc: "Совершенно круглая «спрятанная» площадь XIX в. с фонтаном по центру. Раньше — рыбный рынок, сейчас лавочки с тканями, кружевом, керамикой. Заходишь через узкие проходы и попадаешь в другой мир.",
+    tip: "По четвергам и воскресеньям утром — рынок ремесел. Идеально для аутентичного сувенира.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden", "unique"], unique: true },
+
+  { id: "plaza-lope", name: "Plaza Lope de Vega · самый узкий дом Европы", emoji: "📐", cat: "monument", district: "Ciutat Vella", address: "Plaça de Lope de Vega, 46001 València", lat: 39.4747, lng: -0.3762,
+    desc: "Маленькая площадь между Plaza de la Reina и Plaza Redonda. На ней — самый узкий жилой дом в Европе: фасад всего 107 см. Внутри есть гастропаб.",
+    tip: "Найдите 5-этажный дом № 9 — это он. Хорошее место для нестандартного селфи.",
+    price: "Бесплатно", hours: "Всегда", tags: ["unique", "hidden"], unique: true },
+
+  { id: "plaza-ayto", name: "Plaza del Ayuntamiento", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 46002 València", lat: 39.4699, lng: -0.3763,
+    desc: "Главная парадная площадь — пешеходная с 2020 г. Огромный фонтан, цветочные киоски, здание мэрии и здание Главпочтамта по бокам.",
+    tip: "Во время Лас-Фальяс (март) тут масклета́ — оглушительный полуденный фейерверк. Сейчас можно подняться на балкон мэрии бесплатно.",
+    price: "Бесплатно · балкон бесплатно", hours: "Всегда · балкон Пн-Пт 09:00–14:00", tags: ["iconic"], unique: false },
+
+  { id: "ayuntamiento", name: "Ayuntamiento de València", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 1, 46002 València", lat: 39.4697, lng: -0.3763,
+    desc: "Здание Мэрии XIX в. с богатым убранством: Хрустальный зал, залы для торжеств, исторические балконы.",
+    tip: "Свободный вход в залы и на балкон по будням до 14:00 — мало кто знает, и зря. Спросите охранника на входе.",
+    price: "Бесплатно", hours: "Пн-Пт 09:00–14:00", tags: ["hidden"], unique: true },
+
+  { id: "correos", name: "Palacio de Correos (Главпочтамт)", emoji: "✉️", cat: "sight", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 24, 46002 València", lat: 39.4702, lng: -0.3763,
+    desc: "Дворец связи 1922 г. — модернизм с стеклянным куполом, мраморной лестницей и витражами. Внутри — действующее почтовое отделение.",
+    tip: "Зайдите хотя бы в холл — поднимите голову на купол. Можно отправить открытку самому себе с настоящей валенсийской почты.",
+    price: "Бесплатно", hours: "Пн-Пт 08:30–20:30, Сб 09:30–13:00", tags: ["hidden", "unique"], unique: true },
+
+  { id: "mercado-central", name: "Mercado Central", emoji: "🥖", cat: "market", district: "Ciutat Vella", address: "Plaça de la Ciutat de Bruges, s/n, 46001 València", lat: 39.4733, lng: -0.3779,
+    desc: "Один из крупнейших крытых рынков Европы (8000 м²). Модернизм 1928 г.: витражи с апельсинами, купол с флюгером, керамика. 300 прилавков — хамон, морепродукты, фрукты, специи.",
+    tip: "Идти до 13:00, будни. Воскресенье ЗАКРЫТ. Внутри — Central Bar Рикарда Камареньи, лучший бутерброд с тортильей и устрицы.",
+    price: "Бесплатно", hours: "Пн-Сб 07:30–15:00. Вс закрыто",
+    web: "https://www.mercadocentralvalencia.es", tags: ["iconic", "must", "food"], unique: true },
+
+  { id: "lonja", name: "La Lonja de la Seda", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Carrer de la Llotja, 2, 46001 València", lat: 39.4733, lng: -0.3784,
+    desc: "Шёлковая биржа XV в. — высшая точка готики гражданского строительства, объект ЮНЕСКО. Зал контрактов с витыми колоннами как пальмы, башня для нарушителей, апельсиновый дворик.",
+    tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО. Иначе всего 2 €. Найдите эротические и сатирические резные фигурки на наружных стенах — горгульи XV в. с юмором.",
+    price: "2 € · Сб с 14:00, Вс — бесплатно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00",
+    tags: ["iconic", "must", "unesco"], unique: true },
+
+  { id: "san-nicolas", name: "Iglesia de San Nicolás · «Сикстинская Валенсии»", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Carrer dels Cavallers, 35, 46001 València", lat: 39.4757, lng: -0.3786,
+    desc: "Снаружи — обычная готическая церковь, внутри — взрыв барочных фресок Антонио Паломино: 1900 м² расписан полностью. После реставрации 2016 г. сияет как новый. Действительно достойно прозвища.",
+    tip: "Возьмите аудиогид — без него часть смысла теряется. Зимой и в дни службы вход ограничен.",
+    price: "8 € (с аудиогидом)", hours: "Пн-Сб 10:30–19:30, Вс 13:00–19:30",
+    web: "https://sannicolasvalencia.com", tags: ["must", "unique", "iconic"], unique: true },
+
+  { id: "torres-serranos", name: "Torres de Serranos", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça dels Furs, s/n, 46003 València", lat: 39.4795, lng: -0.3760,
+    desc: "Готические ворота XIV в. в стене старого города. На вершину можно подняться — открывается вид на парк Турия с одной стороны и черепичные крыши старого города с другой.",
+    tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО, иначе всего 2 €. Идеально на закате.",
+    price: "2 € · Вс — бесплатно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["viewpoint"], unique: false },
+
+  { id: "torres-quart", name: "Torres de Quart", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Carrer de Guillem de Castro, 89, 46008 València", lat: 39.4757, lng: -0.3823,
+    desc: "Парные ворота XV в. на западной стороне старого города. На стенах — следы французских ядер 1808 г., их не реставрировали специально, как память.",
+    tip: "Тоже можно подняться. Менее раскручены чем Serranos, очередей нет. Бесплатно по воскресеньям.",
+    price: "2 € · Вс — бесплатно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["hidden"], unique: false },
+
+  { id: "ceramica", name: "Museu de Ceràmica (Palau Marqués de Dos Aigües)", emoji: "🖼", cat: "museum", district: "Ciutat Vella", address: "Carrer del Poeta Querol, 2, 46002 València", lat: 39.4727, lng: -0.3736,
+    desc: "Дворец маркизов Дос-Агуас XVIII в. — самый барочный фасад Испании, вырезанный из алебастра (вода, грифоны, фигуры). Внутри — крупнейшая коллекция испанской керамики и интерьеры в стиле рококо.",
+    tip: "Уже только ради фасада стоит дойти. По субботам после 16:00 и в воскресенье — БЕСПЛАТНО.",
+    price: "3 € · Сб 16:00+ и Вс — бесплатно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00",
+    tags: ["iconic", "unique"], unique: true },
+
+  { id: "puerta-mar", name: "Puerta de la Mar", emoji: "🏛", cat: "monument", district: "Ciutat Vella", address: "Plaça de la Porta de la Mar, 46004 València", lat: 39.4707, lng: -0.3692,
+    desc: "Триумфальная арка — копия утраченных средневековых ворот, восстановленная в 1946 г. в память о Гражданской войне.",
+    tip: "Рядом — гигантский столетний фикус (ficus macrophylla) с воздушными корнями. Зрелище.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden"], unique: false },
+
+  { id: "estacion-norte", name: "Estación del Norte", emoji: "🚂", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 24, 46007 València", lat: 39.4669, lng: -0.3771,
+    desc: "Вокзал 1917 г. в стиле валенсийского модернизма. Внутри: мозаики с апельсинами, цветочные мотивы, билетные кассы как театральные ложи. Сейчас действующий ж/д вокзал.",
+    tip: "Зайдите даже без поезда — за 5 минут увидите потолок и мозаики в зале ожидания. Снаружи: керамика «Bon Viatge» на 6 языках.",
+    price: "Бесплатно", hours: "06:00–23:00", tags: ["hidden", "unique", "modernism"], unique: true },
+
+  { id: "plaza-toros", name: "Plaza de Toros", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 28, 46004 València", lat: 39.4665, lng: -0.3758,
+    desc: "Арена 1859 г. как уменьшенная копия Колизея. Прямо рядом с вокзалом, кирпично-стеклянная. Внутри — Museo Taurino (бесплатно).",
+    tip: "Можно зайти на арену с экскурсией или просто в музей. Корриду не любят все — но архитектурно интересно.",
+    price: "Музей бесплатно · экскурсия 14 €", hours: "Музей: 10:00–19:00", tags: [], unique: false },
+
+  { id: "mercado-colon", name: "Mercado de Colón", emoji: "🏛", cat: "sight", district: "Eixample", address: "Carrer de Jorge Juan, 19, 46004 València", lat: 39.4694, lng: -0.3697,
+    desc: "Модернизм 1916 г. Сейчас не рынок, а гастропространство: рестораны, кафе, дегустации. Внутри — Horchatería Daniel 1949 г. с лучшей орчатой Валенсии.",
+    tip: "Зайти на орчату с фартонами в Daniel. Дешевле и аутентичнее чем в туристическом центре. Очень атмосферно после заката с подсветкой.",
+    price: "Вход бесплатный", hours: "07:30–01:00", tags: ["iconic", "modernism", "food"], unique: false },
+
+  { id: "casa-gatos", name: "Casa de los Gatos", emoji: "🐈", cat: "monument", district: "Ciutat Vella", address: "Carrer del Museu, 11, 46003 València", lat: 39.4775, lng: -0.3801,
+    desc: "Миниатюрный дом-фасад в стене, размером в полметра — настоящий мини-домик для кошек. Сделан в 1960-х как шутка-приют. Постоянно живут коты района.",
+    tip: "Совсем спрятан в районе Barrio del Carmen. Не подходите слишком близко — котов это нервирует.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden", "unique", "quirky"], unique: true },
+
+  { id: "portal-valldigna", name: "Portal de la Valldigna", emoji: "🏛", cat: "monument", district: "Ciutat Vella", address: "Carrer de la Valldigna, 46003 València", lat: 39.4774, lng: -0.3784,
+    desc: "Портал 1400 г., отделявший арабский квартал от христианского после Реконкисты. Маленький, изящный, скрытый в переулках Barrio del Carmen.",
+    tip: "Уличное искусство вокруг — Barrio del Carmen самый граффити-район Валенсии.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden", "unique"], unique: true },
+
+  { id: "almoina", name: "L'Almoina · археологические раскопки", emoji: "🪨", cat: "museum", district: "Ciutat Vella", address: "Plaça de Dècim Juni Brut, s/n, 46003 València", lat: 39.4761, lng: -0.3753,
+    desc: "Под стеклянным полом площади у собора — открытые римские, вестготские, мавританские слои. Видно фундаменты бань, форума, мечети. 2200 лет истории в одном слое.",
+    tip: "Бесплатно по воскресеньям. Очень тихо и медитативно, особенно вечером.",
+    price: "2 € · Вс — бесплатно", hours: "Вт-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["hidden", "unique"], unique: true },
+
+  { id: "cripta-vicente", name: "Cripta de la Cárcel de San Vicente", emoji: "⛪", cat: "museum", district: "Ciutat Vella", address: "Plaça de l'Arquebisbe, 3, 46003 València", lat: 39.4762, lng: -0.3759,
+    desc: "Раннехристианская крипта IV в. с мультимедиа-инсталляцией: проекциями и звуком. Совершенно неожиданное место под церковной площадью.",
+    tip: "Мало кто доходит. Тихое, прохладное, с впечатляющей audiovisual-инсталляцией. Бесплатно по выходным.",
+    price: "2 € · Сб с 16:00, Вс — бесплатно", hours: "Вт-Сб 10:00–14:00 и 17:00–20:00, Вс 10:00–14:00",
+    tags: ["hidden", "unique"], unique: true },
+
+  { id: "cervello", name: "Palacio de Cervelló", emoji: "🏛", cat: "museum", district: "Ciutat Vella", address: "Plaça de Tetuan, 3, 46003 València", lat: 39.4782, lng: -0.3733,
+    desc: "Дворец XVIII в. с сохранившимся интерьером и библиотекой. Здесь жил король Фернандо VII после возвращения из французского плена.",
+    tip: "Бесплатно. Часто игнорируют — а зря, очень атмосферно.",
+    price: "Бесплатно", hours: "Пн-Сб 09:00–14:00", tags: ["hidden"], unique: false },
+
+  { id: "san-esteban", name: "Iglesia de San Esteban", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de Sant Esteve, 1, 46003 València", lat: 39.4781, lng: -0.3724,
+    desc: "Готический храм XIII в. с барочной отделкой. Здесь крестили Святого Винсента Феррера, покровителя Валенсии.",
+    tip: "Часто пустая — можно зайти и побыть наедине с тишиной.", price: "Бесплатно", hours: "10:00–13:30, 17:30–20:30",
+    tags: [], unique: false },
+
+  { id: "atarazanas", name: "Atarazanas del Grao", emoji: "🚢", cat: "museum", district: "Poblats Marítims", address: "Plaça Joan Antoni Benlliure, s/n, 46011 València", lat: 39.4612, lng: -0.3268,
+    desc: "Готическая верфь XIV в. — 5 параллельных нефов, где строили и хранили галеры. Сейчас выставочный зал.",
+    tip: "Сама архитектура впечатляющая. Бесплатно. Совмещайте с прогулкой по порту или Cabanyal.",
+    price: "Бесплатно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–15:00", tags: ["hidden", "unique"], unique: true },
+
+  // === ПАРКИ ===
+  { id: "turia", name: "Jardín del Turia · парк-река", emoji: "🌳", cat: "park", district: "По всему городу", address: "Jardí del Túria, València", lat: 39.4768, lng: -0.3700,
+    desc: "9-километровый парк в осушённом русле реки Турия. После наводнения 1957 г. реку отвели, а в русле сделали парк — пальмы, апельсиновые рощи, поля для футбола, велодорожки, мосты XV-XX вв.",
+    tip: "Главная транспортная артерия для прогулок и велосипедов. На западе — Bioparc, на востоке — Город искусств. От Benimaclet быстро добраться к мосту Pont d'Aragó.",
+    price: "Бесплатно", hours: "Всегда", tags: ["must", "iconic"], unique: true },
+
+  { id: "viveros", name: "Jardines del Real / Viveros", emoji: "🌳", cat: "park", district: "Pla del Real", address: "Carrer de Sant Pius V, 46010 València", lat: 39.4810, lng: -0.3673,
+    desc: "Бывшие королевские сады — розарии, фонтаны, утиный пруд, вольно гуляющие коты и зелёные попугаи. Здесь же — Музей естественных наук.",
+    tip: "Утром — на пробежку или с кофе и книгой. Часто бесплатные концерты на эстраде.", price: "Бесплатно", hours: "07:30–22:00",
+    tags: ["hidden"], unique: false },
+
+  { id: "monforte", name: "Jardín de Monforte", emoji: "🌹", cat: "park", district: "Pla del Real", address: "Carrer de Montfort, 1, 46010 València", lat: 39.4806, lng: -0.3625,
+    desc: "Романтический сад XIX в. с фонтанами, статуями, лабиринтами из самшита и розами. Закрытое от глаз пространство — нужно знать вход.",
+    tip: "Идеально для разговоров и фотосессии. Очень тихо.", price: "Бесплатно", hours: "10:30–21:00",
+    tags: ["hidden", "unique"], unique: true },
+
+  { id: "parque-oeste", name: "Parque del Oeste", emoji: "🌳", cat: "park", district: "Extramurs", address: "Carrer de Sant Vicent Màrtir, 254, 46007 València", lat: 39.4626, lng: -0.3956,
+    desc: "Большой современный парк с зелёными лабиринтами, прудами, велодорожками и площадками. Где гуляют валенсийцы по выходным.",
+    tip: "Берите велик. Менее туристическое место.", price: "Бесплатно", hours: "06:30–22:30", tags: [], unique: false },
+
+  { id: "parque-central", name: "Parque Central", emoji: "🌳", cat: "park", district: "L'Eixample", address: "Carrer de Filipines, s/n, 46006 València", lat: 39.4639, lng: -0.3814,
+    desc: "Современный парк (открыт 2018) на месте бывших ж/д путей. Большие открытые пространства, велодорожки, водные элементы.",
+    tip: "По соседству — модный район Russafa с кафе и магазинами.", price: "Бесплатно", hours: "Всегда", tags: [], unique: false },
+
+  { id: "gulliver", name: "Parque Gulliver", emoji: "🛝", cat: "park", district: "Jardín del Turia", address: "Av. del Profesor López Piñero, s/n, 46013 València", lat: 39.4577, lng: -0.3608,
+    desc: "Гигантская детская площадка в форме лежащего Гулливера длиной 70 м — дети лазают по нему как лилипуты. Бесплатно. Часть Jardín del Turia.",
+    tip: "Даже без детей — фото с воздуха выходят шикарные. Рядом — Город искусств.", price: "Бесплатно", hours: "10:00–21:00",
+    tags: ["unique", "quirky"], unique: true },
+
+  { id: "cabecera", name: "Parc de Capçalera", emoji: "🌳", cat: "park", district: "Campanar", address: "Av. de Pio Baroja, 5, 46015 València", lat: 39.4798, lng: -0.4045,
+    desc: "Большой парк на западе Турии — пруды, шлюзы, мини-маяк, лодочки. Прямо рядом — Bioparc.",
+    tip: "Если идёте в Bioparc, сюда тоже стоит зайти на час.", price: "Бесплатно", hours: "Всегда", tags: ["hidden"], unique: false },
+
+  // === ГОРОД ИСКУССТВ И НАУК ===
+  { id: "ciudad-artes", name: "Ciudad de las Artes y las Ciencias", emoji: "🛸", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4546, lng: -0.3530,
+    desc: "Футуристический комплекс Сантьяго Калатравы и Феликса Канделы — белые скелеты-конструкции в голубых бассейнах. Состоит из Hemisfèric, Museo de Ciencias, Umbracle, Ágora, Oceanogràfic, Palau de les Arts.",
+    tip: "Снаружи и вокруг бесплатно — это и есть главное. Внутри билет от 16 €. Лучше всего к закату — белый бетон становится розовым.",
+    price: "Снаружи бесплатно · вход в объекты от 16 €", hours: "Всегда", tags: ["iconic", "must"], unique: false },
+
+  { id: "oceanografic", name: "Oceanogràfic", emoji: "🐠", cat: "sight", district: "Quatre Carreres", address: "Carrer d'Eduardo Primo Yúfera, 1B, 46013 València", lat: 39.4525, lng: -0.3486,
+    desc: "Самый большой океанариум Европы — 7 морских зон, тоннель акул, белухи, моржи, пингвины. Архитектура Феликса Канделы, тонкие парусные крыши.",
+    tip: "ПРИОРИТЕТ. Билет дешевле онлайн (~36 € вместо 38–42). Прийти к открытию — пингвины кормятся 11:30, дельфины-шоу 12:00, 14:30, 17:00. Минимум 4 часа, лучше 5.",
+    price: "36–42 €", hours: "10:00–18:00 (летом до 20:00)",
+    web: "https://www.oceanografic.org", tags: ["must", "iconic", "unique"], unique: false },
+
+  { id: "hemisferic", name: "L'Hemisfèric · кинотеатр-глаз", emoji: "👁", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4554, lng: -0.3539,
+    desc: "Кинотеатр в форме гигантского глаза, который «моргает» — крыша поднимается. Внутри — IMAX и планетарий на 900 м² куполе.",
+    tip: "Если будете в океанариуме — берите комбо-билет, выходит выгоднее.",
+    price: "9 €", hours: "11:00–19:30", tags: ["iconic"], unique: false },
+
+  { id: "museo-ciencias", name: "Museo de las Ciencias Príncipe Felipe", emoji: "🦴", cat: "museum", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4548, lng: -0.3528,
+    desc: "Интерактивный музей науки, форма как скелет рыбы. Внутри — модели ДНК, динозавры, эксперименты — много для детей и взрослых.",
+    tip: "Снаружи — арки-«коммуникаторы»: говорите в одну, друг слышит в другой на расстоянии 50 м (без проводов, акустический фокус). Совершенно безумно. Бесплатно.",
+    price: "8 €", hours: "10:00–19:00", tags: ["unique", "quirky"], unique: true },
+
+  { id: "umbracle", name: "L'Umbracle · сад-аркада", emoji: "🌴", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4559, lng: -0.3540,
+    desc: "Открытая галерея с белыми арками длиной 320 м, под которыми ботанический сад. Сверху — скульптурная аллея. Бесплатно.",
+    tip: "Прогуляться сюда обязательно — отсюда лучший угол на весь Город искусств.", price: "Бесплатно", hours: "Всегда",
+    tags: ["iconic"], unique: false },
+
+  { id: "agora", name: "L'Àgora", emoji: "🏛", cat: "sight", district: "Quatre Carreres", address: "Av. del Saler, 5, 46013 València", lat: 39.4536, lng: -0.3500,
+    desc: "Голубая «капля» — многофункциональный зал. Внешне самая загадочная часть комплекса. Чаще закрыта, проводят теннисные турниры и концерты.",
+    tip: "Хороший фон для фото снаружи.", price: "Только во время мероприятий", hours: "По расписанию", tags: [], unique: false },
+
+  // === МУЗЕИ ===
+  { id: "bellas-artes", name: "Museo de Bellas Artes", emoji: "🖼", cat: "museum", district: "Pla del Real", address: "Carrer de Sant Pius V, 9, 46010 València", lat: 39.4793, lng: -0.3691,
+    desc: "Один из лучших музеев Испании после Прадо. Веласкес, Гойя, Эль Греко, Сурбаран, Соролья (валенсийский). И всё это БЕСПЛАТНО.",
+    tip: "Не пропустите автопортрет Веласкеса и работы Соролья на 2 этаже. 1.5–2 часа достаточно.",
+    price: "Бесплатно", hours: "Вт-Вс 10:00–20:00",
+    web: "https://www.museobellasartesvalencia.gva.es", tags: ["must", "hidden"], unique: true },
+
+  { id: "fallero", name: "Museo Fallero", emoji: "🔥", cat: "museum", district: "Quatre Carreres", address: "Plaça de Montolivet, 4, 46006 València", lat: 39.4644, lng: -0.3654,
+    desc: "Каждый год во время Лас-Фальяс сжигают сотни «фалл» — гигантских кукольных композиций. Одну фигурку (ninot) спасают голосованием. Здесь все спасённые с 1934 г.",
+    tip: "Очень яркие, остро-сатирические скульптуры. Идеально если не попали на сам праздник в марте.",
+    price: "2 € · Сб с 16:00, Вс — бесплатно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00",
+    tags: ["unique", "quirky"], unique: true },
+
+  { id: "etno", name: "L'Etno · музей этнологии", emoji: "🏺", cat: "museum", district: "Ciutat Vella", address: "Carrer de la Corona, 36, 46003 València", lat: 39.4783, lng: -0.3812,
+    desc: "Реальная жизнь Валенсии: рисовые поля, рыбные деревни, ремёсла, праздники. С анимациями, голосами, реквизитом. Совершенно непровинциально сделанный музей.",
+    tip: "Любите дух места — обязательно сюда. Бесплатно.", price: "Бесплатно", hours: "Вт-Вс 10:00–20:00",
+    tags: ["must", "hidden", "unique"], unique: true },
+
+  { id: "arroz", name: "Museo del Arroz", emoji: "🌾", cat: "museum", district: "Poblats Marítims", address: "Carrer del Rosari, 3, 46011 València", lat: 39.4672, lng: -0.3286,
+    desc: "Старая рисовая мельница 1900-х со всеми механизмами в рабочем состоянии. В районе Cabanyal. Объясняет, почему именно тут паэлья.",
+    tip: "Маленький, на час максимум. Совмещайте с прогулкой по Cabanyal.", price: "2 € · Сб с 16:00 и Вс — бесплатно",
+    hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00", tags: ["hidden", "unique"], unique: true },
+
+  { id: "ciencias-naturales", name: "Museo de Ciencias Naturales", emoji: "🦖", cat: "museum", district: "Pla del Real", address: "Carrer del General Elio, 14, 46010 València", lat: 39.4810, lng: -0.3635,
+    desc: "В парке Viveros. Скелеты динозавров, доисторические окаменелости, отдельный зал — челюсть Megalodon. Бесплатно.",
+    tip: "Совмещать с прогулкой по Viveros или Jardín de Monforte.", price: "Бесплатно", hours: "Вт-Вс 10:00–19:00",
+    tags: ["hidden"], unique: false },
+
+  // === ПЛЯЖИ И ПОРТ ===
+  { id: "malvarrosa", name: "Playa de la Malvarrosa", emoji: "🏖", cat: "beach", district: "Poblats Marítims", address: "Av. del Mediterrani, 46011 València", lat: 39.4753, lng: -0.3258,
+    desc: "Главный пляж Валенсии — широкий, песчаный, длинная набережная с пальмами и ресторанами. От Benimaclet — на трамвае или такси 15 мин.",
+    tip: "На набережной — Casa Carmela (паэлья на дровах), La Más Bonita (завтраки). Лучший пляж для лежать с книгой.",
+    price: "Бесплатно", hours: "Всегда", tags: ["iconic"], unique: false },
+
+  { id: "arenas", name: "Playa de las Arenas", emoji: "🏖", cat: "beach", district: "Poblats Marítims", address: "Passeig de Neptú, 46011 València", lat: 39.4673, lng: -0.3252,
+    desc: "Соседствует с Малваррозой к югу, ближе к порту. Чуть менее людно. Перешагнул через пирс — и ты на Malvarrosa.",
+    tip: "Casa Carmela именно здесь, на границе двух пляжей. Заранее столик!",
+    price: "Бесплатно", hours: "Всегда", tags: [], unique: false },
+
+  { id: "patacona", name: "Playa de la Patacona", emoji: "🏖", cat: "beach", district: "Alboraia", address: "Passeig Marítim de la Patacona, 46120 Alboraia", lat: 39.4843, lng: -0.3258,
+    desc: "Спокойный пляж сразу к северу от Malvarrosa, технически в Alboraya. Длинная пешеходная набережная.",
+    tip: "Сюда лучше за завтраком в La Más Bonita или прогуляться по набережной. Менее туристический.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden"], unique: false },
+
+  { id: "cabanyal", name: "El Cabanyal · морской район", emoji: "🏘", cat: "district", district: "Poblats Marítims", address: "El Cabanyal, 46011 València", lat: 39.4685, lng: -0.3320,
+    desc: "Бывшая рыбацкая деревня — узкие улицы, дома с керамической плиткой (модернизм), старые таверны. Сейчас оживает: галереи, барбершопы, гастро-проекты вперемешку с традиционными жителями.",
+    tip: "Просто прогуляться по улицам Reina, Doctor Lluch, Progrés. Casa Montaña — самый старый бар Валенсии (1836). Лучше всего днём в субботу.",
+    price: "Бесплатно", hours: "Всегда", tags: ["must", "unique", "iconic"], unique: true },
+
+  { id: "marina", name: "Marina (Veles e Vents)", emoji: "⛵", cat: "sight", district: "Poblats Marítims", address: "Marina de València, Edifici Veles e Vents", lat: 39.4596, lng: -0.3293,
+    desc: "Бывшая база America's Cup. Современный белый павильон-парус Дэвида Чипперфильда, ресторан с видом, открытое пространство.",
+    tip: "Подойти к воде, посмотреть на яхты, выпить кофе. Веечерами часто концерты.", price: "Бесплатно", hours: "Всегда",
+    tags: [], unique: false },
+
+  { id: "port-saplaya", name: "Port Saplaya · «маленькая Венеция»", emoji: "🏘", cat: "district", district: "Alboraia (пригород)", address: "Port Saplaya, 46120 Alboraia", lat: 39.5008, lng: -0.3175,
+    desc: "Пригород с разноцветными домиками вдоль водных каналов — действительно похоже на Бурано/Венецию. Яхты пришвартованы прямо у домов.",
+    tip: "От Malvarrosa ~20 мин такси или на велосипеде по набережной. Отлично на закате.",
+    price: "Бесплатно", hours: "Всегда", tags: ["unique", "hidden"], unique: true },
+
+  // === АКТИВНОСТИ И ВИДЫ ===
+  { id: "roof-ateneo", name: "Rooftop Ateneo Sky Bar", emoji: "🌇", cat: "activity", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 18, 46002 València", lat: 39.4690, lng: -0.3763,
+    desc: "Терраса на крыше Ateneo Mercantil — лучший панорамный вид на Plaza del Ayuntamiento и крыши старого города. Не пьёте — берите свежевыжатый сок или мокатейль.",
+    tip: "Лучше к закату. Иногда нужно бронировать.",
+    price: "Напитки 5–10 €", hours: "12:00–01:00", tags: ["viewpoint"], unique: false },
+
+  { id: "roof-barcelo", name: "Rooftop Barceló (BHigh)", emoji: "🌇", cat: "activity", district: "Russafa", address: "Carrer del Pintor Velázquez, 7, 46006 València", lat: 39.4684, lng: -0.3738,
+    desc: "Терраса отеля Barceló с бассейном и закатным видом. Атмосфера более молодая.",
+    tip: "Закат и кофе — отличная комбинация. Без алкоголя есть смузи и safi-коктейли.",
+    price: "Напитки 6–12 €", hours: "12:00–00:00", tags: ["viewpoint"], unique: false },
+
+  { id: "bike-turia", name: "Велопрогулка по парку Турия", emoji: "🚴", cat: "activity", district: "По всему городу", address: "Jardí del Túria", lat: 39.4768, lng: -0.3700,
+    desc: "9 км в одну сторону без машин и светофоров. От Bioparc до Города искусств — самый эффективный способ увидеть весь город. Прокат: Valenbisi (станции в парке) или частный (~12 €/день).",
+    tip: "Лучшее время — утро. С детьми безопасно. Маршрут: Bioparc → Cabecera → центр → Палау де Музыки → Гулливер → Город искусств → Океанариум.",
+    price: "Прокат 12–20 €/день", hours: "06:30–22:30", tags: ["must", "activity"], unique: false },
+
+  { id: "flamenco", name: "Фламенко-вечер", emoji: "💃", cat: "activity", district: "Ciutat Vella", address: "Centro Cultural Flamenco / Café del Duende", lat: 39.4750, lng: -0.3830,
+    desc: "Фламенко родилось не в Валенсии, но есть аутентичные места. Café del Duende (Carrer del Túria, 62) — лучше всех. Камерный зал, профессионалы из Андалусии, без туристического лоска.",
+    tip: "Шоу обычно 22:00, бронировать заранее. ~25 €. Не путать с турпрограммами в ресторанах.",
+    price: "20–30 €", hours: "Шоу ~22:00, Чт-Сб", tags: ["unique"], unique: false },
+
+  { id: "albufera", name: "Albufera · озеро и рисовые поля", emoji: "🌅", cat: "daytrip", district: "Окраина города", address: "Parque Natural de la Albufera, El Palmar", lat: 39.3322, lng: -0.3357,
+    desc: "Пресноводное озеро в 15 км от Валенсии — родина паэльи, дом для тысяч птиц. Деревня El Palmar — деревянные лодки albuferenс, рисовые поля, паэлья на дровах.",
+    tip: "Закат с лодки на озере — главный must Валенсии (15 €/час, лодочники у пристани). После — обед паэллой в Nou Racó. От города: автобус 24/25 от Plaza del Ayuntamiento, ~40 мин.",
+    price: "Лодка 5–15 € · паэлья 18–30 €", hours: "Лодки 10:00–20:00", tags: ["must", "unique", "iconic"], unique: true },
+
+  { id: "russafa-walk", name: "Прогулка по Russafa", emoji: "🛍", cat: "district", district: "Russafa", address: "Barri de Russafa, 46006 València", lat: 39.4625, lng: -0.3735,
+    desc: "Самый модный район Валенсии — бывший рабочий, теперь хипстерский: винтаж, дизайн-магазины, кофейни, книжные. Сохранил душу — много старых жителей и арабских лавок.",
+    tip: "Carrer de Cadis и Carrer del Cuba — самые живые улицы. По выходным — букинистический рынок на Plaça del Baró de Cortes.",
+    price: "Бесплатно", hours: "Всегда", tags: ["must", "unique"], unique: true },
+
+  { id: "whisper-arches", name: "Арки-шептуны у Museo de las Ciencias", emoji: "🗣", cat: "activity", district: "Quatre Carreres", address: "Перед Museo de las Ciencias", lat: 39.4548, lng: -0.3528,
+    desc: "Две полусферы-арки на расстоянии 50 м. Один шепчет в одну, другой слышит в другой — без проводов, чистая акустика. Бесплатно, всегда работает.",
+    tip: "Спрятано прямо перед входом в Museo de las Ciencias. Найдите две одинаковые конструкции на расстоянии — попробуйте. Дети офигеют.",
+    price: "Бесплатно", hours: "Всегда", tags: ["hidden", "unique", "quirky"], unique: true },
+
+  // === РЕСТОРАНЫ ===
+  { id: "casa-carmela", name: "Casa Carmela · паэлья на дровах", emoji: "🥘", cat: "food", district: "Malvarrosa", address: "Carrer d'Isabel de Villena, 155, 46011 València", lat: 39.4751, lng: -0.3270,
+    desc: "С 1922 г. — самая знаменитая паэлья Валенсии, готовится на апельсиновых дровах. Дорого, но один раз надо.",
+    tip: "БРОНИРОВАТЬ за 1-2 недели. Берите Paella Valenciana (классика) или Arroz a Banda. Только обеды.",
+    price: "Паэлья 28–35 €/чел", hours: "Вт-Вс 13:30–16:30 (только обед)",
+    web: "https://casacarmela.com", tags: ["must", "iconic"], unique: false },
+
+  { id: "la-sastreria", name: "La Sastrería", emoji: "🍽", cat: "food", district: "Cabanyal", address: "Carrer del Mestre Aguilar, 5, 46011 València", lat: 39.4686, lng: -0.3308,
+    desc: "Современный валенсийский ресторан в бывшей портняжной мастерской. Креативные тапас и аутентичные блюда.",
+    tip: "Бронировать. Меню из 5–7 блюд — ~35-45 €.",
+    price: "30–50 €/чел", hours: "Вт-Сб 13:00–16:00, 20:00–23:00", tags: ["unique"], unique: false },
+
+  { id: "puerta-del-mar", name: "Restaurante Puerta del Mar", emoji: "🍽", cat: "food", district: "Eixample", address: "Plaça de la Porta de la Mar, 4, 46004 València", lat: 39.4707, lng: -0.3691,
+    desc: "Классический ресторан рядом с Puerta de la Mar. Морепродукты, рисы, традиционная кухня.",
+    tip: "Хороший вариант обеда после прогулки по центру.", price: "30–45 €/чел",
+    hours: "13:00–16:00, 20:00–23:30", tags: [], unique: false },
+
+  { id: "colonia-carmela", name: "La Colonia de Carmela", emoji: "🥘", cat: "food", district: "Albufera (El Saler)", address: "Av. dels Pinars, 39, 46012 El Saler", lat: 39.3879, lng: -0.3300,
+    desc: "Ответвление от Casa Carmela на побережье El Saler. Паэлья на дровах, виды на сосны.",
+    tip: "Если едете в Albufera — идеальный обед по пути.", price: "25–35 €/чел", hours: "13:00–17:00", tags: ["unique"], unique: false },
+
+  { id: "nou-raco", name: "Nou Racó", emoji: "🥘", cat: "food", district: "El Palmar", address: "Carretera CV-1045, km 3, 46012 El Palmar", lat: 39.3290, lng: -0.3155,
+    desc: "В El Palmar, прямо у озера Albufera. Большой ресторан, отличная паэлья, тапас. Можно прийти после лодочной прогулки.",
+    tip: "Заказывать всегда All i Pebre (рагу из угря с чесноком и паприкой) — местный специалитет.",
+    price: "25–35 €/чел", hours: "13:00–17:00", tags: ["unique"], unique: false },
+
+  { id: "rest-secret", name: "Restaurant Secret", emoji: "🍽", cat: "food", district: "Ciutat Vella", address: "Carrer de la Llotgeta, 2, 46001 València", lat: 39.4733, lng: -0.3781,
+    desc: "Современный ресторан в самом центре старого города — атмосферный, дегустационные сеты.",
+    tip: "Дегустационное меню — лучшее. Бронировать.", price: "40–60 €/чел",
+    hours: "13:00–15:30, 20:00–23:00", tags: ["unique"], unique: false },
+
+  { id: "el-trompo", name: "El Trompo", emoji: "🇲🇽", cat: "food", district: "Russafa", address: "Carrer de Cadis, 28, 46006 València", lat: 39.4622, lng: -0.3722,
+    desc: "Аутентичные мексиканские такос аль пастор. Маленький, шумный, душевный.",
+    tip: "Не путать с туристическими мексиканскими местами. Маленькая локалка.",
+    price: "15–25 €/чел", hours: "13:00–16:00, 20:00–00:00", tags: ["hidden"], unique: false },
+
+  { id: "garnacha", name: "Garnacha Tinta Restaurante", emoji: "🍷", cat: "food", district: "Ciutat Vella", address: "Carrer Mossèn Femades, 9, 46002 València", lat: 39.4708, lng: -0.3756,
+    desc: "Винный ресторан недалеко от Plaza del Ayuntamiento. Тапас высокого уровня.",
+    tip: "Спрашивайте сегодняшние специалитеты у официанта.", price: "30–40 €/чел",
+    hours: "13:00–16:00, 20:00–23:30", tags: [], unique: false },
+
+  // === КОФЕ ===
+  { id: "borja", name: "Borja Café", emoji: "☕", cat: "coffee", district: "Cabanyal", address: "Carrer de la Reina, 99, 46011 València", lat: 39.4665, lng: -0.3325,
+    desc: "Один из лучших спешелти-кофе в Cabanyal. Своя обжарка, плоский белый, фильтр.",
+    tip: "Хороший повод дойти до Cabanyal.", price: "Кофе 2–4 €", hours: "Пн-Пт 08:30–17:00, Сб-Вс 09:00–17:00",
+    tags: ["hidden"], unique: false },
+
+  { id: "boscon", name: "Boscon Coffee", emoji: "☕", cat: "coffee", district: "Russafa", address: "Carrer del Doctor Sumsi, 28, 46005 València", lat: 39.4663, lng: -0.3736,
+    desc: "Один из основоположников валенсийского спешелти. Минималистичный интерьер, отличный фильтр.",
+    tip: "Лучше будни — по выходным забит.", price: "Кофе 2.5–4.5 €", hours: "Пн-Пт 08:00–17:00, Сб-Вс 09:00–18:00",
+    tags: [], unique: false },
+
+  { id: "blackbird", name: "Blackbird Coffee", emoji: "☕", cat: "coffee", district: "Russafa", address: "Carrer de Cadis, 50, 46006 València", lat: 39.4623, lng: -0.3731,
+    desc: "Знаковая кофейня Russafa. Большие подоконники, завтраки, авокадо-тосты, бранчи.",
+    tip: "По выходным очередь — лучше будни. Меню «Laptops not allowed when café is busy».",
+    price: "Кофе 3–4 €, бранч 12–18 €", hours: "09:00–18:00", tags: [], unique: false },
+
+  { id: "copper", name: "Copper Coffee", emoji: "☕", cat: "coffee", district: "Russafa", address: "Carrer del Sueca, 4, 46006 València", lat: 39.4644, lng: -0.3741,
+    desc: "Современная кофейня с фильтр-баром и хорошей выпечкой.",
+    tip: "Спросите v60 или Aeropress — обычно бариста хороши.", price: "Кофе 2.5–4 €",
+    hours: "08:30–17:00", tags: [], unique: false },
+
+  { id: "bluebell", name: "Bluebell Coffee Roasters", emoji: "☕", cat: "coffee", district: "Eixample", address: "Carrer del Mestre José Serrano, 9, 46005 València", lat: 39.4675, lng: -0.3702,
+    desc: "Своя обжарка, продают зерно в магазине-кафе. Минималистичное место.",
+    tip: "Покупайте зерно домой. Кофе — высший уровень.", price: "Кофе 2.5–4 €",
+    hours: "Пн-Пт 08:00–17:00, Сб 09:00–17:00", tags: [], unique: false },
+
+  { id: "singular", name: "Singular Coffee", emoji: "☕", cat: "coffee", district: "Ciutat Vella", address: "Plaça de Sant Jaume, 1, 46003 València", lat: 39.4757, lng: -0.3792,
+    desc: "Спокойная кофейня в Barrio del Carmen с продажей зерна и аксессуаров.",
+    tip: "Хороший пит-стоп между San Nicolás и Torres de Quart.", price: "Кофе 2.5–4 €",
+    hours: "09:00–17:30", tags: ["hidden"], unique: false },
+
+  { id: "au-pain", name: "AU PAIN RUSTIQUE", emoji: "🥖", cat: "coffee", district: "Eixample", address: "Carrer de Sorní, 31, 46004 València", lat: 39.4707, lng: -0.3672,
+    desc: "Французская пекарня — настоящие багеты, круассаны, пирожные. Кофе хороший.",
+    tip: "Идеально позавтракать круассаном по дороге к Mercado de Colón.", price: "Завтрак 8–15 €",
+    hours: "08:00–20:00", tags: [], unique: false },
+
+  // === ЗАВТРАКИ И БРАНЧИ ===
+  { id: "soho-brunch", name: "Soho Brunch", emoji: "🥑", cat: "food", district: "Russafa", address: "Carrer del Pintor Salvador Abril, 17, 46005 València", lat: 39.4642, lng: -0.3722,
+    desc: "Эстетичные бранчи с авокадо-розами и яйцами Бенедикт. Очень инстаграмно.",
+    tip: "По выходным очередь — приходить до 11:00.", price: "12–18 € бранч",
+    hours: "09:00–16:00", tags: [], unique: false },
+
+  { id: "la-mas-bonita", name: "La Más Bonita", emoji: "☕", cat: "food", district: "Patacona", address: "Passeig Marítim de la Patacona, 11, 46120 Alboraia", lat: 39.4861, lng: -0.3250,
+    desc: "Кафе прямо на набережной Patacona. Большие завтраки, выпечка, кофе с видом на море.",
+    tip: "Лучшее воскресное утро Валенсии — кофе, тост, море. Можно прийти после Port Saplaya.",
+    price: "Завтрак 10–18 €", hours: "09:00–22:00", tags: ["iconic"], unique: false },
+
+  { id: "alice-coffee", name: "Alice Coffee", emoji: "☕", cat: "food", district: "Russafa", address: "Carrer de Pere III el Gran, 16, 46005 València", lat: 39.4628, lng: -0.3725,
+    desc: "Симпатичный, очень женский интерьер. Завтраки с тостадами и фруктами. Чай тоже хороший.",
+    tip: "Если нет вай-фая нужного — оно тихое, можно работать.", price: "Завтрак 10–16 €",
+    hours: "09:00–16:00", tags: [], unique: false },
+
+  { id: "chantilly", name: "Chantilly", emoji: "🥐", cat: "food", district: "Ciutat Vella", address: "Carrer de la Pau, 27, 46003 València", lat: 39.4717, lng: -0.3722,
+    desc: "Классический валенсийский завтрак — тостада с томатным соусом, кофе, апельсиновый сок. Простое, дешёвое, местное.",
+    tip: "Контраст с эстетичными бранчами — это аутентичный Валенсия.", price: "Завтрак 5–10 €",
+    hours: "07:30–14:00", tags: [], unique: false },
+
+  { id: "butter", name: "Butter Eatery House", emoji: "🧈", cat: "food", district: "Eixample", address: "Carrer del Mestre Racional, 1, 46005 València", lat: 39.4661, lng: -0.3676,
+    desc: "Современное брунчевое место с уклоном на здоровое. Особенно хороши тосты.",
+    tip: "Воскресный бранч — лучше бронировать.", price: "12–18 €",
+    hours: "09:00–17:00", tags: [], unique: false },
+
+  { id: "ddll", name: "Ddll", emoji: "🥞", cat: "food", district: "Eixample", address: "Carrer del Mestre Gozalbo, 4, 46005 València", lat: 39.4664, lng: -0.3695,
+    desc: "Минималистичное место для завтраков и десертов. Хорошие чизкейки, чай.",
+    tip: "Также в разделе сладкого упоминается DDL — это оно. Тихо, эстетично.",
+    price: "10–18 €", hours: "10:00–19:00", tags: [], unique: false },
+
+  { id: "doux-amer", name: "Doux-Amer Cabanyal", emoji: "🥐", cat: "food", district: "Cabanyal", address: "Carrer del Doctor Lluch, 90, 46011 València", lat: 39.4678, lng: -0.3308,
+    desc: "Французская выпечка в Cabanyal — настоящие багеты, пирожные. Маленькое.",
+    tip: "Совмещать с пляжем или прогулкой по Cabanyal.", price: "Завтрак 8–14 €",
+    hours: "08:00–14:00, Пн закр.", tags: ["hidden"], unique: false },
+
+  { id: "coco-social", name: "Coco Social House", emoji: "🥥", cat: "food", district: "Benimaclet", address: "Carrer de Maximilià Thous, 65, 46019 València", lat: 39.4824, lng: -0.3568,
+    desc: "Прямо в Benimaclet — рядом с отелем! Веганские/вегетарианские опции, smoothie-bowls, кофе.",
+    tip: "Лучший вариант на завтрак рядом с гостиницей. Утро среды 3 июня — отлично перед отлётом.",
+    price: "Завтрак 10–16 €", hours: "09:00–17:00", tags: ["hidden"], unique: false },
+
+  { id: "dulce-sofia", name: "Dulce Sofía Brunch de Jardín", emoji: "🌿", cat: "food", district: "Pinedo", address: "Carrer del Cap del Riu, 22, 46012 València", lat: 39.4322, lng: -0.3370,
+    desc: "Бранч в саду в районе Pinedo (между городом и Albufera). Очень атмосферно — стол под пальмами.",
+    tip: "Дальше от центра — на машине/такси. Идея на тихое утро.",
+    price: "15–25 €", hours: "10:00–17:00", tags: ["unique", "hidden"], unique: true },
+
+  // === СЛАДКОЕ И ОРЧАТА ===
+  { id: "santa-catalina", name: "Horchatería Santa Catalina", emoji: "🥛", cat: "dessert", district: "Ciutat Vella", address: "Plaça de Santa Caterina, 6, 46001 València", lat: 39.4744, lng: -0.3750,
+    desc: "С 1814 г. — старейшая орчатерия в центре. Внутри — изразцы с историей Валенсии.",
+    tip: "Орчата + фартоны (длинные сахарные булочки) — макать. Это и есть классический полдник.",
+    price: "Орчата 3–4 €", hours: "08:30–21:30", tags: ["iconic", "must"], unique: false },
+
+  { id: "daniel", name: "Horchatería Daniel", emoji: "🥛", cat: "dessert", district: "Eixample", address: "Mercado de Colón, Carrer de Jorge Juan, 19, 46004 València", lat: 39.4694, lng: -0.3697,
+    desc: "С 1949 г. — внутри Mercado de Colón. Их орчата считается одной из лучших — более густая, естественно-сладкая.",
+    tip: "Идеально совмещать с осмотром Mercado de Colón. После прогулки — пауза.",
+    price: "Орчата 3–4 €", hours: "08:00–22:00", tags: ["iconic", "must"], unique: false },
+
+  { id: "sabores", name: "Sabores de España", emoji: "🍬", cat: "dessert", district: "Ciutat Vella", address: "Carrer de la Pau, 40, 46003 València", lat: 39.4718, lng: -0.3713,
+    desc: "Магазин-кафе с лучшими испанскими сладостями: туррон, конфеты, шоколад, поляроны.",
+    tip: "Покупать домой как сувенир.", price: "Сладости от 5 €", hours: "10:00–20:00", tags: [], unique: false },
+
+  { id: "rocco", name: "Rocco Gelato", emoji: "🍦", cat: "dessert", district: "Ciutat Vella", address: "Carrer dels Cavallers, 25, 46001 València", lat: 39.4758, lng: -0.3792,
+    desc: "Молодой джелатерийный проект с авторскими сочетаниями: оливковое масло, базилик, лаванда.",
+    tip: "Обязательно их фирменная подача — мороженое в больших стеклянных банках по периметру.",
+    price: "Мороженое 3–5 €", hours: "13:00–23:00", tags: ["unique"], unique: true },
+
+  { id: "bassk", name: "BASSK Cheesecakes", emoji: "🍰", cat: "dessert", district: "Ciutat Vella", address: "Carrer de Sant Vicent Màrtir, 33, 46002 València", lat: 39.4719, lng: -0.3770,
+    desc: "Только баскский чизкейк — карамелизованный, как в Сан-Себастьяне. Разные топпинги.",
+    tip: "Кусок не дешёвый, но это правда лучший. Брать с собой не разваливается.",
+    price: "Чизкейк 4–6 €", hours: "12:00–21:00", tags: ["unique"], unique: false },
+
+  { id: "panou", name: "Panou", emoji: "🍞", cat: "dessert", district: "Ciutat Vella", address: "Carrer de la Llotgeta, 5, 46001 València", lat: 39.4732, lng: -0.3786,
+    desc: "Маленькая пекарня с торрихой и французскими тостами в стиле дегустационных. Подают тёплыми с мороженым.",
+    tip: "Торриха — пасхальный десерт, но у них всегда. Попробуйте.",
+    price: "Десерт 4–7 €", hours: "10:00–19:00", tags: ["unique"], unique: false },
+
+  // === ОКРЕСТНОСТИ ===
+  { id: "bioparc", name: "Bioparc · зоопарк без клеток", emoji: "🦁", cat: "daytrip", district: "Campanar", address: "Av. de Pio Baroja, 3, 46015 València", lat: 39.4778, lng: -0.4068,
+    desc: "Иммерсивный зоопарк — звери в открытых вольерах, разделённых рвами, скалами и водой. Африка: львы, жирафы, гориллы, бегемоты, лемуры — на расстоянии 3 метров от вас.",
+    tip: "Один из лучших зоопарков мира. 4-5 часов. Лучше будни и утром. Билет онлайн (~28 €).",
+    price: "28 €", hours: "10:00–18:00 (летом дольше)", web: "https://www.bioparcvalencia.es",
+    tags: ["must", "unique"], unique: true },
+
+  { id: "sagunto", name: "Sagunto · крепость", emoji: "🏰", cat: "daytrip", district: "30 км на север", address: "Castell de Sagunt, 46500 Sagunto", lat: 39.6779, lng: -0.2773,
+    desc: "Городок в 30 км от Валенсии. На холме — гигантская крепость со слоями: иберская, римская, мавританская, средневековая. Внизу — римский театр.",
+    tip: "На полдня. Поездом Cercanías C5 от вокзала Estación del Norte (~30 мин). Бесплатно.",
+    price: "Бесплатно · поезд 4 €/туда-обратно", hours: "Вт-Сб 10:00–18:00, Вс до 14:00",
+    tags: ["unique", "daytrip"], unique: false },
+
+  { id: "peniscola-parrots", name: "Jardín del Papagayo · парк с капибарами", emoji: "🦜", cat: "daytrip", district: "Peñíscola, ~130 км", address: "Av. del Maestrat, 1, 12598 Peñíscola, Castelló", lat: 40.3603, lng: 0.4007,
+    desc: "Интерактивный сад-зоопарк между Peñíscola и Benicarló. 50+ видов попугаев + капибары (можно подойти и погладить — реально дружелюбные), чёрные лемуры, оцелоты, канарские кенгуру, гигантские альдабрские черепахи, фламинго. Птиц можно кормить с руки, делать селфи.",
+    tip: "★ Маст-си если любите животных. ~130 км на север от Валенсии (1.5 часа на машине, или поезд Cercanías до Benicarló + 10 мин такси). Часы короткие — только 11:00-15:00. VIP+ опция (+5 €) — кормление лемуров. Чтобы реально пообщаться с капибарами — приходить к открытию, они активнее. Можно совместить с самой Peñíscola (крепость на скале, старый город).",
+    price: "22 € взрослый · 17 € льготный · +5 € VIP с лемурами", hours: "Ежедневно 11:00–15:00 (закр. 25.12, 01.01)",
+    web: "https://jardindelpapagayo.com/",
+    tel: "+34 722 42 50 30",
+    tags: ["daytrip", "unique", "must"], unique: true },
+];
+
+// ============================================================
+//  APP STATE
+// ============================================================
+const STORE_KEY = "valencia_v1_state";
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+  } catch (e) { console.warn(e); }
+  return defaultState();
+}
+function defaultState() {
+  return {
+    places: {},
+    notes: {},
+    itinerary: defaultItinerary(),
+    diary: {}, // dayId -> text
+    checklist: {}, // checklist item id -> bool
+    selectedDay: "d1",
+    activeTab: "today",
+    catFilter: "all",
+    statusFilter: "all",
+    sort: "dist",
+    mapCatFilter: "all",
+    guideSection: null, // currently open accordion section in Guide tab
+    lastGpsLat: null,
+    lastGpsLng: null,
+    lastGpsTime: null,
+    weather: null, // raw API response
+    weatherFetchedAt: null,
+    weatherSelectedDate: null, // YYYY-MM-DD in modal
+  };
+}
+function defaultItinerary() {
+  return {
+    d1: [
+      { time: "10:00", title: "Прилёт VLC", note: "Терминал, забрать багаж", placeId: null },
+      { time: "10:30", title: "Такси в Benimaclet", note: "~25 €, ~25 мин (или метро L3/L5 ~3.20 € ~35 мин)", placeId: null },
+      { time: "11:15", title: "Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12", placeId: null },
+      { time: "11:45", title: "К другу в гости", note: "Адрес уточнить (район Primado Reig)", placeId: null },
+      { time: "14:00", title: "Отель, отдых", note: "", placeId: null },
+      { time: "16:00", title: "Прогулка с другом", note: "Друг покажет центр Валенсии", placeId: null },
+      { time: "20:00", title: "Ужин — Mercado Central прикрыт, выбрать на месте", note: "Друг знает места", placeId: null },
+    ],
+    d2: [
+      { time: "—", title: "🦜 ОПЦИЯ B: вместо центра — день в Peñíscola", note: "Если хотите попугаев+капибар: выезд 09:00 на машине (1.5ч) или поезд Cercanías C-1 до Benicarló. Парк работает 11:00–15:00. После — крепость Peñíscola и старый город. Обратно к вечеру. Тогда центр Валенсии переносим (см. ниже).", placeId: "peniscola-parrots" },
+      { time: "09:30", title: "Завтрак — Singular Coffee или Chantilly", note: "Singular = спешелти, Chantilly = классический локальный", placeId: "singular" },
+      { time: "11:00", title: "La Lonja de la Seda", note: "Воскресенье — БЕСПЛАТНО! ЮНЕСКО.", placeId: "lonja" },
+      { time: "12:00", title: "Iglesia de San Nicolás", note: "«Сикстинская капелла Валенсии», 8 €", placeId: "san-nicolas" },
+      { time: "13:00", title: "Plaza de la Virgen + базилика", note: "Сесть у фонтана Турия", placeId: "plaza-virgen" },
+      { time: "13:30", title: "Catedral + Чаша Грааля", note: "9 € или с башней 11 €", placeId: "catedral" },
+      { time: "15:00", title: "Обед — Casa Carmela", note: "ОБЯЗАТЕЛЬНО заранее бронь! Паэлья на дровах.", placeId: "casa-carmela" },
+      { time: "17:30", title: "Прогулка через старый город", note: "Plaza Redonda → Plaza Lope de Vega → Mercado Colón", placeId: "plaza-redonda" },
+      { time: "19:00", title: "Орчата у Daniel в Mercado de Colón", note: "С фартонами!", placeId: "daniel" },
+      { time: "20:30", title: "Закат с Torres de Serranos", note: "Воскресенье — бесплатно", placeId: "torres-serranos" },
+    ],
+    d3: [
+      { time: "09:30", title: "Завтрак — Doux-Amer Cabanyal или La Más Bonita", note: "В сторону пляжа", placeId: "la-mas-bonita" },
+      { time: "11:00", title: "Пляж Patacona / Malvarrosa", note: "Встреча с подругой на пляже", placeId: "malvarrosa" },
+      { time: "14:00", title: "Обед — La Sastrería (Cabanyal)", note: "Бронировать. Понедельник работает.", placeId: "la-sastreria" },
+      { time: "16:00", title: "Прогулка по Cabanyal с подругой", note: "Модернистская плитка, старые таверны", placeId: "cabanyal" },
+      { time: "17:30", title: "Museo del Arroz", note: "Музей риса (2 € вт-сб, по вс бесплатно). Пн — закрыто, проверь.", placeId: "arroz" },
+      { time: "18:30", title: "Marina + Veles e Vents", note: "Кофе с видом на яхты", placeId: "marina" },
+      { time: "20:30", title: "Ужин у подруги", note: "Адрес — взять у подруги. Цветы/вино с собой.", placeId: null },
+    ],
+    d4: [
+      { time: "09:00", title: "Завтрак — Coco Social House", note: "Рядом с отелем в Benimaclet", placeId: "coco-social" },
+      { time: "10:30", title: "Океанариум", note: "ПРИОРИТЕТ. Билет онлайн ~36 €. Минимум 4 часа.", placeId: "oceanografic" },
+      { time: "15:00", title: "Обед на территории или рядом", note: "Или такси до центра", placeId: null },
+      { time: "16:30", title: "Город искусств — снаружи", note: "Hemisfèric, Umbracle. Найти арки-шептуны!", placeId: "whisper-arches" },
+      { time: "18:00", title: "L'Umbracle прогулка", note: "Бесплатная аркада с садом", placeId: "umbracle" },
+      { time: "19:30", title: "Кофе с товарищем", note: "Boscon Coffee или место по его выбору", placeId: "boscon" },
+      { time: "21:00", title: "Ужин — El Trompo (такос)", note: "Аутентичные мексиканские такос в Russafa", placeId: "el-trompo" },
+    ],
+    d5: [
+      { time: "08:00", title: "Ранний завтрак — Coco Social House", note: "Рядом с отелем. Сегодня выезд утром.", placeId: "coco-social" },
+      { time: "09:00", title: "Чек-аут из отеля", note: "Багаж можно оставить в lobby до 15:00.", placeId: null },
+      { time: "—", title: "Выбрать одну из 3 опций ниже:", note: "Решить с вечера вторника, исходя из настроения.", placeId: null },
+      { time: "09:30", title: "🦜 ОПЦИЯ A: Jardín del Papagayo (попугаи + капибары)", note: "★ Самое уникальное. РИСКОВАННО: выезд 09:00 (1.5ч в одну сторону), парк 11:00–15:00, обратно к 14:30. Жёсткий тайминг к вылету 17:00 — заказывайте такси из Peñíscola сразу в аэропорт VLC (минуя отель — багаж заранее в lobby).", placeId: "peniscola-parrots" },
+      { time: "10:00", title: "🦁 ОПЦИЯ B: Bioparc (зоопарк без клеток)", note: "Спокойнее. 3 часа достаточно. Гориллы, львы, жирафы на расстоянии 3 м.", placeId: "bioparc" },
+      { time: "10:00", title: "🖼 ОПЦИЯ C: Bellas Artes + Jardín de Monforte", note: "Самое спокойное. Бесплатный музей + романтический сад. На обед — в центр.", placeId: "bellas-artes" },
+      { time: "13:00", title: "Поздний обед в центре", note: "Если выбрали B или C — успеете. Если A — обед в Peñíscola или быстрый сэндвич в дороге.", placeId: null },
+      { time: "14:30", title: "Забрать багаж в отеле (или такси прямо в аэропорт если A)", note: "", placeId: null },
+      { time: "15:30", title: "Такси в аэропорт", note: "Заложить минимум 1 ч до вылета. Cabify/FreeNow дешевле уличных.", placeId: null },
+      { time: "17:00", title: "Вылет VLC", note: "Посадочный талон скачать накануне.", placeId: null },
+    ],
+  };
+}
+function saveState() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { toast("Не могу сохранить: " + e.message); }
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function $(s) { return document.querySelector(s); }
+function $$(s) { return document.querySelectorAll(s); }
+function el(tag, attrs, ...children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    if (k === "class") e.className = attrs[k];
+    else if (k === "html") e.innerHTML = attrs[k];
+    else if (k.startsWith("on") && typeof attrs[k] === "function") e.addEventListener(k.slice(2), attrs[k]);
+    else if (k === "dataset") for (const dk in attrs[k]) e.dataset[dk] = attrs[k][dk];
+    else e.setAttribute(k, attrs[k]);
+  }
+  for (const c of children) {
+    if (c == null) continue;
+    if (typeof c === "string" || typeof c === "number") e.appendChild(document.createTextNode(c));
+    else e.appendChild(c);
+  }
+  return e;
+}
+function haversine(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+function distFromHotel(p) { return haversine(TRIP.hotel, p); }
+function fmtDist(km) { if (km < 1) return Math.round(km * 1000) + " м"; return km.toFixed(km < 10 ? 1 : 0) + " км"; }
+function toast(msg, ms = 2000) {
+  const t = $("#toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove("show"), ms);
+}
+function mapsUrl(p) { return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}(${encodeURIComponent(p.name)})`; }
+function getStatus(id) { return (state.places[id] && state.places[id].status) || "none"; }
+function setStatus(id, s) {
+  state.places[id] = state.places[id] || {};
+  if (s === "none") delete state.places[id].status; else state.places[id].status = s;
+  if (!state.places[id].status && !state.places[id].note) delete state.places[id];
+  saveState();
+}
+function getNote(id) { return (state.places[id] && state.places[id].note) || ""; }
+function setNote(id, n) {
+  state.places[id] = state.places[id] || {};
+  if (!n) delete state.places[id].note; else state.places[id].note = n;
+  if (!state.places[id].status && !state.places[id].note) delete state.places[id];
+  saveState();
+}
+function statusIcon(s) { return { visited: "✅", want: "⭐", skip: "✕", none: "" }[s] || ""; }
+function todayIso() { return new Date().toISOString().slice(0, 10); }
+
+// Diary helpers
+function getDiary(dayId) { return (state.diary && state.diary[dayId]) || ""; }
+function setDiary(dayId, text) {
+  state.diary = state.diary || {};
+  if (!text) delete state.diary[dayId]; else state.diary[dayId] = text;
+  saveState();
+}
+
+// Checklist helpers
+function getCheck(id) { return !!(state.checklist && state.checklist[id]); }
+function setCheck(id, v) {
+  state.checklist = state.checklist || {};
+  if (v) state.checklist[id] = true; else delete state.checklist[id];
+  saveState();
+}
+
+// Must-see progress: counts placeswith tag 'must' visited vs total
+function getMustSeeProgress() {
+  const must = PLACES.filter(p => p.tags && p.tags.includes("must"));
+  const visited = must.filter(p => getStatus(p.id) === "visited").length;
+  return { visited, total: must.length, pct: must.length ? Math.round(visited / must.length * 100) : 0 };
+}
+
+// Daily tip — deterministic per calendar date (changes each day, predictable per device)
+function getDailyTip() {
+  const today = new Date();
+  const idx = (today.getFullYear() * 365 + today.getMonth() * 31 + today.getDate()) % DAILY_TIPS.length;
+  return DAILY_TIPS[idx];
+}
+
+// Nearest-neighbor TSP optimization for a list of itinerary items
+function optimizeRouteByGeo(dayId) {
+  const items = state.itinerary[dayId];
+  if (!items || items.length < 2) return false;
+  // Items with a placeId (and known coords) participate in TSP; others stay in same relative order
+  const placeItems = items.filter(it => it.placeId && PLACES.find(p => p.id === it.placeId));
+  if (placeItems.length < 2) { toast("Слишком мало точек с координатами"); return false; }
+
+  // Build sequence starting from hotel
+  const remaining = placeItems.slice();
+  const ordered = [];
+  let curr = TRIP.hotel;
+  while (remaining.length) {
+    let bestIdx = 0, bestDist = Infinity;
+    remaining.forEach((it, i) => {
+      const place = PLACES.find(p => p.id === it.placeId);
+      const d = haversine(curr, place);
+      if (d < bestDist) { bestDist = d; bestIdx = i; }
+    });
+    const chosen = remaining.splice(bestIdx, 1)[0];
+    ordered.push(chosen);
+    curr = PLACES.find(p => p.id === chosen.placeId);
+  }
+
+  // Replace order while keeping non-place items in place
+  const result = [];
+  let orderedIdx = 0;
+  items.forEach(it => {
+    if (it.placeId && PLACES.find(p => p.id === it.placeId)) {
+      result.push(ordered[orderedIdx++]);
+    } else {
+      result.push(it);
+    }
+  });
+  state.itinerary[dayId] = result;
+  saveState();
+  return true;
+}
+
+// GPS helpers
+function requestGps() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error("Геолокация не поддерживается"));
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        state.lastGpsLat = pos.coords.latitude;
+        state.lastGpsLng = pos.coords.longitude;
+        state.lastGpsTime = Date.now();
+        saveState();
+        resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      err => reject(err),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  });
+}
+
+function placesNearby(lat, lng, radiusKm = 1.5, max = 8) {
+  return PLACES
+    .map(p => ({ p, d: haversine({ lat, lng }, p) }))
+    .filter(x => x.d <= radiusKm && getStatus(x.p.id) !== "skip")
+    .sort((a, b) => a.d - b.d)
+    .slice(0, max);
+}
+function currentTripDay() {
+  const today = todayIso();
+  for (const d of DAYS) if (d.date === today) return d.id;
+  return null;
+}
+function daysUntil(dateIso) {
+  const a = new Date(todayIso()); const b = new Date(dateIso);
+  return Math.round((b - a) / 86400000);
+}
+
+// ============================================================
+//  HEADER
+// ============================================================
+function renderHeader() {
+  const sub = $("#header-sub");
+  const d = daysUntil(TRIP.start);
+  let txt;
+  if (d > 0) txt = `Через ${d} дн.`;
+  else if (d === 0) txt = "Сегодня!";
+  else {
+    const end = daysUntil(TRIP.end);
+    if (end >= 0) txt = `В Валенсии · день ${1 + Math.abs(d)} из 5`;
+    else txt = `Поездка завершена`;
+  }
+  sub.innerHTML = "";
+  sub.appendChild(el("span", { class: "pill" }, txt));
+  // Weather pill — open Open-Meteo modal on click
+  sub.appendChild(el("button", { class: "weather-pill loading", id: "weather-pill", onclick: openWeatherModal }, "⛅ погода…"));
+  renderWeatherPill();
+  const visited = Object.values(state.places).filter(p => p.status === "visited").length;
+  if (visited > 0) sub.appendChild(el("span", null, `· ${visited} мест посещено`));
+}
+
+// ============================================================
+//  TODAY VIEW
+// ============================================================
+function renderToday() {
+  const cd = currentTripDay();
+  const dayId = cd || state.selectedDay || "d1";
+  state.selectedDay = dayId;
+  const day = DAYS.find(d => d.id === dayId);
+
+  $("#today-hero-title").textContent = day.label + " · " + day.title;
+  $("#today-hero-sub").textContent = cd ? "Сегодня · ваш план дня" : `План на ${day.label}`;
+  const dleft = daysUntil(TRIP.start);
+  let cd_text;
+  if (dleft > 1) cd_text = `до поездки ${dleft} дн.`;
+  else if (dleft === 1) cd_text = "завтра!";
+  else if (dleft === 0) cd_text = "поехали!";
+  else if (daysUntil(TRIP.end) >= 0) cd_text = `день ${1 + Math.abs(dleft)}/5`;
+  else cd_text = "поездка завершена";
+  $("#today-countdown").textContent = cd_text;
+
+  // Day tabs
+  const tabs = $("#today-day-tabs");
+  tabs.innerHTML = "";
+  DAYS.forEach(d => {
+    const isActive = d.id === dayId;
+    const isToday = d.date === todayIso();
+    const t = el("button", {
+      class: "day-tab" + (isActive ? " active" : "") + (isToday ? " today" : ""),
+      onclick: () => { state.selectedDay = d.id; saveState(); renderToday(); }
+    });
+    t.appendChild(el("div", { class: "d" }, d.label.split(" ")[0]));
+    t.appendChild(el("div", { class: "l" }, d.label.split(" ")[1]));
+    tabs.appendChild(t);
+  });
+
+  // Day content — itinerary preview + suggestions
+  const c = $("#today-content");
+  c.innerHTML = "";
+
+  // Daily tip card (compact)
+  const tipCard = el("div", { class: "card-soft", style: "border-left:3px solid var(--accent);font-size:13px;line-height:1.5" });
+  tipCard.innerHTML = `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:4px">Совет дня</div>${getDailyTip()}`;
+  c.appendChild(tipCard);
+
+  // Must-see progress bar
+  const ms = getMustSeeProgress();
+  if (ms.total > 0) {
+    const prog = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+    prog.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span style="font-weight:600;font-size:14px">Прогресс must-си</span><span style="font-size:13px;color:var(--text-soft)"><b style="color:var(--text)">${ms.visited}</b> из ${ms.total} (${ms.pct}%)</span></div><div style="background:var(--bg-soft);border-radius:999px;height:8px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,var(--primary),#E89556);width:${ms.pct}%;transition:width 0.3s"></div></div>`;
+    c.appendChild(prog);
+  }
+
+  // GPS "Where am I" — show last result if recent, button to refresh
+  const gpsCard = el("div", { class: "card-soft", style: "margin-bottom:14px" });
+  const gpsHeader = el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" });
+  gpsHeader.appendChild(el("div", { style: "font-weight:600;font-size:14px" }, "📍 Где я сейчас?"));
+  const gpsBtn = el("button", { class: "btn tiny primary", onclick: () => runGpsNearMe(gpsCard) }, "Определить");
+  gpsHeader.appendChild(gpsBtn);
+  gpsCard.appendChild(gpsHeader);
+
+  if (state.lastGpsLat && state.lastGpsTime && (Date.now() - state.lastGpsTime < 10 * 60 * 1000)) {
+    // Show cached result
+    const nearby = placesNearby(state.lastGpsLat, state.lastGpsLng, 1.5, 5);
+    if (nearby.length) {
+      const subt = el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:6px" }, `Ближайшие (обновлено ${Math.round((Date.now()-state.lastGpsTime)/60000)} мин назад):`);
+      gpsCard.appendChild(subt);
+      nearby.forEach(({ p, d }) => {
+        const r = el("div", { class: "place-card", style: "margin-bottom:6px;cursor:pointer", onclick: () => openPlaceModal(p.id) });
+        r.appendChild(el("div", { class: "ico" }, p.emoji));
+        const b = el("div", { class: "body" });
+        b.appendChild(el("div", { class: "name" }, p.name));
+        b.appendChild(el("div", { class: "meta" }, el("span", null, CATEGORIES[p.cat].ru), el("span", null, fmtDist(d))));
+        r.appendChild(b);
+        gpsCard.appendChild(r);
+      });
+    } else {
+      gpsCard.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Поблизости (1.5 км) ничего из базы. Зум на карте?"));
+    }
+  } else {
+    gpsCard.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Нажмите «Определить» — покажу что в 1.5 км от вас."));
+  }
+  c.appendChild(gpsCard);
+
+  // Itinerary header
+  c.appendChild(el("h3", { style: "margin-top:6px" }, "План дня"));
+  const items = state.itinerary[dayId] || [];
+
+  if (items.length === 0) {
+    c.appendChild(el("div", { class: "empty" }, el("div", { class: "em" }, "📋"), "Нет запланированных событий"));
+  } else {
+    items.slice(0, 8).forEach((it, idx) => {
+      const card = el("div", { class: "itin-item" });
+      card.appendChild(el("div", { class: "time" }, it.time || ""));
+      const body = el("div", { class: "body" });
+      body.appendChild(el("div", { class: "t" }, it.title));
+      if (it.note) body.appendChild(el("div", { class: "n" }, it.note));
+      if (it.placeId) {
+        const place = PLACES.find(p => p.id === it.placeId);
+        if (place) {
+          const open = el("button", { class: "btn tiny ghost", onclick: () => openPlaceModal(it.placeId) }, "→ Подробнее");
+          body.appendChild(el("div", { style: "margin-top:6px" }, open));
+        }
+      }
+      card.appendChild(body);
+      c.appendChild(card);
+    });
+    const more = el("div", { style: "text-align:center;margin:8px 0" },
+      el("button", { class: "btn ghost", onclick: () => { switchTab("plan"); } }, "Открыть полный план"));
+    c.appendChild(more);
+  }
+
+  // Suggestions for the day
+  const sugTitle = el("h3", null, "Рекомендации");
+  c.appendChild(sugTitle);
+
+  const sugs = suggestForDay(dayId);
+  if (sugs.length === 0) {
+    c.appendChild(el("div", { class: "empty" }, "Все уникальные места уже в плане 🎉"));
+  } else {
+    sugs.slice(0, 4).forEach(p => {
+      const s = el("div", { class: "sug", onclick: () => openPlaceModal(p.id), style: "cursor:pointer" });
+      s.appendChild(el("div", { class: "t" }, p.emoji + " " + p.name));
+      const body = (p.tip || p.desc.split(".")[0] + ".").slice(0, 130);
+      s.appendChild(el("div", { class: "b" }, body));
+      c.appendChild(s);
+    });
+  }
+}
+
+async function runGpsNearMe(card) {
+  toast("Запрашиваю геолокацию...");
+  try {
+    await requestGps();
+    renderToday(); // re-renders with the new GPS data
+    toast("Готово");
+  } catch (e) {
+    toast("Не удалось: " + (e.message || "разрешение не дано"));
+  }
+}
+
+function suggestForDay(dayId) {
+  const dayPlaceIds = new Set((state.itinerary[dayId] || []).map(i => i.placeId).filter(Boolean));
+  const visited = new Set(Object.entries(state.places).filter(([_, v]) => v.status === "visited").map(([k]) => k));
+  const skip = new Set(Object.entries(state.places).filter(([_, v]) => v.status === "skip").map(([k]) => k));
+
+  let pool = PLACES.filter(p => !dayPlaceIds.has(p.id) && !visited.has(p.id) && !skip.has(p.id));
+
+  // Bias by day theme
+  if (dayId === "d2") pool = pool.filter(p => p.district === "Ciutat Vella" || (p.tags && p.tags.includes("must")));
+  else if (dayId === "d3") pool = pool.filter(p => p.district === "Quatre Carreres" || p.cat === "park");
+  else if (dayId === "d4") pool = pool.filter(p => p.district === "Poblats Marítims" || p.district === "Cabanyal" || p.cat === "beach" || p.district === "Alboraia" || p.district === "Russafa");
+  else if (dayId === "d5") pool = pool.filter(p => p.cat === "daytrip" || (p.tags && p.tags.includes("unique")));
+
+  pool.sort((a, b) => {
+    const aw = (getStatus(a.id) === "want" ? 2 : 0) + (a.unique ? 1 : 0) + ((a.tags && a.tags.includes("must")) ? 2 : 0);
+    const bw = (getStatus(b.id) === "want" ? 2 : 0) + (b.unique ? 1 : 0) + ((b.tags && b.tags.includes("must")) ? 2 : 0);
+    return bw - aw;
+  });
+  return pool;
+}
+
+// ============================================================
+//  PLAN VIEW
+// ============================================================
+function renderPlan() {
+  const dayId = state.selectedDay || "d1";
+  const tabs = $("#plan-day-tabs");
+  tabs.innerHTML = "";
+  DAYS.forEach(d => {
+    const t = el("button", {
+      class: "day-tab" + (d.id === dayId ? " active" : "") + (d.date === todayIso() ? " today" : ""),
+      onclick: () => { state.selectedDay = d.id; saveState(); renderPlan(); }
+    });
+    t.appendChild(el("div", { class: "d" }, d.label.split(" ")[0]));
+    t.appendChild(el("div", { class: "l" }, d.label.split(" ")[1]));
+    tabs.appendChild(t);
+  });
+
+  const c = $("#plan-content");
+  c.innerHTML = "";
+  const day = DAYS.find(d => d.id === dayId);
+  c.appendChild(el("h3", null, day.title));
+  const items = state.itinerary[dayId] || [];
+
+  items.forEach((it, idx) => {
+    const card = el("div", { class: "itin-item" });
+    card.appendChild(el("div", { class: "time" }, it.time || ""));
+    const body = el("div", { class: "body" });
+    body.appendChild(el("div", { class: "t" }, it.title));
+    if (it.note) body.appendChild(el("div", { class: "n" }, it.note));
+    if (it.placeId) {
+      const place = PLACES.find(p => p.id === it.placeId);
+      if (place) {
+        const ico = statusIcon(getStatus(place.id));
+        body.appendChild(el("div", { style: "margin-top:6px;display:flex;gap:6px;flex-wrap:wrap" },
+          el("button", { class: "btn tiny", onclick: () => openPlaceModal(it.placeId) }, "📍 " + place.name),
+          ico ? el("span", { style: "font-size:14px;align-self:center" }, ico) : null,
+        ));
+      }
+    }
+    card.appendChild(body);
+    const actions = el("div", { class: "actions" });
+    actions.appendChild(el("button", { onclick: () => moveItem(dayId, idx, -1), title: "Вверх" }, "↑"));
+    actions.appendChild(el("button", { onclick: () => moveItem(dayId, idx, 1), title: "Вниз" }, "↓"));
+    actions.appendChild(el("button", { onclick: () => editItem(dayId, idx), title: "Изменить" }, "✎"));
+    actions.appendChild(el("button", { onclick: () => removeItem(dayId, idx), title: "Удалить" }, "🗑"));
+    card.appendChild(actions);
+    c.appendChild(card);
+  });
+
+  c.appendChild(el("div", { style: "margin:16px 0" },
+    el("button", { class: "btn primary full", onclick: () => addItem(dayId) }, "+ Добавить событие"),
+  ));
+  c.appendChild(el("div", { class: "btn-row", style: "margin:8px 0" },
+    el("button", { class: "btn", style: "flex:1", onclick: () => optimizeOrder(dayId) }, "🕐 По времени"),
+    el("button", { class: "btn", style: "flex:1", onclick: () => optimizeRouteByGeoUi(dayId) }, "🗺 По гео"),
+  ));
+  c.appendChild(el("div", { style: "margin:8px 0;font-size:12px;color:var(--text-soft)" },
+    "«По времени» — сортирует по полю времени. «По гео» — выстраивает точки в порядке близости от отеля (nearest-neighbor)."
+  ));
+
+  // Diary
+  c.appendChild(el("h3", { style: "margin-top:24px" }, "Дневник дня"));
+  const diaryText = el("textarea", {
+    placeholder: "Что было, где ели, что понравилось, фото-точки, цены... Записал — экспортнул себе в JSON.",
+    rows: 6,
+    style: "font-size:14px",
+  });
+  diaryText.value = getDiary(dayId);
+  diaryText.addEventListener("input", () => setDiary(dayId, diaryText.value));
+  c.appendChild(diaryText);
+}
+
+function optimizeRouteByGeoUi(dayId) {
+  if (!confirm("Переставить точки дня в порядке близости от отеля (Benimaclet → ближайшая → следующая ближайшая…)?")) return;
+  if (optimizeRouteByGeo(dayId)) {
+    renderPlan();
+    toast("Порядок переставлен по гео");
+  }
+}
+function moveItem(dayId, idx, dir) {
+  const arr = state.itinerary[dayId];
+  const ni = idx + dir;
+  if (ni < 0 || ni >= arr.length) return;
+  [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
+  saveState();
+  renderPlan();
+}
+function removeItem(dayId, idx) {
+  if (!confirm("Удалить этот пункт?")) return;
+  state.itinerary[dayId].splice(idx, 1);
+  saveState();
+  renderPlan();
+}
+function editItem(dayId, idx) {
+  const it = state.itinerary[dayId][idx];
+  const time = prompt("Время (например 10:30):", it.time || "");
+  if (time === null) return;
+  const title = prompt("Что:", it.title || "");
+  if (title === null) return;
+  const note = prompt("Заметка:", it.note || "");
+  if (note === null) return;
+  it.time = time; it.title = title; it.note = note;
+  saveState();
+  renderPlan();
+}
+function addItem(dayId) {
+  const time = prompt("Время (например 10:30):", "");
+  if (time === null) return;
+  const title = prompt("Что:", "");
+  if (!title) return;
+  const note = prompt("Заметка:", "");
+  state.itinerary[dayId].push({ time: time || "", title, note: note || "", placeId: null });
+  saveState();
+  renderPlan();
+}
+function optimizeOrder(dayId) {
+  state.itinerary[dayId].sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+  saveState();
+  renderPlan();
+  toast("Порядок обновлён по времени");
+}
+function addPlaceToDay(placeId, dayId) {
+  const place = PLACES.find(p => p.id === placeId);
+  if (!place) return;
+  state.itinerary[dayId].push({ time: "", title: place.name, note: "", placeId });
+  saveState();
+  toast("Добавлено в " + DAYS.find(d => d.id === dayId).label);
+}
+
+// ============================================================
+//  PLACES VIEW
+// ============================================================
+function renderPlaces() {
+  // Filters
+  const catContainer = $("#cat-filters");
+  catContainer.innerHTML = "";
+  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }];
+  for (const k in CATEGORIES) cats.push({ id: k, ru: CATEGORIES[k].ru, emoji: CATEGORIES[k].emoji });
+  cats.forEach(c => {
+    catContainer.appendChild(el("button", {
+      class: "chip" + (state.catFilter === c.id ? " active" : ""),
+      onclick: () => { state.catFilter = c.id; saveState(); renderPlaces(); }
+    }, c.emoji + " " + c.ru));
+  });
+
+  const statusContainer = $("#status-filters");
+  statusContainer.innerHTML = "";
+  const statuses = [
+    { id: "all", ru: "Все статусы", emoji: "" },
+    { id: "want", ru: "Хочу", emoji: "⭐" },
+    { id: "visited", ru: "Посетил", emoji: "✅" },
+    { id: "none", ru: "Не отмечено", emoji: "○" },
+  ];
+  statuses.forEach(s => {
+    statusContainer.appendChild(el("button", {
+      class: "chip alt" + (state.statusFilter === s.id ? " active" : ""),
+      onclick: () => { state.statusFilter = s.id; saveState(); renderPlaces(); }
+    }, (s.emoji ? s.emoji + " " : "") + s.ru));
+  });
+
+  $$('.qfilt .chip').forEach(c => c.classList.toggle("active", c.dataset.sort === state.sort));
+
+  const q = ($("#search-input").value || "").trim().toLowerCase();
+
+  let list = PLACES.slice();
+  if (state.catFilter === "unique") list = list.filter(p => p.unique);
+  else if (state.catFilter !== "all") list = list.filter(p => p.cat === state.catFilter);
+  if (state.statusFilter !== "all") {
+    if (state.statusFilter === "none") list = list.filter(p => getStatus(p.id) === "none");
+    else list = list.filter(p => getStatus(p.id) === state.statusFilter);
+  }
+  if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.district.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q)));
+
+  if (state.sort === "dist") list.sort((a, b) => distFromHotel(a) - distFromHotel(b));
+  else if (state.sort === "name") list.sort((a, b) => a.name.localeCompare(b.name));
+  else if (state.sort === "cat") list.sort((a, b) => (a.cat).localeCompare(b.cat));
+
+  $("#places-stats").textContent = `${list.length} из ${PLACES.length}`;
+
+  const c = $("#places-list");
+  c.innerHTML = "";
+  if (list.length === 0) {
+    c.appendChild(el("div", { class: "empty" }, el("div", { class: "em" }, "🔍"), "Ничего не найдено"));
+    return;
+  }
+  list.forEach(p => c.appendChild(placeCard(p)));
+}
+
+function placeCard(p) {
+  const status = getStatus(p.id);
+  const card = el("div", { class: "place-card", onclick: () => openPlaceModal(p.id) });
+  card.appendChild(el("div", { class: "ico" }, p.emoji));
+  const body = el("div", { class: "body" });
+  const name = el("div", { class: "name" }, p.name);
+  if (p.unique) name.appendChild(el("span", { class: "badge uniq" }, "уникальное"));
+  body.appendChild(name);
+  const meta = el("div", { class: "meta" });
+  meta.appendChild(el("span", null, CATEGORIES[p.cat].ru));
+  meta.appendChild(el("span", null, p.district));
+  meta.appendChild(el("span", null, fmtDist(distFromHotel(p)) + " от отеля"));
+  body.appendChild(meta);
+  card.appendChild(body);
+  if (status !== "none") card.appendChild(el("div", { class: "status status-" + status }, statusIcon(status)));
+  return card;
+}
+
+// ============================================================
+//  PLACE MODAL
+// ============================================================
+function openPlaceModal(id) {
+  const p = PLACES.find(x => x.id === id);
+  if (!p) return;
+  $("#m-title").textContent = p.emoji + " " + p.name;
+  const body = $("#m-body");
+  body.innerHTML = "";
+
+  // Tags
+  const tagsRow = el("div", { style: "margin-bottom:8px" });
+  tagsRow.appendChild(el("span", { class: "tag" }, CATEGORIES[p.cat].ru));
+  tagsRow.appendChild(el("span", { class: "tag" }, p.district));
+  if (p.unique) tagsRow.appendChild(el("span", { class: "tag uniq" }, "💎 уникальное"));
+  if (p.tags && p.tags.includes("must")) tagsRow.appendChild(el("span", { class: "tag iconic" }, "★ маст-си"));
+  if (p.tags && p.tags.includes("hidden")) tagsRow.appendChild(el("span", { class: "tag" }, "🕵 спрятано"));
+  if (p.tags && p.tags.includes("iconic")) tagsRow.appendChild(el("span", { class: "tag iconic" }, "🌟 культовое"));
+  if (p.tags && p.tags.includes("free")) tagsRow.appendChild(el("span", { class: "tag" }, "🆓 бесплатно"));
+  body.appendChild(tagsRow);
+
+  // Description
+  body.appendChild(el("div", { class: "desc" }, p.desc));
+
+  // Tip
+  if (p.tip) {
+    const tip = el("div", { class: "tip" });
+    tip.innerHTML = "<strong>💡 Совет: </strong>" + p.tip.replace(/</g, "&lt;");
+    body.appendChild(tip);
+  }
+
+  // KV info
+  const kv = el("dl", { class: "kv" });
+  kv.appendChild(el("dt", null, "📍 Адрес"));
+  const addrCell = el("dd", null);
+  addrCell.appendChild(document.createTextNode(p.address));
+  addrCell.appendChild(el("button", {
+    class: "btn tiny ghost", style: "margin-left:6px",
+    onclick: (e) => { e.stopPropagation(); navigator.clipboard.writeText(p.address); toast("Адрес скопирован"); }
+  }, "📋"));
+  kv.appendChild(addrCell);
+
+  kv.appendChild(el("dt", null, "📏 От отеля"));
+  kv.appendChild(el("dd", null, fmtDist(distFromHotel(p))));
+
+  if (p.price) { kv.appendChild(el("dt", null, "💰 Цена")); kv.appendChild(el("dd", null, p.price)); }
+  if (p.hours) { kv.appendChild(el("dt", null, "🕐 Часы")); kv.appendChild(el("dd", null, p.hours)); }
+  if (p.tel) {
+    kv.appendChild(el("dt", null, "📞 Телефон"));
+    const link = el("a", { href: "tel:" + p.tel.replace(/\s/g, "") }, p.tel);
+    kv.appendChild(el("dd", null, link));
+  }
+  if (p.web) {
+    kv.appendChild(el("dt", null, "🌐 Сайт"));
+    const link = el("a", { href: p.web, target: "_blank", rel: "noopener" }, p.web.replace(/^https?:\/\//, "").replace(/\/$/, ""));
+    kv.appendChild(el("dd", null, link));
+  }
+  body.appendChild(kv);
+
+  // Maps button
+  body.appendChild(el("div", { style: "margin:8px 0" },
+    el("a", { class: "btn primary full", href: mapsUrl(p), target: "_blank", rel: "noopener" }, "🗺 Открыть в Google Maps"),
+  ));
+
+  // Taxi deep-links
+  body.appendChild(el("h3", { style: "margin-top:14px;font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Вызвать такси"));
+  const taxiRow = el("div", { class: "btn-row" });
+  getTaxiUrls(p.lat, p.lng, p.name).forEach(t => {
+    const btn = el("a", { class: "btn", style: "flex:1;min-width:30%;font-size:13px", href: t.url, target: "_blank", rel: "noopener" }, t.app);
+    // Fallback: if deep link doesn't work (no app installed), open web URL after a delay
+    btn.addEventListener("click", (e) => {
+      if (t.fallback) {
+        setTimeout(() => { window.open(t.fallback, "_blank"); }, 1200);
+      }
+    });
+    taxiRow.appendChild(btn);
+  });
+  body.appendChild(taxiRow);
+
+  // Status toggle
+  body.appendChild(el("h3", { style: "margin-top:18px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Статус"));
+  const stat = getStatus(p.id);
+  const togg = el("div", { class: "status-toggle" });
+  const sopts = [
+    { id: "want", ico: "⭐", lbl: "Хочу" },
+    { id: "visited", ico: "✅", lbl: "Был" },
+    { id: "skip", ico: "✕", lbl: "Скип" },
+    { id: "none", ico: "○", lbl: "Очистить" },
+  ];
+  sopts.forEach(s => {
+    togg.appendChild(el("button", {
+      class: stat === s.id || (s.id === "none" && stat === "none") ? "active" : "",
+      onclick: () => { setStatus(p.id, s.id); openPlaceModal(p.id); renderHeader(); }
+    }, el("span", { class: "ico" }, s.ico), s.lbl));
+  });
+  body.appendChild(togg);
+
+  // Notes
+  body.appendChild(el("h3", { style: "margin-top:18px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Заметки"));
+  const note = el("textarea", { placeholder: "Заметки, бронь, время..." }, getNote(p.id));
+  note.value = getNote(p.id);
+  note.addEventListener("input", () => setNote(p.id, note.value));
+  body.appendChild(note);
+
+  // Nearby
+  const nearby = PLACES.filter(x => x.id !== p.id).map(x => ({ p: x, d: haversine(p, x) })).filter(x => x.d <= 1.0).sort((a, b) => a.d - b.d).slice(0, 5);
+  if (nearby.length) {
+    body.appendChild(el("h3", { style: "margin-top:18px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Рядом (до 1 км)"));
+    nearby.forEach(({ p: np, d }) => {
+      const r = el("div", {
+        class: "place-card", style: "margin-bottom:6px",
+        onclick: () => openPlaceModal(np.id)
+      });
+      r.appendChild(el("div", { class: "ico" }, np.emoji));
+      const b = el("div", { class: "body" });
+      b.appendChild(el("div", { class: "name" }, np.name));
+      b.appendChild(el("div", { class: "meta" }, el("span", null, CATEGORIES[np.cat].ru), el("span", null, fmtDist(d))));
+      r.appendChild(b);
+      body.appendChild(r);
+    });
+  }
+
+  // Foot
+  const foot = $("#m-foot");
+  foot.innerHTML = "";
+  foot.appendChild(el("button", { class: "btn", onclick: () => openItinModal(p.id) }, "📋 В план"));
+  foot.appendChild(el("a", { class: "btn", href: mapsUrl(p), target: "_blank", rel: "noopener" }, "🗺 Карты"));
+  if (p.web) foot.appendChild(el("a", { class: "btn", href: p.web, target: "_blank", rel: "noopener" }, "🌐 Сайт"));
+
+  $("#place-modal").showModal();
+}
+$("#m-close").addEventListener("click", () => $("#place-modal").close());
+$("#place-modal").addEventListener("click", (e) => {
+  if (e.target === $("#place-modal")) $("#place-modal").close();
+});
+
+function openItinModal(placeId) {
+  const body = $("#im-body");
+  body.innerHTML = "";
+  body.appendChild(el("div", { style: "margin-bottom:12px;color:var(--text-soft);font-size:14px" }, "Выберите день:"));
+  DAYS.forEach(d => {
+    body.appendChild(el("button", {
+      class: "btn full",
+      style: "margin-bottom:6px;justify-content:flex-start",
+      onclick: () => {
+        addPlaceToDay(placeId, d.id);
+        $("#itin-modal").close();
+        renderPlan();
+      }
+    }, `${d.label} · ${d.title}`));
+  });
+  $("#itin-modal").showModal();
+}
+$("#im-close").addEventListener("click", () => $("#itin-modal").close());
+
+// ============================================================
+//  MAP — Leaflet + OpenStreetMap (real tiles, cached by browser)
+// ============================================================
+let leafletMap = null;
+let leafletPlaceMarkers = [];
+let leafletSpecialLayer = null;
+let leafletTileLayer = null;
+
+function renderMap() {
+  // Cat filters (chip row above map)
+  const cf = $("#map-cat-filters");
+  cf.innerHTML = "";
+  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }];
+  for (const k in CATEGORIES) cats.push({ id: k, ru: CATEGORIES[k].ru, emoji: CATEGORIES[k].emoji });
+  cats.forEach(c => {
+    cf.appendChild(el("button", {
+      class: "chip" + (state.mapCatFilter === c.id ? " active" : ""),
+      onclick: () => { state.mapCatFilter = c.id; saveState(); renderMap(); }
+    }, c.emoji + " " + c.ru));
+  });
+
+  // Wait for Leaflet to load (script is defer-loaded)
+  if (typeof L === "undefined") {
+    setTimeout(renderMap, 200);
+    return;
+  }
+
+  const container = $("#map-leaflet");
+  if (!container) return;
+
+  // Initialize once
+  if (!leafletMap) {
+    // Pick a tile theme based on color scheme
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    leafletMap = L.map(container, {
+      center: [39.470, -0.376], // city center
+      zoom: 13,
+      zoomControl: true,
+      attributionControl: true,
+      worldCopyJump: false,
+      preferCanvas: true,
+    });
+    leafletTileLayer = L.tileLayer(
+      isDark
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution: isDark ? "© CARTO, OpenStreetMap" : "© OpenStreetMap contributors",
+        subdomains: isDark ? "abcd" : "abc",
+        crossOrigin: true,
+      }
+    ).addTo(leafletMap);
+
+    leafletSpecialLayer = L.layerGroup().addTo(leafletMap);
+
+    // Hotel
+    L.marker([TRIP.hotel.lat, TRIP.hotel.lng], {
+      icon: L.divIcon({ html: '<div class="sp-marker hotel">🏨</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+      zIndexOffset: 1000,
+    }).bindPopup(`<b>🏨 Гостиница</b><br>${TRIP.hotel.address}<div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.hotel.lat},${TRIP.hotel.lng}" target="_blank">🗺 Открыть</a></div>`).addTo(leafletSpecialLayer);
+
+    // Friend
+    L.marker([TRIP.friend.lat, TRIP.friend.lng], {
+      icon: L.divIcon({ html: '<div class="sp-marker friend">👤</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+      zIndexOffset: 1000,
+    }).bindPopup(`<b>👤 Друг (приблиз.)</b><br>${TRIP.friend.address}<br><small>Уточнить точный адрес</small>`).addTo(leafletSpecialLayer);
+
+    // Airport
+    L.marker([TRIP.airport.lat, TRIP.airport.lng], {
+      icon: L.divIcon({ html: '<div class="sp-marker airport">✈️</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+      zIndexOffset: 1000,
+    }).bindPopup(`<b>✈️ Аэропорт VLC</b><br>${TRIP.airport.address}<br><small>Прилёт 30.05 · Вылет 03.06</small>`).addTo(leafletSpecialLayer);
+
+    // Albufera (key day-trip outside default view)
+    L.marker([39.3322, -0.3357], {
+      icon: L.divIcon({ html: '<div class="sp-marker" style="border-color:#5A8D54">🌅</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+    }).bindPopup(`<b>🌅 Albufera</b><br>Озеро + рисовые поля + закат с лодки<div class="popup-actions"><button onclick="openPlaceModal('albufera')">Подробнее</button></div>`).addTo(leafletSpecialLayer);
+
+    // Sagunto
+    L.marker([39.6779, -0.2773], {
+      icon: L.divIcon({ html: '<div class="sp-marker" style="border-color:#7A5230">🏰</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+    }).bindPopup(`<b>🏰 Sagunto</b><br>Крепость в 30 км от Валенсии<div class="popup-actions"><button onclick="openPlaceModal('sagunto')">Подробнее</button></div>`).addTo(leafletSpecialLayer);
+
+  } else {
+    // Update tile theme on color scheme change
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const wantUrl = isDark
+      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    if (leafletTileLayer && leafletTileLayer._url !== wantUrl) {
+      leafletMap.removeLayer(leafletTileLayer);
+      leafletTileLayer = L.tileLayer(wantUrl, {
+        maxZoom: 19,
+        attribution: isDark ? "© CARTO, OpenStreetMap" : "© OpenStreetMap contributors",
+        subdomains: isDark ? "abcd" : "abc",
+      }).addTo(leafletMap);
+    }
+  }
+
+  // Clear existing place markers
+  leafletPlaceMarkers.forEach(m => leafletMap.removeLayer(m));
+  leafletPlaceMarkers = [];
+
+  // Filter places
+  let visiblePlaces = PLACES.slice();
+  if (state.mapCatFilter === "unique") visiblePlaces = visiblePlaces.filter(p => p.unique);
+  else if (state.mapCatFilter !== "all") visiblePlaces = visiblePlaces.filter(p => p.cat === state.mapCatFilter);
+
+  visiblePlaces.forEach(p => {
+    const stat = getStatus(p.id);
+    if (stat === "skip" && state.mapCatFilter === "all") return; // hide skipped places in 'all' view
+    const color = (CATEGORIES[p.cat] && CATEGORIES[p.cat].color) || "#888";
+    const borderColor = stat === "visited" ? "#5A8D54" : stat === "want" ? "#C9A227" : "#FFFFFF";
+    const m = L.circleMarker([p.lat, p.lng], {
+      radius: stat !== "none" ? 9 : 7,
+      fillColor: color,
+      color: borderColor,
+      weight: stat !== "none" ? 3 : 2,
+      fillOpacity: 1,
+      opacity: 1,
+    }).addTo(leafletMap);
+    const popupHtml = `<b>${p.emoji} ${p.name}</b><br><small>${CATEGORIES[p.cat].ru} · ${p.district} · ${fmtDist(distFromHotel(p))} от отеля</small>${p.tip ? `<br><br><small>${p.tip.slice(0, 120)}${p.tip.length > 120 ? "…" : ""}</small>` : ""}<div class="popup-actions"><button onclick="openPlaceModal('${p.id}')">Подробнее</button><a class="alt" href="${mapsUrl(p)}" target="_blank">Google Maps</a></div>`;
+    m.bindPopup(popupHtml, { maxWidth: 280 });
+    leafletPlaceMarkers.push(m);
+  });
+
+  // Make sure size is correct (when switching tabs) and set view once container has dimensions
+  setTimeout(() => {
+    if (!leafletMap) return;
+    leafletMap.invalidateSize();
+    if (!leafletMap._initFitted) {
+      leafletMap.setView([39.470, -0.370], 13);
+      leafletMap._initFitted = true;
+    }
+  }, 80);
+}
+
+// ============================================================
+//  ME / SETTINGS
+// ============================================================
+function renderMe() {
+  const visited = Object.values(state.places).filter(p => p.status === "visited").length;
+  const want = Object.values(state.places).filter(p => p.status === "want").length;
+  $("#stat-visited").textContent = visited;
+  $("#stat-want").textContent = want;
+  $("#stat-total").textContent = PLACES.length;
+
+  const container = $("#guide-sections");
+  container.innerHTML = "";
+
+  const sections = [
+    { id: "contacts", title: "📞 Полезные контакты", render: renderGuideContacts },
+    { id: "transport", title: "🚇 Транспорт и проездные", render: renderGuideTransport },
+    { id: "checklist", title: "✅ Чек-лист до поездки", render: renderGuideChecklist },
+    { id: "phrases", title: "💬 Разговорник", render: renderGuidePhrases },
+    { id: "dishes", title: "🍽 Что попробовать (блюда)", render: renderGuideDishes },
+    { id: "life", title: "💡 Быт и безопасность", render: renderGuideLife },
+    { id: "data", title: "💾 Данные приложения", render: renderGuideData },
+    { id: "about", title: "ℹ️ О приложении", render: renderGuideAbout },
+  ];
+
+  sections.forEach(s => {
+    const wrap = el("div", { class: "card", style: "padding:0;overflow:hidden;margin-bottom:8px" });
+    const isOpen = state.guideSection === s.id;
+    const header = el("button", {
+      style: "width:100%;text-align:left;padding:14px;background:transparent;border:none;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:var(--text);cursor:pointer",
+      onclick: () => { state.guideSection = isOpen ? null : s.id; saveState(); renderMe(); }
+    });
+    header.appendChild(el("span", null, s.title));
+    header.appendChild(el("span", { style: "color:var(--text-soft);font-size:18px" }, isOpen ? "▾" : "▸"));
+    wrap.appendChild(header);
+    if (isOpen) {
+      const body = el("div", { style: "padding:0 14px 14px;border-top:1px solid var(--border)" });
+      s.render(body);
+      wrap.appendChild(body);
+    }
+    container.appendChild(wrap);
+  });
+}
+
+// === Guide section renderers ===
+
+function renderGuideContacts(c) {
+  CONTACTS.forEach(group => {
+    c.appendChild(el("h4", { style: "margin:14px 0 8px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, group.group));
+    group.items.forEach(item => {
+      const row = el("div", { style: "padding:10px 0;border-bottom:1px solid var(--border)" });
+      row.appendChild(el("div", { style: "font-weight:600;font-size:14px" }, item.name));
+      row.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin:2px 0" }, item.value));
+      if (item.note) row.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:2px;line-height:1.4" }, item.note));
+      const btns = el("div", { class: "btn-row", style: "margin-top:6px" });
+      if (item.tel) {
+        btns.appendChild(el("a", { class: "btn tiny primary", href: "tel:" + item.tel }, "📞 Позвонить"));
+      }
+      if (item.url) {
+        btns.appendChild(el("a", { class: "btn tiny", href: item.url, target: "_blank", rel: "noopener" }, "🌐 Открыть"));
+      }
+      if (item.copy || item.value) {
+        btns.appendChild(el("button", { class: "btn tiny", onclick: (e) => { e.preventDefault(); navigator.clipboard.writeText(item.copy || item.value); toast("Скопировано"); } }, "📋 Копировать"));
+      }
+      row.appendChild(btns);
+      c.appendChild(row);
+    });
+  });
+}
+
+function renderGuideTransport(c) {
+  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Самый дешёвый способ кататься — карта Bonometro 10 на двоих. Купить в первый день в любом автомате метро."));
+
+  c.appendChild(el("h4", { style: "margin:16px 0 8px;font-size:14px" }, "Карты и проездные"));
+  TRANSPORT_INFO.cards.forEach(card => {
+    const row = el("div", { class: "card-soft", style: "margin-bottom:8px" });
+    row.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:4px" }, card.name));
+    row.appendChild(el("div", { style: "font-size:13px;margin-bottom:4px" }, "💶 " + card.price));
+    row.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:4px" }, card.best));
+    row.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft)" }, "📍 " + card.where));
+    if (card.tip) row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;padding:6px 8px;background:var(--primary-soft);border-radius:6px" }, "💡 " + card.tip));
+    c.appendChild(row);
+  });
+
+  c.appendChild(el("h4", { style: "margin:16px 0 8px;font-size:14px" }, "Полезные маршруты"));
+  TRANSPORT_INFO.routes.forEach(r => {
+    const row = el("div", { style: "padding:8px 0;border-bottom:1px solid var(--border)" });
+    row.appendChild(el("div", { style: "font-weight:600;font-size:13px" }, r.from + " → " + r.to));
+    row.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:2px;line-height:1.4" }, r.how));
+    c.appendChild(row);
+  });
+
+  c.appendChild(el("h4", { style: "margin:16px 0 8px;font-size:14px" }, "Велик: Valenbisi"));
+  c.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text-soft)" },
+    "Городской прокат. Подписка на 1 день — 13.30 € (через приложение). Первые 30 минут каждой поездки бесплатно, потом 1 €/30 мин. По парку Турия — идеальный способ."));
+
+  c.appendChild(el("h4", { style: "margin:16px 0 8px;font-size:14px" }, "Сайты и приложения"));
+  c.appendChild(el("div", { class: "btn-row" },
+    el("a", { class: "btn", href: "https://www.metrovalencia.es/", target: "_blank" }, "Metrovalencia"),
+    el("a", { class: "btn", href: "https://www.emtvalencia.es/", target: "_blank" }, "EMT (автобусы)"),
+    el("a", { class: "btn", href: "https://www.valenbisi.es/", target: "_blank" }, "Valenbisi"),
+  ));
+}
+
+function renderGuideChecklist(c) {
+  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Чек-лист на подготовку. Галочки сохраняются."));
+  let done = 0;
+  CHECKLIST_PRE_TRIP.forEach(item => {
+    const checked = getCheck(item.id);
+    if (checked) done++;
+    const row = el("label", { style: "display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" });
+    const cb = el("input", { type: "checkbox", style: "margin:3px 0 0;width:18px;height:18px;flex-shrink:0;accent-color:var(--primary)" });
+    cb.checked = checked;
+    cb.addEventListener("change", () => {
+      setCheck(item.id, cb.checked);
+      renderMe();
+    });
+    row.appendChild(cb);
+    row.appendChild(el("div", { style: "font-size:14px;line-height:1.45" + (checked ? ";text-decoration:line-through;color:var(--text-soft)" : "") }, item.text));
+    c.appendChild(row);
+  });
+  c.insertBefore(el("div", { style: "background:var(--card-soft);padding:10px;border-radius:6px;margin-bottom:8px;font-size:13px;font-weight:600" }, `Готово: ${done} из ${CHECKLIST_PRE_TRIP.length}`), c.children[1]);
+}
+
+function renderGuidePhrases(c) {
+  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:12px;color:var(--text-soft);line-height:1.5" }, "Самые нужные испанские фразы. Транскрипция русскими буквами — приблизительная."));
+  PHRASES.forEach(group => {
+    c.appendChild(el("h4", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, group.group));
+    group.items.forEach(p => {
+      const row = el("div", { style: "padding:8px 0;border-bottom:1px solid var(--border)" });
+      row.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft)" }, p.ru));
+      row.appendChild(el("div", { style: "font-size:15px;font-weight:600;margin:2px 0" }, p.es));
+      row.appendChild(el("div", { style: "font-size:12px;color:var(--primary);font-style:italic" }, "[" + p.tr + "]"));
+      c.appendChild(row);
+    });
+  });
+}
+
+function renderGuideDishes(c) {
+  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Что обязательно попробовать в Валенсии. Местные специалитеты, без популярных банальностей."));
+  DISHES.forEach(d => {
+    const row = el("div", { class: "card-soft", style: "margin-bottom:8px" });
+    row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px" }, d.emoji + " " + d.name));
+    row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text)" }, d.desc));
+    row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;color:var(--text-soft)" }, "📍 " + d.where));
+    c.appendChild(row);
+  });
+}
+
+function renderGuideLife(c) {
+  const facts = [
+    { ico: "💤", t: "Сиеста", b: "Многие мелкие магазины и небольшие кафе закрыты 14:00–17:00. Крупные сетевые работают весь день." },
+    { ico: "🍴", t: "Когда ужинают", b: "Испанцы ужинают поздно — 21:00–23:00. До 20:30 рестораны часто полупустые или закрыты на перерыв." },
+    { ico: "💳", t: "Платежи", b: "Карта принимается в большинстве заведений. На рынке (Mercado Central) и в маленьких барах — иногда только наличные. Apple Pay / Google Pay работают." },
+    { ico: "🏧", t: "Банкоматы", b: "Пользуйтесь крупными банками: BBVA, Santander, CaixaBank, Bankia — нет/маленькая комиссия. ИЗБЕГАЙТЕ Euronet и уличных ATM «без комиссии» — грабят на курсе конверсии (3-12%)." },
+    { ico: "💸", t: "Чаевые", b: "Не обязательны. Округлить счёт или оставить 5-10% — если действительно понравилось. Никто не оскорбится за их отсутствие, это не как в США." },
+    { ico: "💧", t: "Вода", b: "Из-под крана пить можно, по нормам ЕС. Но местные часто берут бутилированную из-за вкуса хлора. На рынках бутылка 0.50 €." },
+    { ico: "🔌", t: "Розетки", b: "Type C и F — как в Украине. Переходник НЕ нужен. Напряжение 230 В." },
+    { ico: "🌡", t: "Погода в конце мая", b: "Днём 23-28 °C, ночью 16-19 °C. Море ~20 °C — купаться можно, но прохладно. Возьмите ветровку на вечер у моря." },
+    { ico: "🚨", t: "Карманники", b: "Активны в старом городе, на рынках, в метро в час пик, на пляжах. Не оставляйте сумки/телефоны на столиках. Носите кошелёк в переднем кармане." },
+    { ico: "🌊", t: "Пляж", b: "На Malvarrosa регулярно дежурят полиция и спасатели. Купайтесь только в зонах с буями. Вещи на пляже без присмотра — риск." },
+    { ico: "📶", t: "Связь", b: "EU-роуминг работает как дома. Бесплатный Wi-Fi есть в кафе, метро, госучреждениях (часто eduroam/Valencia_WiFi)." },
+    { ico: "💊", t: "Аптеки", b: "Зелёный неоновый крест. Есть круглосуточные (Farmacia 24h). Базовые лекарства без рецепта: парацетамол, ибупрофен, антигистамины." },
+    { ico: "🛍", t: "Часы магазинов", b: "Малые: пн-сб 10:00-14:00 и 17:00-21:00, перерыв. Воскресенье закрыто. Большие торговые центры (El Corte Inglés) — 10:00-22:00 без перерыва, иногда вс." },
+    { ico: "🌅", t: "Закат", b: "В конце мая — около 21:30. Ужинать испанцы только начинают. Закат с Malvarrosa или с парка Турия — must." },
+  ];
+  facts.forEach(f => {
+    const row = el("div", { style: "padding:10px 0;border-bottom:1px solid var(--border)" });
+    row.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:3px" }, f.ico + "  " + f.t));
+    row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text-soft)" }, f.b));
+    c.appendChild(row);
+  });
+}
+
+function renderGuideData(c) {
+  c.appendChild(el("p", { style: "margin:14px 0 10px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Все ваши статусы, заметки, дневник и план хранятся в браузере (localStorage). Экспортируйте файл — можно перенести себе на другое устройство или поделиться с женой."));
+  c.appendChild(el("div", { class: "btn-row" },
+    el("button", { class: "btn", onclick: doExport }, "💾 Экспорт JSON"),
+    el("button", { class: "btn", onclick: () => $("#import-file").click() }, "📂 Импорт JSON"),
+  ));
+  c.appendChild(el("div", { style: "margin-top:8px" }, el("button", { class: "btn danger full", onclick: doReset }, "🗑 Полный сброс")));
+  c.appendChild(el("div", { class: "card-soft", style: "margin-top:14px;font-size:12px;line-height:1.5;color:var(--text-soft)" },
+    "💡 Чтобы поделиться состоянием с женой: экспортируйте → пришлите файл в Telegram → она открывает приложение → Импорт → выбирает файл. Готово, у вас одинаковые планы и пометки.",
+  ));
+}
+
+function doExport() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "valencia-state-" + todayIso() + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("Файл сохранён");
+}
+
+function doReset() {
+  if (!confirm("Сбросить ВСЁ: статусы, заметки, план, дневник, чек-лист? Это нельзя отменить.")) return;
+  localStorage.removeItem(STORE_KEY);
+  state = defaultState();
+  renderAll();
+  toast("Сброшено");
+}
+
+function renderGuideAbout(c) {
+  c.appendChild(el("div", { class: "card-soft", style: "font-size:13px;line-height:1.6;color:var(--text-soft);margin-top:12px" }, ""));
+  const block = c.querySelector(".card-soft");
+  block.innerHTML = `
+    Самостоятельное HTML-приложение. Работает оффлайн (после первой загрузки тайлов карты).<br><br>
+    <b>iPhone:</b> Share → "На экран Домой" → иконка 🍊 = приложение.<br>
+    <b>Android:</b> меню → "Добавить на главный экран".<br><br>
+    Ссылки на Google Maps открывают офлайн-карту Maps если она у вас установлена.<br><br>
+    <b>Версия:</b> 2.0 — реальная карта OSM, GPS, разговорник, блюда, чек-лист, дневник.
+  `;
+}
+
+// Import file handler (button itself is dynamic, but the file input is in DOM)
+$("#import-file").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const obj = JSON.parse(r.result);
+      state = Object.assign(defaultState(), obj);
+      saveState();
+      renderAll();
+      toast("Данные импортированы");
+    } catch (err) { toast("Ошибка импорта: " + err.message); }
+  };
+  r.readAsText(f);
+});
+
+// Copy buttons
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-copy]");
+  if (b) { navigator.clipboard.writeText(b.dataset.copy); toast("Скопировано"); }
+});
+
+// ============================================================
+//  QUICK ACTIONS (Today)
+// ============================================================
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-action]");
+  if (!b) return;
+  const a = b.dataset.action;
+  if (a === "random-unique") {
+    const pool = PLACES.filter(p => p.unique && getStatus(p.id) !== "visited" && getStatus(p.id) !== "skip");
+    if (!pool.length) { toast("Уникальные все посещены 🎉"); return; }
+    openPlaceModal(pool[Math.floor(Math.random() * pool.length)].id);
+  } else if (a === "nearby-hotel") {
+    state.activeTab = "places"; state.sort = "dist"; state.catFilter = "all"; state.statusFilter = "all";
+    switchTab("places");
+  } else if (a === "wishlist") {
+    state.activeTab = "places"; state.statusFilter = "want";
+    switchTab("places");
+  } else if (a === "open-now") {
+    const now = new Date();
+    const hm = now.getHours() * 60 + now.getMinutes();
+    const open = PLACES.filter(p => {
+      if (!p.hours) return false;
+      const m = p.hours.match(/(\d{2}):(\d{2}).*?(\d{2}):(\d{2})/);
+      if (!m) return false;
+      const from = parseInt(m[1]) * 60 + parseInt(m[2]);
+      const to = parseInt(m[3]) * 60 + parseInt(m[4]);
+      return hm >= from && hm <= to;
+    });
+    if (!open.length) { toast("По указанным часам сейчас ничего не нашлось"); return; }
+    toast(`Открыто сейчас (примерно): ${open.length} мест — см. список`);
+    state.activeTab = "places"; state.statusFilter = "all";
+    switchTab("places");
+  }
+});
+
+// ============================================================
+//  TABS
+// ============================================================
+function switchTab(name) {
+  state.activeTab = name;
+  saveState();
+  $$('.view').forEach(v => v.classList.toggle("active", v.id === "view-" + name));
+  $$('nav.tabs button').forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  if (name === "today") renderToday();
+  if (name === "plan") renderPlan();
+  if (name === "places") renderPlaces();
+  if (name === "map") renderMap();
+  if (name === "me") renderMe();
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
+$$('nav.tabs button').forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+// ============================================================
+//  PLACES SEARCH & FILTERS
+// ============================================================
+$("#search-input").addEventListener("input", renderPlaces);
+$("#search-clear").addEventListener("click", () => { $("#search-input").value = ""; renderPlaces(); });
+$$('.qfilt .chip').forEach(c => c.addEventListener("click", () => { state.sort = c.dataset.sort; saveState(); renderPlaces(); }));
+
+// Open Google Maps with all places as one list
+$("#open-google-map").addEventListener("click", () => {
+  const center = "39.4699,-0.3763";
+  window.open(`https://www.google.com/maps/search/Valencia/@${center},13z`, "_blank");
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+function renderAll() {
+  renderHeader();
+  renderToday();
+  renderPlan();
+  renderPlaces();
+  renderMap();
+  renderMe();
+  // restore tab
+  switchTab(state.activeTab || "today");
+}
+
+renderAll();
+
+// Weather: fetch on load and show in header
+$("#wm-close").addEventListener("click", () => $("#weather-modal").close());
+$("#weather-modal").addEventListener("click", (e) => {
+  if (e.target === $("#weather-modal")) $("#weather-modal").close();
+});
+fetchWeather().then(() => renderWeatherPill()).catch(() => {});
+
+// Close modals on Escape
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    $$('.modal').forEach(m => m.open && m.close());
+  }
+});
+</script>
+</body>
+</html>
