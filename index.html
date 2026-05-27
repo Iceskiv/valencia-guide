@@ -1284,6 +1284,74 @@ function openDayInMaps(dayId) {
 // ============================================================
 //  PLACES — 75+ точек по Валенсии
 // ============================================================
+// Bookings — pre-defined items requiring booking/preparation
+const DEFAULT_BOOKINGS = [
+  {
+    id: "casa-carmela", title: "Casa Carmela — паэлья на дровах",
+    forDate: "2026-05-31", forTime: "14:00", priority: "high",
+    place: "Casa Carmela (Malvarrosa)",
+    contact: "+34 96 371 0073",
+    url: "https://casacarmela.com",
+    note: "БРОНИРОВАТЬ за 1-2 недели по телефону или сайту. Только обеды Вт-Вс."
+  },
+  {
+    id: "oceano-ticket", title: "Океанариум — билет онлайн",
+    forDate: "2026-06-02", forTime: "10:30", priority: "high",
+    place: "Oceanogràfic",
+    contact: "—",
+    url: "https://www.oceanografic.org",
+    note: "Купить ОНЛАЙН заранее (~36 €) — на кассе 42 €. Билет с временным слотом."
+  },
+  {
+    id: "la-sastreria", title: "La Sastrería — обед в Cabanyal",
+    forDate: "2026-06-01", forTime: "14:00", priority: "medium",
+    place: "La Sastrería (Cabanyal)",
+    contact: "+34 96 371 7019",
+    url: "",
+    note: "Бронировать накануне. Понедельник может быть закрыт — проверить."
+  },
+  {
+    id: "bioparc-ticket", title: "Bioparc — билет онлайн (опц.)",
+    forDate: "2026-06-03", forTime: "10:00", priority: "medium",
+    place: "Bioparc Valencia",
+    contact: "—",
+    url: "https://www.bioparcvalencia.es",
+    note: "Если выбираете опцию B на среду. Онлайн ~28 €."
+  },
+  {
+    id: "papagayo-call", title: "Jardín del Papagayo — позвонить уточнить",
+    forDate: "2026-06-02", forTime: "—", priority: "medium",
+    place: "Jardín del Papagayo (Peñíscola)",
+    contact: "+34 722 425 030",
+    url: "https://jardindelpapagayo.com",
+    note: "Если планируете попугаев в среду — позвонить накануне, уточнить открыто ли. Они закрываются по непредвиденным."
+  },
+  {
+    id: "checkin", title: "Онлайн-регистрация на обратный рейс",
+    forDate: "2026-06-02", forTime: "18:00", priority: "high",
+    place: "Сайт авиакомпании",
+    contact: "—",
+    url: "",
+    note: "За 24 ч до вылета 03.06 в 17:00. Скачать boarding pass."
+  },
+  {
+    id: "agus-confirm", title: "Подтвердить с Агусом lunch",
+    forDate: "2026-05-29", forTime: "20:00", priority: "high",
+    place: "Telegram / WhatsApp Агусу",
+    contact: "—",
+    url: "",
+    note: "Накануне написать «летим завтра, готовимся к 12:00». Подтвердить адрес: C/ de Viver, 6, этаж 5, дверь 7."
+  },
+  {
+    id: "lena-confirm", title: "Подтвердить с Леной ужин",
+    forDate: "2026-05-31", forTime: "20:00", priority: "medium",
+    place: "Telegram / WhatsApp Лене",
+    contact: "—",
+    url: "",
+    note: "За день до — «придём в 20:30, приносим цветы и сладкое». Адрес: C/ dels Serrans, 10."
+  },
+];
+
 // Place IDs which are particularly Instagram-worthy / photo spots.
 // Applied as `photo: true` on PLACES at startup.
 const PHOTO_SPOTS = new Set([
@@ -1805,6 +1873,10 @@ function defaultState() {
     weather: null, // raw API response
     weatherFetchedAt: null,
     weatherSelectedDate: null, // YYYY-MM-DD in modal
+    bookings: {}, // booking id -> { status: 'todo'|'done'|'skip', note: string, forDate: override }
+    photos: {}, // placeId -> [dataURL, ...]
+    dishSearch: "",
+    openEvents: null, // dayId currently open in events accordion
   };
 }
 function defaultItinerary() {
@@ -1927,6 +1999,20 @@ function setDiary(dayId, text) {
   state.diary = state.diary || {};
   if (!text) delete state.diary[dayId]; else state.diary[dayId] = text;
   saveState();
+}
+
+// Bookings helpers
+function getBooking(id) { return (state.bookings && state.bookings[id]) || { status: "todo" }; }
+function setBookingStatus(id, status) {
+  state.bookings = state.bookings || {};
+  state.bookings[id] = { ...(state.bookings[id] || {}), status };
+  saveState();
+}
+function getActiveBookings() {
+  // Return undone bookings sorted by date
+  return DEFAULT_BOOKINGS
+    .filter(b => getBooking(b.id).status !== "done" && getBooking(b.id).status !== "skip")
+    .sort((a, b) => (a.forDate + a.forTime).localeCompare(b.forDate + b.forTime));
 }
 
 // Checklist helpers
@@ -2124,6 +2210,27 @@ function renderToday() {
       sw.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px;text-align:center" }, sun.message));
     }
     c.appendChild(sw);
+  }
+
+  // BOOKINGS WIDGET — what's pending soon
+  const activeBookings = getActiveBookings();
+  if (activeBookings.length) {
+    const bw = el("div", { class: "card-soft", style: "margin-bottom:10px;border-left:3px solid var(--warning)", onclick: () => { state.activeTab = "me"; state.guideSection = "bookings"; saveState(); switchTab("me"); }, role: "button" });
+    bw.style.cursor = "pointer";
+    bw.appendChild(el("div", { style: "display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:6px" },
+      el("span", null, `📅 Бронирования · ${activeBookings.length}`),
+      el("span", { style: "color:var(--accent)" }, "→")
+    ));
+    activeBookings.slice(0, 3).forEach(b => {
+      const row = el("div", { style: "display:flex;gap:8px;padding:4px 0;font-size:13px;line-height:1.4" });
+      row.appendChild(el("span", { style: "font-weight:700;color:var(--primary);font-size:12px;min-width:60px;flex-shrink:0" }, formatBookingDate(b.forDate)));
+      row.appendChild(el("span", { style: "flex:1" + (b.priority === "high" ? ";font-weight:600" : "") }, (b.priority === "high" ? "★ " : "") + b.title));
+      bw.appendChild(row);
+    });
+    if (activeBookings.length > 3) {
+      bw.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);text-align:right;margin-top:4px" }, `+ ещё ${activeBookings.length - 3}`));
+    }
+    c.appendChild(bw);
   }
 
   // Daily tip card (compact)
@@ -2683,6 +2790,25 @@ function openPlaceModal(id) {
   });
   body.appendChild(togg);
 
+  // Photos
+  body.appendChild(el("h3", { style: "margin-top:18px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Мои фото"));
+  const photos = getPlacePhotos(p.id);
+  const photoActions = el("div", { class: "btn-row" });
+  photoActions.appendChild(el("button", { class: "btn primary", onclick: () => capturePhotoForPlace(p.id) }, "📷 Я был здесь — снять фото"));
+  body.appendChild(photoActions);
+  if (photos.length) {
+    const gallery = el("div", { style: "display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;margin-top:10px" });
+    photos.forEach((dataUrl, idx) => {
+      const wrap = el("div", { style: "position:relative;aspect-ratio:1;overflow:hidden;border-radius:8px" });
+      const img = el("img", { src: dataUrl, alt: "фото", style: "width:100%;height:100%;object-fit:cover;cursor:pointer", onclick: () => { window.open(dataUrl, "_blank"); } });
+      wrap.appendChild(img);
+      const delBtn = el("button", { style: "position:absolute;top:4px;right:4px;width:24px;height:24px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:12px;cursor:pointer;line-height:1", onclick: () => { if (confirm("Удалить фото?")) { deletePlacePhoto(p.id, idx); openPlaceModal(p.id); } } }, "✕");
+      wrap.appendChild(delBtn);
+      gallery.appendChild(wrap);
+    });
+    body.appendChild(gallery);
+  }
+
   // Notes
   body.appendChild(el("h3", { style: "margin-top:18px;font-size:14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Заметки"));
   const note = el("textarea", { placeholder: "Заметки, бронь, время..." }, getNote(p.id));
@@ -2712,6 +2838,7 @@ function openPlaceModal(id) {
   const foot = $("#m-foot");
   foot.innerHTML = "";
   foot.appendChild(el("button", { class: "btn", onclick: () => openItinModal(p.id) }, "📋 В план"));
+  foot.appendChild(el("button", { class: "btn", onclick: () => sharePlace(p) }, "📤 Поделиться"));
   foot.appendChild(el("a", { class: "btn", href: mapsUrl(p), target: "_blank", rel: "noopener" }, "🗺 Карты"));
   if (p.web) foot.appendChild(el("a", { class: "btn", href: p.web, target: "_blank", rel: "noopener" }, "🌐 Сайт"));
 
@@ -2867,6 +2994,96 @@ function renderCustomRouteModal() {
       $("#route-modal").close();
     }
   }, `🗺 Открыть маршрут в Google Maps (${routeBuilder.points.length} точек)`));
+}
+
+// Photo capture & storage
+function getPlacePhotos(placeId) {
+  return (state.photos && state.photos[placeId]) || [];
+}
+function addPlacePhoto(placeId, dataUrl) {
+  state.photos = state.photos || {};
+  state.photos[placeId] = state.photos[placeId] || [];
+  state.photos[placeId].push(dataUrl);
+  try { saveState(); } catch (e) { toast("Ошибка сохранения (память?): " + e.message); }
+}
+function deletePlacePhoto(placeId, idx) {
+  if (!state.photos || !state.photos[placeId]) return;
+  state.photos[placeId].splice(idx, 1);
+  if (!state.photos[placeId].length) delete state.photos[placeId];
+  saveState();
+}
+
+function compressImage(file, maxSize = 1400, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width > height) { height = Math.round(height * maxSize / width); width = maxSize; }
+          else { width = Math.round(width * maxSize / height); height = maxSize; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function capturePhotoForPlace(placeId) {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "image/*";
+  inp.capture = "environment"; // hint to use back camera
+  inp.style.display = "none";
+  document.body.appendChild(inp);
+  inp.addEventListener("change", async () => {
+    const file = inp.files && inp.files[0];
+    if (!file) { document.body.removeChild(inp); return; }
+    toast("Обрабатываю фото...");
+    try {
+      const dataUrl = await compressImage(file, 1400, 0.72);
+      addPlacePhoto(placeId, dataUrl);
+      // Auto mark as visited
+      if (getStatus(placeId) !== "visited") setStatus(placeId, "visited");
+      openPlaceModal(placeId); // re-render with new photo
+      toast("Фото добавлено · место отмечено посещённым");
+    } catch (e) {
+      toast("Ошибка обработки: " + e.message);
+    } finally {
+      document.body.removeChild(inp);
+    }
+  });
+  inp.click();
+}
+
+async function sharePlace(p) {
+  const text = `${p.emoji} ${p.name}\n${p.address}\n\n${p.desc.slice(0, 200)}${p.desc.length > 200 ? "…" : ""}\n\n📍 ${mapsUrl(p)}\n💰 ${p.price || "—"}${p.hours ? "\n🕐 " + p.hours : ""}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: p.name, text });
+    } catch (e) {
+      if (e.name !== "AbortError") {
+        await navigator.clipboard.writeText(text);
+        toast("Скопировано (share отменён)");
+      }
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("Скопировано в буфер обмена");
+    } catch (e) {
+      toast("Не удалось скопировать: " + e.message);
+    }
+  }
 }
 
 function openItinModal(placeId) {
@@ -3054,6 +3271,7 @@ function renderMe() {
   container.innerHTML = "";
 
   const sections = [
+    { id: "bookings", title: "📅 Бронирования", render: renderGuideBookings },
     { id: "contacts", title: "📞 Полезные контакты", render: renderGuideContacts },
     { id: "transport", title: "🚇 Транспорт и проездные", render: renderGuideTransport },
     { id: "checklist", title: "✅ Чек-лист до поездки", render: renderGuideChecklist },
@@ -3084,6 +3302,60 @@ function renderMe() {
 }
 
 // === Guide section renderers ===
+
+function renderGuideBookings(c) {
+  const total = DEFAULT_BOOKINGS.length;
+  const done = DEFAULT_BOOKINGS.filter(b => getBooking(b.id).status === "done").length;
+  const skip = DEFAULT_BOOKINGS.filter(b => getBooking(b.id).status === "skip").length;
+  const todo = total - done - skip;
+
+  c.appendChild(el("div", { class: "card-soft", style: "padding:10px;margin-bottom:10px;font-size:13px;line-height:1.5" },
+    `Прогресс: ✅ ${done} готово · ⏳ ${todo} осталось · ⏭ ${skip} пропущено`
+  ));
+
+  DEFAULT_BOOKINGS.forEach(b => {
+    const stat = getBooking(b.id).status;
+    const isDone = stat === "done";
+    const isSkip = stat === "skip";
+    const card = el("div", { class: "card-soft", style: "margin-bottom:8px;padding:12px" + (isDone ? ";opacity:0.5" : "") });
+    const head = el("div", { style: "display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px" });
+    const titleEl = el("div", { style: "flex:1;font-weight:600;font-size:14px" + (isDone ? ";text-decoration:line-through" : "") });
+    if (b.priority === "high") titleEl.appendChild(el("span", { style: "color:var(--danger);font-weight:700" }, "★ "));
+    titleEl.appendChild(document.createTextNode(b.title));
+    head.appendChild(titleEl);
+    head.appendChild(el("span", { style: "font-size:11px;color:var(--text-soft);font-weight:600;text-align:right;flex-shrink:0;line-height:1.3" }, `${formatBookingDate(b.forDate)}<br>${b.forTime}`));
+    head.lastChild.innerHTML = `${formatBookingDate(b.forDate)}<br>${b.forTime}`;
+    card.appendChild(head);
+
+    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);line-height:1.45" }, b.note));
+
+    const meta = el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px" });
+    if (b.place) meta.appendChild(el("div", null, "📍 " + b.place));
+    card.appendChild(meta);
+
+    const btns = el("div", { class: "btn-row", style: "margin-top:8px" });
+    if (b.url) btns.appendChild(el("a", { class: "btn tiny", href: b.url, target: "_blank", rel: "noopener" }, "🌐 Открыть"));
+    if (b.contact && b.contact !== "—" && b.contact.startsWith("+")) {
+      btns.appendChild(el("a", { class: "btn tiny primary", href: "tel:" + b.contact.replace(/\s/g, "") }, "📞 " + b.contact));
+    } else if (b.contact && b.contact !== "—") {
+      btns.appendChild(el("span", { class: "tag" }, b.contact));
+    }
+    if (!isDone && !isSkip) {
+      btns.appendChild(el("button", { class: "btn tiny success", onclick: () => { setBookingStatus(b.id, "done"); renderMe(); } }, "✓ Готово"));
+      btns.appendChild(el("button", { class: "btn tiny ghost", onclick: () => { setBookingStatus(b.id, "skip"); renderMe(); } }, "⏭ Пропустить"));
+    } else {
+      btns.appendChild(el("button", { class: "btn tiny", onclick: () => { setBookingStatus(b.id, "todo"); renderMe(); } }, "↩︎ Вернуть"));
+    }
+    card.appendChild(btns);
+    c.appendChild(card);
+  });
+}
+
+function formatBookingDate(iso) {
+  const d = new Date(iso);
+  const days = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+  return `${days[d.getDay()]} ${d.getDate().toString().padStart(2, "0")}.${(d.getMonth()+1).toString().padStart(2, "0")}`;
+}
 
 function renderGuideContacts(c) {
   CONTACTS.forEach(group => {
@@ -3179,16 +3451,47 @@ function renderGuidePhrases(c) {
 
 function renderGuideDishes(c) {
   c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Что обязательно попробовать в Валенсии. Тапни по карточке — увидишь фото, состав и пошаговый рецепт."));
-  DISHES.forEach(d => {
-    const row = el("div", { class: "card-soft dish-card", style: "margin-bottom:8px", onclick: () => openDishModal(d.id) });
-    row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center" },
-      el("span", null, d.emoji + " " + d.name),
-      el("span", { style: "color:var(--text-soft);font-size:13px" }, "→")
-    ));
-    row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text)" }, d.desc));
-    row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;color:var(--text-soft)" }, "📍 " + d.where));
-    c.appendChild(row);
-  });
+
+  // Search box
+  const searchInp = el("input", { type: "text", placeholder: "🔍 Поиск: название, ингредиент, где...", style: "margin-bottom:10px" });
+  searchInp.value = state.dishSearch || "";
+  c.appendChild(searchInp);
+
+  const listEl = el("div", { id: "dishes-list" });
+  c.appendChild(listEl);
+
+  function renderList() {
+    const q = (searchInp.value || "").trim().toLowerCase();
+    state.dishSearch = q;
+    let list = DISHES.slice();
+    if (q) {
+      list = list.filter(d => {
+        const ing = (d.ingredients || []).join(" ").toLowerCase();
+        return d.name.toLowerCase().includes(q)
+          || d.desc.toLowerCase().includes(q)
+          || (d.where || "").toLowerCase().includes(q)
+          || ing.includes(q);
+      });
+    }
+    listEl.innerHTML = "";
+    if (!list.length) {
+      listEl.appendChild(el("div", { class: "empty" }, "Ничего не нашлось"));
+      return;
+    }
+    list.forEach(d => {
+      const row = el("div", { class: "card-soft dish-card", style: "margin-bottom:8px", onclick: () => openDishModal(d.id) });
+      row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center" },
+        el("span", null, d.emoji + " " + d.name),
+        el("span", { style: "color:var(--text-soft);font-size:13px" }, "→")
+      ));
+      row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text)" }, d.desc));
+      row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;color:var(--text-soft)" }, "📍 " + d.where));
+      listEl.appendChild(row);
+    });
+  }
+
+  searchInp.addEventListener("input", () => { renderList(); saveState(); });
+  renderList();
 }
 
 async function fetchDishImage(wikiTitle) {
