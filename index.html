@@ -460,17 +460,6 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
   <div class="filters" id="map-cat-filters"></div>
   <div class="map-wrap">
     <div id="map-leaflet"></div>
-    <div class="map-legend" id="map-legend">
-      <span class="legend-dot lg-sight">Достопр.</span>
-      <span class="legend-dot lg-museum">Музей</span>
-      <span class="legend-dot lg-religious">Храм</span>
-      <span class="legend-dot lg-park">Парк</span>
-      <span class="legend-dot lg-beach">Пляж</span>
-      <span class="legend-dot lg-food">Еда</span>
-      <span class="legend-dot lg-coffee">Кофе</span>
-      <span class="legend-dot lg-dessert">Десерт</span>
-      <span class="legend-dot lg-special">Особые</span>
-    </div>
   </div>
   <div id="map-info" style="font-size:13px;color:var(--text-soft);margin-top:4px">🏠 Отель · 🥘 Агус · 🌷 Лена · ✈️ Аэропорт · иконка = категория места</div>
   <div style="margin-top:12px"><button class="btn full" id="open-google-map">📍 Открыть всё в Google Maps</button></div>
@@ -999,6 +988,75 @@ function statCell(n, l) {
   c.appendChild(el("div", { class: "l" }, l));
   return c;
 }
+
+// ============================================================
+//  EVENTS — что происходит в Валенсии в дни поездки
+// ============================================================
+const EVENTS = {
+  d1: { // Sat 30.05
+    note: "Суббота — много открыто, концерты вечером, рынок La Escuraeta. Музей Bellas Artes бесплатно весь день.",
+    items: [
+      { name: "🎨 L'Escuraeta", desc: "Ремесленный рынок на Plaza de la Reina: керамика, деревянная утварь, мисочки для арроса. 26 ларьков.", when: "Каждый день 09:00–22:00 (до 7.06)", price: "Бесплатно (вход)", url: "https://www.visitvalencia.com/agenda-valencia/lescuraeta-el-mercado-de-artesania-en-la-plaza-de-la-reina" },
+      { name: "🆓 Museo Taurino + арена", desc: "Музей корриды внутри Plaza de Toros. Сб/Вс/праздники — БЕСПЛАТНО (иначе 2 €). Заходить как раз в субботу/воскресенье.", when: "Вт-Сб 10–19, Вс 10–14", price: "Бесплатно в Сб/Вс", url: "http://museotaurinovalencia.es/es/museo" },
+      { name: "🆓 Museo de Bellas Artes", desc: "Веласкес, Гойя, Эль Греко, Соролья. Постоянно бесплатно. Если попадаете в центр днём — можно зайти.", when: "Вт-Вс 10:00–20:00", price: "Бесплатно всегда", url: "https://www.museobellasartesvalencia.gva.es/" },
+      { name: "🎵 Pablo Alborán @ Roig Arena", desc: "Концерт испанского певца. Если фанат — берите билеты.", when: "Сб 30.05 вечером", price: "~40–90 €", url: "https://www.songkick.com/metro-areas/28802-spain-valencia/2026" },
+      { name: "🎵 Iván Ferreiro @ Jardines de Viveros", desc: "Концерт в королевских садах — атмосфера на воздухе.", when: "Сб 30.05 вечером", price: "~25–45 €", url: "" },
+      { name: "🎵 Festival Love the 90's", desc: "Музыка 90-х на территории Ciudad de las Artes. Большая толпа, не для тихого вечера.", when: "Сб 30.05", price: "~30–55 €", url: "https://www.visitvalencia.com/agenda-valencia/festival-love-90s-valencia-2026" },
+      { name: "🎪 Cirque du Soleil «Alegría»", desc: "Последние два дня в Валенсии (27–31.05). Билеты ещё могут быть.", when: "Сб 30.05 и Вс 31.05", price: "~50–150 €", url: "https://www.cirquedusoleil.com/" },
+      { name: "⛵ Vela latina @ Albufera", desc: "Выставка традиционных парусов на озере Альбуфера. Уникально, не туристическое.", when: "Сб 30.05", price: "Бесплатно", url: "" },
+    ],
+  },
+  d2: { // Sun 31.05
+    note: "★ ВОСКРЕСЕНЬЕ = ДЕНЬ БЕСПЛАТНЫХ МУЗЕЕВ. Lonja, Cerámica, Torres de Serranos/Quart, Almoina, Fallero, Arroz, IVAM, Bellas Artes, L'Etno — всё бесплатно. Используйте по полной.",
+    items: [
+      { name: "🆓 La Lonja de la Seda (ЮНЕСКО)", desc: "Главная цель воскресенья. Обычно 2 € — сегодня бесплатно.", when: "Вс 10:00–14:00", price: "Бесплатно", url: "" },
+      { name: "🆓 Torres de Serranos + Quart", desc: "Подъём на ворота — лучший вид на старый город. Сегодня бесплатно.", when: "Вс 10:00–14:00", price: "Бесплатно", url: "" },
+      { name: "🆓 Museo Nacional de Cerámica", desc: "Дворец маркизов Дос-Агуас. Только ради алебастрового фасада идти.", when: "Вс 10:00–14:00", price: "Бесплатно", url: "" },
+      { name: "🆓 La Almoina (археология)", desc: "Подземные римские раскопки под собором.", when: "Вс 10:00–14:00", price: "Бесплатно", url: "" },
+      { name: "🆓 Museo Fallero", desc: "Спасённые от сожжения ninots с праздника Лас-Фальяс.", when: "Вс 10:00–14:00", price: "Бесплатно", url: "" },
+      { name: "🆓 IVAM (современное искусство)", desc: "Институт современного искусства Валенсии. Бесплатно по Вс.", when: "Вт-Вс 10:00–20:00", price: "Бесплатно по Вс", url: "https://www.ivam.es/" },
+      { name: "🎨 L'Escuraeta продолжается", desc: "Ремесленный рынок на Plaza de la Reina.", when: "Вс 09:00–22:00", price: "Бесплатно", url: "" },
+      { name: "🎵 Концерт камерной музыки @ Palau de la Música", desc: "Воскресенье — классика для тихого вечера.", when: "Вс 31.05", price: "~12–30 €", url: "https://www.palauvalencia.com/" },
+      { name: "🆓 Бесплатные концерты в MuVIM", desc: "Музей иллюстрации проводит цикл бесплатных концертов по воскресеньям.", when: "Вс 31.05", price: "Бесплатно", url: "" },
+      { name: "🎵 Amaia Arenas @ Roig Arena", desc: "Концерт певицы, если её знаете.", when: "Вс 31.05 вечером", price: "~30–60 €", url: "" },
+      { name: "⛵ Catamaran с клочинас", desc: "Прогулка на катамаране с дегустацией валенсийских мидий-клочинас. Сезон только начался.", when: "Вс 31.05", price: "~25–35 €", url: "" },
+      { name: "💃 Фламенко @ Café del Duende", desc: "Лучшее фламенко-шоу города. Воскресенье — есть представление.", when: "Сб-Вс ~22:00", price: "~25 €", url: "" },
+      { name: "ℹ️ Про корриду в Вс — НЕТ", desc: "Сам бой быков на арене проходит только во время Fallas (март) и Feria de Julio. В обычное воскресенье корриды НЕТ. Возможно вы слышали про музей корриды (см. Сб) — он бесплатен в выходные.", when: "—", price: "—", url: "" },
+    ],
+  },
+  d3: { // Mon 01.06
+    note: "Понедельник — большинство музеев ЗАКРЫТО (плановый выходной). Идеально для пляжа, Cabanyal, прогулок и встречи с Леной.",
+    items: [
+      { name: "🚫 Музеи Пн закрыты", desc: "Bellas Artes, IVAM, Cerámica, Fallero, Almoina, Museo Taurino — все по понедельникам выходные. Не планировать.", when: "Пн", price: "—", url: "" },
+      { name: "🏖 Пляжи открыты", desc: "Malvarrosa, Patacona, Las Arenas. Полиция и спасатели — там обычно есть.", when: "Каждый день", price: "Бесплатно", url: "" },
+      { name: "🥘 Cabanyal по будням", desc: "Старый рыбацкий район интереснее в будни — местные дома, тихие улицы. La Sastrería работает (Вт-Сб), уточнить понедельник по телефону.", when: "Пн 01.06", price: "—", url: "" },
+      { name: "🎨 L'Escuraeta", desc: "Ремесленный рынок на Plaza de la Reina — работает.", when: "Пн 09:00–22:00", price: "Бесплатно", url: "" },
+      { name: "🎷 Jazz Wednesdays @ Restaurante Alegal", desc: "Не сегодня, но завтра (среда) — джаз каждую среду весь год.", when: "Каждую среду", price: "Бесплатно вход", url: "" },
+      { name: "💡 Идея на вечер с Леной", desc: "Перед ужином — пройтись по Carrer dels Serrans, посмотреть Torres de Serranos рядом с её домом. Купить букет в цветочной у Mercado Central (открыто до 15) или у Plaza de la Virgen.", when: "Пн вечером", price: "Букет 8-15 €", url: "" },
+    ],
+  },
+  d4: { // Tue 02.06
+    note: "Вторник — все музеи работают. Хороший день для Океанариума (билет онлайн), Города искусств и науки.",
+    items: [
+      { name: "🐠 Oceanogràfic работает", desc: "Самый большой океанариум Европы. Билет ОНЛАЙН ~36 € (касса 42 €).", when: "Вт 10:00–18:00 (летом до 20:00)", price: "36-42 €", url: "https://www.oceanografic.org/" },
+      { name: "🛸 Museo de Ciencias Príncipe Felipe", desc: "Интерактивный музей науки в Городе искусств. Работает.", when: "Вт 10:00–19:00", price: "8 €", url: "" },
+      { name: "👁 L'Hemisfèric (планетарий/IMAX)", desc: "Кинотеатр-глаз. Сеансы каждые час-два.", when: "Вт 11:00–19:30", price: "9 €", url: "" },
+      { name: "🌴 L'Umbracle (сад-аркада)", desc: "Открытый сад со скульптурами. Всегда бесплатно.", when: "Каждый день", price: "Бесплатно", url: "" },
+      { name: "🎨 L'Escuraeta", desc: "Ремесленный рынок продолжается.", when: "Вт 09:00–22:00", price: "Бесплатно", url: "" },
+      { name: "🆓 Музеи во вторник за 2 €", desc: "Лаонья, Серранос, Кварт, Керамика и др. — 2 € (вс бесплатно, пн закрыто). Открыты с 10.", when: "Вт", price: "2 € каждый", url: "" },
+    ],
+  },
+  d5: { // Wed 03.06
+    note: "Среда — день отъезда. Если выбираете Jardín del Papagayo (попугаи + капибары) — выезд рано, расчёт жёсткий. Иначе Bioparc или Bellas Artes + Monforte.",
+    items: [
+      { name: "🦜 Jardín del Papagayo", desc: "11:00–15:00 короткие часы. Часовой выезд из отеля в 09:00.", when: "Ср 03.06", price: "22 € (доп. лемуры +5 €)", url: "https://jardindelpapagayo.com/" },
+      { name: "🦁 Bioparc", desc: "Без клеток зоопарк. 3 часа. Альтернатива попугаям если ближе.", when: "Ср 03.06 10:00–18:00", price: "28 €", url: "https://www.bioparcvalencia.es/" },
+      { name: "🆓 Bellas Artes", desc: "Если выбираете спокойный день — Веласкес и Гойя бесплатно.", when: "Ср 10:00–20:00", price: "Бесплатно", url: "" },
+      { name: "🎷 Jazz Wednesdays @ Alegal", desc: "Если не успели улететь и есть свободный вечер. Среда — джаз. (Но у вас вылет в 17:00.)", when: "Каждую среду вечером", price: "Бесплатно", url: "" },
+      { name: "🎨 L'Escuraeta последний день", desc: "Если хотите керамические сувениры — Plaza de la Reina.", when: "Ср 09:00–22:00", price: "Бесплатно", url: "" },
+    ],
+  },
+};
 
 // Taxi deep-link helpers
 function getTaxiUrls(lat, lng, name) {
@@ -1529,12 +1587,13 @@ function defaultState() {
 function defaultItinerary() {
   return {
     d1: [
-      { time: "10:00", title: "Прилёт VLC", note: "Терминал, забрать багаж", placeId: null },
-      { time: "10:30", title: "Такси в Benimaclet", note: "~25 €, ~25 мин (или метро L3/L5 ~3.20 € ~35 мин)", placeId: null },
-      { time: "11:15", title: "Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12", placeId: null },
-      { time: "12:00", title: "Lunch у Агуса", note: "C/ de Viver, 6, Benimaclet · этаж 5, дверь 7. Меню: Paella + Empanadas + Jamón + Pan con tomate y alioli + Fuet + quesito. До 20:00.", placeId: null },
-      { time: "16:00", title: "Прогулка с Агусом по центру", note: "Агус покажет старый город", placeId: null },
-      { time: "20:00", title: "Ужин с компанией Агуса", note: "В каком-нибудь валенсийском месте — Агус выберет.", placeId: null },
+      { time: "10:00", title: "Прилёт VLC", note: "Терминал — забрать багаж. Метро L5+L3 до Benimaclet ~3.20 €/30 мин с пересадкой, или такси ~25 €/25 мин (Cabify дешевле).", placeId: null },
+      { time: "11:00", title: "Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12, Benimaclet. До дома Агуса — 10 мин пешком.", placeId: null },
+      { time: "11:45", title: "К Агусу (10 мин пешком)", note: "C/ de Viver, 6 · этаж 5, дверь 7. Идти лёгкой одеждой — будет жарко (28-32°).", placeId: null },
+      { time: "12:00", title: "🥘 Lunch у Агуса (12:00–~16:00)", note: "Меню Агуса: Paella + Empanadas + Jamón + Pan con tomate y alioli + Fuet + quesito. С собой — десерт/фрукты или подарок страны.", placeId: null },
+      { time: "16:00", title: "🚶 Прогулка по центру с Агусом", note: "Агус показывает Валенсию: Plaza de la Virgen, Cathedral, Plaza Redonda, La Lonja (бесплатно — суббота). Mercado Central работает до 15:00 (не успеваете), но снаружи здание модернизма красиво.", placeId: "plaza-virgen" },
+      { time: "19:00", title: "🍷 Ужин с Агусом в валенсийском месте", note: "Агус выберет ресторан. Готовьтесь к позднему ужину — испанцы реально начинают около 21:00. Tip Агусу: «Без алкоголя, мы не пьём».", placeId: null },
+      { time: "22:00", title: "Обратно в отель", note: "Такси из центра до Benimaclet ~7-10 €. Cabify дешевле уличных.", placeId: null },
     ],
     d2: [
       { time: "—", title: "🦜 ОПЦИЯ B: вместо центра — день в Peñíscola", note: "Если хотите попугаев+капибар: выезд 09:00 на машине (1.5ч) или поезд Cercanías C-1 до Benicarló. Парк работает 11:00–15:00. После — крепость Peñíscola и старый город. Обратно к вечеру. Тогда центр Валенсии переносим (см. ниже).", placeId: "peniscola-parrots" },
@@ -1948,6 +2007,40 @@ function renderPlan() {
   c.innerHTML = "";
   const day = DAYS.find(d => d.id === dayId);
   c.appendChild(el("h3", null, day.title));
+
+  // Events of the day card
+  const evData = EVENTS[dayId];
+  if (evData) {
+    const evWrap = el("div", { class: "card-soft", style: "margin-bottom:12px;padding:0;overflow:hidden" });
+    const isOpen = state.openEvents === dayId;
+    const evHeader = el("button", {
+      style: "width:100%;text-align:left;padding:12px 14px;background:transparent;border:none;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;line-height:1.4",
+      onclick: () => { state.openEvents = isOpen ? null : dayId; saveState(); renderPlan(); }
+    });
+    const headerText = el("div", null);
+    headerText.appendChild(el("div", null, "📰 События дня · " + (evData.items.length) + " шт."));
+    if (evData.note) headerText.appendChild(el("div", { style: "font-weight:400;font-size:12px;color:var(--text-soft);margin-top:3px" }, evData.note));
+    evHeader.appendChild(headerText);
+    evHeader.appendChild(el("span", { style: "color:var(--text-soft);font-size:18px;margin-left:8px;flex-shrink:0" }, isOpen ? "▾" : "▸"));
+    evWrap.appendChild(evHeader);
+    if (isOpen) {
+      const evBody = el("div", { style: "padding:0 14px 14px;border-top:1px solid var(--border)" });
+      evData.items.forEach(ev => {
+        const row = el("div", { style: "padding:10px 0;border-bottom:1px solid var(--border)" });
+        row.appendChild(el("div", { style: "font-weight:600;font-size:14px;margin-bottom:3px" }, ev.name));
+        row.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);line-height:1.5;margin-bottom:5px" }, ev.desc));
+        const meta = el("div", { style: "font-size:12px;color:var(--text-soft);display:flex;gap:10px;flex-wrap:wrap;align-items:center" });
+        if (ev.when) meta.appendChild(el("span", null, "🕐 " + ev.when));
+        if (ev.price) meta.appendChild(el("span", null, "💰 " + ev.price));
+        if (ev.url) meta.appendChild(el("a", { href: ev.url, target: "_blank", rel: "noopener", style: "color:var(--accent)" }, "🔗 Открыть"));
+        row.appendChild(meta);
+        evBody.appendChild(row);
+      });
+      evWrap.appendChild(evBody);
+    }
+    c.appendChild(evWrap);
+  }
+
   const items = state.itinerary[dayId] || [];
 
   items.forEach((it, idx) => {
@@ -2360,7 +2453,7 @@ function renderMap() {
     L.marker([TRIP.lena.lat, TRIP.lena.lng], {
       icon: L.divIcon({ html: '<div class="sp-marker lena">🌷</div>', className: "", iconSize: [34, 34], iconAnchor: [17, 17] }),
       zIndexOffset: 1100,
-    }).bindPopup(`<b>🌷 ${TRIP.lena.name}</b><br>${TRIP.lena.address}<br><small>${TRIP.lena.note}</small><br><small>С собой: цветы + сладкое (не вино)</small><div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.lena.lat},${TRIP.lena.lng}" target="_blank">🗺 Maps</a></div>`).addTo(leafletSpecialLayer);
+    }).bindPopup(`<b>🌷 ${TRIP.lena.name}</b><br>${TRIP.lena.address}<br><small>${TRIP.lena.note}</small><div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.lena.lat},${TRIP.lena.lng}" target="_blank">🗺 Maps</a></div>`).addTo(leafletSpecialLayer);
 
     // Airport
     L.marker([TRIP.airport.lat, TRIP.airport.lng], {
