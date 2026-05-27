@@ -507,6 +507,16 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
   <div class="modal-body" id="im-body"></div>
 </dialog>
 
+<dialog class="modal" id="route-modal">
+  <div class="modal-head">
+    <div class="grip"></div>
+    <h3>✏️ Свой маршрут</h3>
+    <button class="close" id="rm-close">✕</button>
+  </div>
+  <div class="modal-body" id="rm-body"></div>
+  <div class="modal-foot" id="rm-foot"></div>
+</dialog>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1067,6 +1077,99 @@ function getTaxiUrls(lat, lng, name) {
     { app: "Uber", url: `uber://?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${enc}`, fallback: `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${enc}` },
     { app: "Bolt", url: `https://bolt.eu/order/?destinationLat=${lat}&destinationLng=${lng}`, fallback: "https://bolt.eu/" },
   ];
+}
+
+// ============================================================
+//  ROUTE BUILDER — Google Maps multi-stop directions
+// ============================================================
+function buildMapsRouteUrl({ origin, waypoints, destination, mode }) {
+  const params = new URLSearchParams();
+  params.set("api", "1");
+  if (origin) params.set("origin", origin);
+  if (destination) params.set("destination", destination);
+  if (waypoints && waypoints.length) params.set("waypoints", waypoints.join("|"));
+  if (mode) params.set("travelmode", mode);
+  return "https://www.google.com/maps/dir/?" + params.toString();
+}
+
+function nearestNeighborOrder(start, points) {
+  const remaining = points.slice();
+  const ordered = [];
+  let curr = start;
+  while (remaining.length) {
+    let bestIdx = 0, bestD = Infinity;
+    remaining.forEach((p, i) => {
+      const d = haversine(curr, p);
+      if (d < bestD) { bestD = d; bestIdx = i; }
+    });
+    ordered.push(remaining[bestIdx]);
+    curr = remaining[bestIdx];
+    remaining.splice(bestIdx, 1);
+  }
+  return ordered;
+}
+
+function getRouteOrigin() {
+  // If GPS is fresh (within 10 minutes), use it. Otherwise hotel as fallback.
+  if (state.lastGpsLat && state.lastGpsTime && (Date.now() - state.lastGpsTime) < 10 * 60 * 1000) {
+    return { lat: state.lastGpsLat, lng: state.lastGpsLng, label: "Моё местоположение" };
+  }
+  return { lat: TRIP.hotel.lat, lng: TRIP.hotel.lng, label: "🏠 Отель" };
+}
+
+function openRoute(places, options = {}) {
+  if (!places || !places.length) { toast("Нет точек для маршрута"); return; }
+
+  const { mode = "walking", optimize = true, useGps = true, originOverride = null } = options;
+
+  let originPt;
+  if (originOverride) {
+    originPt = originOverride;
+  } else if (useGps) {
+    originPt = getRouteOrigin();
+  } else {
+    originPt = { lat: TRIP.hotel.lat, lng: TRIP.hotel.lng, label: "🏠 Отель" };
+  }
+
+  // Sort points by nearest neighbor from origin (if requested)
+  const orderedPts = optimize ? nearestNeighborOrder(originPt, places) : places.slice();
+
+  // Google Maps limit: 9 waypoints (excluding origin/destination)
+  const MAX_WAYPOINTS = 9;
+  const truncated = orderedPts.length > MAX_WAYPOINTS;
+  const usedPts = orderedPts.slice(0, MAX_WAYPOINTS);
+
+  const waypoints = usedPts.map(p => `${p.lat},${p.lng}`);
+  const origin = `${originPt.lat},${originPt.lng}`;
+  const destination = `${TRIP.hotel.lat},${TRIP.hotel.lng}`;
+
+  const url = buildMapsRouteUrl({ origin, waypoints, destination, mode });
+
+  if (truncated) toast(`Google Maps берёт max 9 точек. Использовано первые 9 из ${orderedPts.length}.`, 4000);
+
+  // Open in new tab/window
+  window.open(url, "_blank");
+}
+
+function placesFromItinerary(dayId) {
+  const items = state.itinerary[dayId] || [];
+  return items
+    .filter(it => it.placeId)
+    .map(it => PLACES.find(p => p.id === it.placeId))
+    .filter(p => p);
+}
+
+function openDayInMaps(dayId) {
+  const places = placesFromItinerary(dayId);
+  if (!places.length) {
+    toast("В этом дне нет мест с координатами");
+    return;
+  }
+  // Ask user about origin (GPS or hotel)
+  const useGps = state.lastGpsLat && state.lastGpsTime && (Date.now() - state.lastGpsTime) < 10 * 60 * 1000;
+  const fromLabel = useGps ? "Моё GPS" : "Отель";
+  if (!confirm(`Маршрут с ${places.length} точкой:\n\nСтарт: ${fromLabel}\nТочки: ${places.length} (по близости)\nФиниш: 🏠 Отель\n\nОткрыть в Google Maps?`)) return;
+  openRoute(places, { mode: "walking", optimize: true, useGps: true });
 }
 
 // ============================================================
@@ -2072,12 +2175,23 @@ function renderPlan() {
   c.appendChild(el("div", { style: "margin:16px 0" },
     el("button", { class: "btn primary full", onclick: () => addItem(dayId) }, "+ Добавить событие"),
   ));
+
+  // Maps route — full day in Google Maps (от GPS → точки → отель)
+  c.appendChild(el("div", { style: "margin:12px 0" },
+    el("button", { class: "btn accent full", onclick: () => openDayInMaps(dayId) }, "🗺 Весь день в Google Maps (с возвратом в отель)"),
+  ));
+
+  // Custom route builder
+  c.appendChild(el("div", { style: "margin:6px 0 12px" },
+    el("button", { class: "btn full", onclick: () => openCustomRouteModal(dayId) }, "✏️ Свой маршрут (выбрать точки)"),
+  ));
+
   c.appendChild(el("div", { class: "btn-row", style: "margin:8px 0" },
     el("button", { class: "btn", style: "flex:1", onclick: () => optimizeOrder(dayId) }, "🕐 По времени"),
     el("button", { class: "btn", style: "flex:1", onclick: () => optimizeRouteByGeoUi(dayId) }, "🗺 По гео"),
   ));
   c.appendChild(el("div", { style: "margin:8px 0;font-size:12px;color:var(--text-soft)" },
-    "«По времени» — сортирует по полю времени. «По гео» — выстраивает точки в порядке близости от отеля (nearest-neighbor)."
+    "«🗺 Весь день» — открывает Google Maps с маршрутом от твоего GPS через все точки дня обратно в отель.<br>«По времени/гео» — переставляет порядок в этом приложении."
   ));
 
   // Diary
@@ -2362,6 +2476,153 @@ $("#place-modal").addEventListener("click", (e) => {
   if (e.target === $("#place-modal")) $("#place-modal").close();
 });
 
+// === CUSTOM ROUTE BUILDER MODAL ===
+
+let routeBuilder = null; // { points: [placeId], mode, useGps, optimize, prefill: dayId|null }
+
+function openCustomRouteModal(dayId) {
+  // Pre-fill with the day's itinerary if provided
+  const prefill = dayId ? placesFromItinerary(dayId).map(p => p.id) : [];
+  routeBuilder = {
+    points: prefill,
+    mode: "walking",
+    useGps: true,
+    optimize: true,
+    prefillDay: dayId || null,
+  };
+  renderCustomRouteModal();
+  $("#route-modal").showModal();
+}
+
+function renderCustomRouteModal() {
+  const body = $("#rm-body");
+  const foot = $("#rm-foot");
+  body.innerHTML = "";
+  foot.innerHTML = "";
+  if (!routeBuilder) return;
+
+  // Origin section
+  const orig = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+  orig.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:6px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Старт"));
+  const gpsFresh = state.lastGpsLat && state.lastGpsTime && (Date.now() - state.lastGpsTime) < 10 * 60 * 1000;
+  const origRow = el("div", { class: "btn-row" });
+  origRow.appendChild(el("button", {
+    class: "btn" + (routeBuilder.useGps ? " primary" : ""),
+    style: "flex:1",
+    onclick: () => { routeBuilder.useGps = true; renderCustomRouteModal(); }
+  }, gpsFresh ? "📍 GPS (свежий)" : "📍 GPS (определить)"));
+  origRow.appendChild(el("button", {
+    class: "btn" + (!routeBuilder.useGps ? " primary" : ""),
+    style: "flex:1",
+    onclick: () => { routeBuilder.useGps = false; renderCustomRouteModal(); }
+  }, "🏠 Отель"));
+  orig.appendChild(origRow);
+  if (routeBuilder.useGps && !gpsFresh) {
+    orig.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px" }, "Google Maps попросит разрешение когда откроется. Можно нажать на «Сегодня» → «Определить» заранее."));
+  }
+  body.appendChild(orig);
+
+  // Selected points (with reorder)
+  const sel = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+  sel.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em;display:flex;justify-content:space-between" },
+    el("span", null, `Точки маршрута (${routeBuilder.points.length})`),
+    el("span", { style: "color:var(--success)" }, routeBuilder.points.length > 0 ? "→ 🏠 Отель в конце" : ""),
+  ));
+  if (routeBuilder.points.length === 0) {
+    sel.appendChild(el("div", { style: "color:var(--text-soft);font-size:13px;font-style:italic;padding:6px 0" }, "Пусто. Добавьте точки ниже ↓"));
+  } else {
+    routeBuilder.points.forEach((id, idx) => {
+      const p = PLACES.find(x => x.id === id);
+      if (!p) return;
+      const row = el("div", { style: "display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)" });
+      row.appendChild(el("div", { style: "font-weight:700;color:var(--primary);min-width:24px" }, (idx + 1) + "."));
+      row.appendChild(el("div", { style: "flex:1;font-size:14px" }, p.emoji + " " + p.name));
+      const actions = el("div", { style: "display:flex;gap:2px" });
+      actions.appendChild(el("button", { class: "btn tiny", style: "min-width:28px;padding:4px 6px", onclick: () => { if (idx > 0) { const tmp = routeBuilder.points[idx-1]; routeBuilder.points[idx-1] = routeBuilder.points[idx]; routeBuilder.points[idx] = tmp; renderCustomRouteModal(); } } }, "↑"));
+      actions.appendChild(el("button", { class: "btn tiny", style: "min-width:28px;padding:4px 6px", onclick: () => { if (idx < routeBuilder.points.length - 1) { const tmp = routeBuilder.points[idx+1]; routeBuilder.points[idx+1] = routeBuilder.points[idx]; routeBuilder.points[idx] = tmp; renderCustomRouteModal(); } } }, "↓"));
+      actions.appendChild(el("button", { class: "btn tiny danger", style: "min-width:28px;padding:4px 6px", onclick: () => { routeBuilder.points.splice(idx, 1); renderCustomRouteModal(); } }, "✕"));
+      row.appendChild(actions);
+      sel.appendChild(row);
+    });
+  }
+  body.appendChild(sel);
+
+  // Add places search
+  const add = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+  add.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Добавить точку"));
+  const searchInp = el("input", { type: "text", placeholder: "Поиск: название, район...", id: "rm-search" });
+  add.appendChild(searchInp);
+  const results = el("div", { id: "rm-results", style: "max-height:240px;overflow-y:auto;margin-top:8px" });
+  add.appendChild(results);
+  body.appendChild(add);
+
+  function renderResults() {
+    const q = (searchInp.value || "").trim().toLowerCase();
+    let list = PLACES.filter(p => !routeBuilder.points.includes(p.id));
+    if (q) list = list.filter(p => p.name.toLowerCase().includes(q) || p.district.toLowerCase().includes(q));
+    list = list.slice(0, 12);
+    results.innerHTML = "";
+    if (!list.length) {
+      results.appendChild(el("div", { style: "color:var(--text-soft);font-size:13px;padding:6px 0;font-style:italic" }, q ? "Ничего не найдено" : "Все добавлены"));
+      return;
+    }
+    list.forEach(p => {
+      const r = el("button", {
+        style: "width:100%;text-align:left;padding:8px;background:transparent;border:none;font:inherit;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center",
+        onclick: () => { routeBuilder.points.push(p.id); renderCustomRouteModal(); }
+      });
+      r.appendChild(el("span", { style: "font-size:18px" }, p.emoji));
+      const info = el("div", { style: "flex:1" });
+      info.appendChild(el("div", { style: "font-size:14px;font-weight:500" }, p.name));
+      info.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft)" }, CATEGORIES[p.cat].ru + " · " + p.district));
+      r.appendChild(info);
+      r.appendChild(el("span", { style: "color:var(--success);font-weight:700;font-size:18px" }, "+"));
+      results.appendChild(r);
+    });
+  }
+  searchInp.addEventListener("input", renderResults);
+  renderResults();
+
+  // Options: travel mode + optimize
+  const opts = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+  opts.appendChild(el("div", { style: "font-weight:600;font-size:13px;margin-bottom:8px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Способ передвижения"));
+  const modeRow = el("div", { class: "btn-row" });
+  ["walking", "transit", "driving"].forEach(m => {
+    const labels = { walking: "🚶 Пешком", transit: "🚇 Транспорт", driving: "🚗 Авто" };
+    modeRow.appendChild(el("button", {
+      class: "btn" + (routeBuilder.mode === m ? " primary" : ""),
+      style: "flex:1",
+      onclick: () => { routeBuilder.mode = m; renderCustomRouteModal(); }
+    }, labels[m]));
+  });
+  opts.appendChild(modeRow);
+  const optimizeRow = el("label", { style: "display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:10px;font-size:13px" });
+  const optCb = el("input", { type: "checkbox", style: "width:18px;height:18px;accent-color:var(--primary)" });
+  optCb.checked = routeBuilder.optimize;
+  optCb.addEventListener("change", () => { routeBuilder.optimize = optCb.checked; renderCustomRouteModal(); });
+  optimizeRow.appendChild(optCb);
+  optimizeRow.appendChild(el("span", null, "Оптимизировать порядок по близости (nearest-neighbor)"));
+  opts.appendChild(optimizeRow);
+  body.appendChild(opts);
+
+  // Info: hotel always last
+  body.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);text-align:center;padding:6px;line-height:1.5" },
+    "ℹ️ Финиш всегда — 🏠 Отель (чтобы легко вернуться). Google Maps берёт max 9 точек между стартом и финишем."
+  ));
+
+  // Footer button
+  foot.appendChild(el("button", {
+    class: "btn primary full lg",
+    disabled: routeBuilder.points.length === 0 ? "disabled" : null,
+    onclick: () => {
+      if (!routeBuilder.points.length) return;
+      const places = routeBuilder.points.map(id => PLACES.find(p => p.id === id)).filter(p => p);
+      openRoute(places, { mode: routeBuilder.mode, optimize: routeBuilder.optimize, useGps: routeBuilder.useGps });
+      $("#route-modal").close();
+    }
+  }, `🗺 Открыть маршрут в Google Maps (${routeBuilder.points.length} точек)`));
+}
+
 function openItinModal(placeId) {
   const body = $("#im-body");
   body.innerHTML = "";
@@ -2380,6 +2641,8 @@ function openItinModal(placeId) {
   $("#itin-modal").showModal();
 }
 $("#im-close").addEventListener("click", () => $("#itin-modal").close());
+$("#rm-close").addEventListener("click", () => $("#route-modal").close());
+$("#route-modal").addEventListener("click", (e) => { if (e.target === $("#route-modal")) $("#route-modal").close(); });
 
 // ============================================================
 //  MAP — Leaflet + OpenStreetMap (real tiles, cached by browser)
