@@ -261,10 +261,31 @@ dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0
 .leaflet-bar a:hover { background: var(--card-soft) !important; }
 
 /* Custom Leaflet marker (HTML divIcon) */
-.sp-marker { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--card); border: 2px solid var(--accent); border-radius: 50%; font-size: 16px; box-shadow: var(--shadow); }
-.sp-marker.hotel { border-color: var(--primary); }
-.sp-marker.friend { border-color: var(--accent); }
+.sp-marker { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: var(--card); border: 2.5px solid var(--accent); border-radius: 50%; font-size: 17px; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+.sp-marker.hotel { width: 46px; height: 46px; font-size: 24px; border-width: 3px; border-color: var(--primary); background: linear-gradient(135deg, #FFE5D0, white); box-shadow: 0 4px 10px rgba(212, 98, 45, 0.4); }
+.sp-marker.agus, .sp-marker.lena { border-color: #8B4789; background: linear-gradient(135deg, #F0E0F0, white); }
 .sp-marker.airport { border-color: var(--accent); }
+
+/* Place markers as emoji icons */
+.pm { width: 30px; height: 30px; background: var(--card); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.35); position: relative; }
+.pm[data-cat="sight"] { border-color: #D4622D; }
+.pm[data-cat="museum"] { border-color: #8B4789; }
+.pm[data-cat="religious"] { border-color: #6E5837; }
+.pm[data-cat="market"] { border-color: #C9A227; }
+.pm[data-cat="plaza"] { border-color: #D4622D; }
+.pm[data-cat="monument"] { border-color: #D4622D; }
+.pm[data-cat="park"] { border-color: #5A8D54; }
+.pm[data-cat="beach"] { border-color: #4AA1B8; }
+.pm[data-cat="district"] { border-color: #6FB3CC; }
+.pm[data-cat="food"] { border-color: #C9A227; }
+.pm[data-cat="coffee"] { border-color: #7A5230; }
+.pm[data-cat="dessert"] { border-color: #E07E9F; }
+.pm[data-cat="activity"] { border-color: #1E5F7A; }
+.pm[data-cat="daytrip"] { border-color: #1E5F7A; }
+.pm.is-visited { border-color: var(--success) !important; border-width: 3px; }
+.pm.is-want { border-color: var(--warning) !important; border-width: 3px; }
+.pm.is-want::after { content: "★"; position: absolute; top: -8px; right: -6px; font-size: 12px; color: var(--warning); text-shadow: 0 0 2px white, 0 0 2px white; }
+.pm.is-visited::after { content: "✓"; position: absolute; top: -8px; right: -6px; font-size: 12px; color: var(--success); font-weight: 900; text-shadow: 0 0 2px white, 0 0 2px white; }
 .legend-dot { display: inline-flex; align-items: center; gap: 4px; }
 .legend-dot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .lg-sight::before { background: #D4622D; }
@@ -451,7 +472,7 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
       <span class="legend-dot lg-special">Особые</span>
     </div>
   </div>
-  <div id="map-info" style="font-size:13px;color:var(--text-soft);margin-top:4px">🏨 Отель · 👤 Друг · ✈️ Аэропорт · цвет точки = категория</div>
+  <div id="map-info" style="font-size:13px;color:var(--text-soft);margin-top:4px">🏠 Отель · 🥘 Агус · 🌷 Лена · ✈️ Аэропорт · иконка = категория места</div>
   <div style="margin-top:12px"><button class="btn full" id="open-google-map">📍 Открыть всё в Google Maps</button></div>
 </section>
 
@@ -508,15 +529,16 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 const TRIP = {
   start: "2026-05-30",
   end: "2026-06-03",
-  hotel: { name: "Отель в Benimaclet", address: "Carrer del Baró de San Petrillo, 10-12, 46020 València", lat: 39.4838, lng: -0.3505 },
-  friend: { name: "Гость у друга (приблиз.)", address: "≈ La Saïdia / Primado Reig", lat: 39.4848, lng: -0.3735 },
+  hotel: { name: "Гостиница", address: "Carrer del Baró de San Petrillo, 10-12, 46020 València", lat: 39.4838, lng: -0.3505 },
+  agus: { name: "Агус (друг)", address: "C/ de Viver, 6, 5º 7ª, Benimaclet, 46020 València", lat: 39.4867, lng: -0.3657, note: "Сб 30.05, 12:00–20:00 · Этаж 5, дверь 7" },
+  lena: { name: "Лена (подруга)", address: "C/ dels Serrans, 10, 46003 València", lat: 39.4775, lng: -0.3766, note: "Пн 01.06 вечером — ужин у неё" },
   airport: { name: "Аэропорт VLC (Manises)", address: "Aeropuerto de Valencia", lat: 39.4893, lng: -0.4815 },
 };
 
 const DAYS = [
-  { id: "d1", date: "2026-05-30", label: "Сб 30.05", title: "Прилёт + друг" },
+  { id: "d1", date: "2026-05-30", label: "Сб 30.05", title: "Прилёт + Lunch у Агуса" },
   { id: "d2", date: "2026-05-31", label: "Вс 31.05", title: "Старый город" },
-  { id: "d3", date: "2026-06-01", label: "Пн 01.06", title: "Пляж + Cabanyal + подруга" },
+  { id: "d3", date: "2026-06-01", label: "Пн 01.06", title: "Пляж + Cabanyal + ужин у Лены" },
   { id: "d4", date: "2026-06-02", label: "Вт 02.06", title: "Океанариум + Город искусств" },
   { id: "d5", date: "2026-06-03", label: "Ср 03.06", title: "Уникальное + отъезд" },
 ];
@@ -689,9 +711,9 @@ const CHECKLIST_PRE_TRIP = [
   { id: "casacarmela", text: "БРОНЬ Casa Carmela — за 1-2 недели по их сайту/+34 96 371 0073 (только обеды)" },
   { id: "oceano-tickets", text: "Билет в Океанариум онлайн — экономия ~5 € против кассы (oceanografic.org)" },
   { id: "bioparc-tickets", text: "Если планируете Bioparc — билет онлайн на bioparcvalencia.es" },
-  { id: "friend-address", text: "Уточнить точный адрес дома друга в Primado Reig" },
-  { id: "podruga-address", text: "Уточнить адрес подруги для ужина в понедельник" },
-  { id: "podruga-gift", text: "Подарок подруге к ужину — вино/цветы/коробка конфет (Sabores de España уже на месте)" },
+  { id: "friend-address", text: "✓ Адрес Агуса: C/ de Viver, 6, этаж 5, дверь 7, Benimaclet" },
+  { id: "podruga-address", text: "✓ Адрес Лены: C/ dels Serrans, 10 (Пн ужин)" },
+  { id: "podruga-gift", text: "Подарок Лене к ужину — цветы + сладкое (вино НЕ берём, мы не пьём). Sabores de España рядом с её домом." },
   { id: "google-offline", text: "Google Maps: скачать оффлайн-карту Валенсии и Albufera" },
   { id: "translate-offline", text: "Google Translate: скачать испанский язык для оффлайн-перевода" },
   { id: "suma-cards", text: "В первый день купить 1-2 карты Bonometro 10 (8.40 € каждая)" },
@@ -1510,10 +1532,9 @@ function defaultItinerary() {
       { time: "10:00", title: "Прилёт VLC", note: "Терминал, забрать багаж", placeId: null },
       { time: "10:30", title: "Такси в Benimaclet", note: "~25 €, ~25 мин (или метро L3/L5 ~3.20 € ~35 мин)", placeId: null },
       { time: "11:15", title: "Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12", placeId: null },
-      { time: "11:45", title: "К другу в гости", note: "Адрес уточнить (район Primado Reig)", placeId: null },
-      { time: "14:00", title: "Отель, отдых", note: "", placeId: null },
-      { time: "16:00", title: "Прогулка с другом", note: "Друг покажет центр Валенсии", placeId: null },
-      { time: "20:00", title: "Ужин — Mercado Central прикрыт, выбрать на месте", note: "Друг знает места", placeId: null },
+      { time: "12:00", title: "Lunch у Агуса", note: "C/ de Viver, 6, Benimaclet · этаж 5, дверь 7. Меню: Paella + Empanadas + Jamón + Pan con tomate y alioli + Fuet + quesito. До 20:00.", placeId: null },
+      { time: "16:00", title: "Прогулка с Агусом по центру", note: "Агус покажет старый город", placeId: null },
+      { time: "20:00", title: "Ужин с компанией Агуса", note: "В каком-нибудь валенсийском месте — Агус выберет.", placeId: null },
     ],
     d2: [
       { time: "—", title: "🦜 ОПЦИЯ B: вместо центра — день в Peñíscola", note: "Если хотите попугаев+капибар: выезд 09:00 на машине (1.5ч) или поезд Cercanías C-1 до Benicarló. Парк работает 11:00–15:00. После — крепость Peñíscola и старый город. Обратно к вечеру. Тогда центр Валенсии переносим (см. ниже).", placeId: "peniscola-parrots" },
@@ -1529,12 +1550,12 @@ function defaultItinerary() {
     ],
     d3: [
       { time: "09:30", title: "Завтрак — Doux-Amer Cabanyal или La Más Bonita", note: "В сторону пляжа", placeId: "la-mas-bonita" },
-      { time: "11:00", title: "Пляж Patacona / Malvarrosa", note: "Встреча с подругой на пляже", placeId: "malvarrosa" },
+      { time: "11:00", title: "Пляж Patacona / Malvarrosa", note: "Встреча с Леной на пляже", placeId: "malvarrosa" },
       { time: "14:00", title: "Обед — La Sastrería (Cabanyal)", note: "Бронировать. Понедельник работает.", placeId: "la-sastreria" },
-      { time: "16:00", title: "Прогулка по Cabanyal с подругой", note: "Модернистская плитка, старые таверны", placeId: "cabanyal" },
+      { time: "16:00", title: "Прогулка по Cabanyal с Леной", note: "Модернистская плитка, старые таверны", placeId: "cabanyal" },
       { time: "17:30", title: "Museo del Arroz", note: "Музей риса (2 € вт-сб, по вс бесплатно). Пн — закрыто, проверь.", placeId: "arroz" },
       { time: "18:30", title: "Marina + Veles e Vents", note: "Кофе с видом на яхты", placeId: "marina" },
-      { time: "20:30", title: "Ужин у подруги", note: "Адрес — взять у подруги. Цветы/вино с собой.", placeId: null },
+      { time: "20:30", title: "Ужин у Лены", note: "C/ dels Serrans, 10. С собой: цветы + сладкое (вино не берём — не пьём). Можно из Sabores de España на той же улице.", placeId: null },
     ],
     d4: [
       { time: "09:00", title: "Завтрак — Coco Social House", note: "Рядом с отелем в Benimaclet", placeId: "coco-social" },
@@ -2323,21 +2344,27 @@ function renderMap() {
 
     leafletSpecialLayer = L.layerGroup().addTo(leafletMap);
 
-    // Hotel
+    // Hotel — big house icon
     L.marker([TRIP.hotel.lat, TRIP.hotel.lng], {
-      icon: L.divIcon({ html: '<div class="sp-marker hotel">🏨</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
-      zIndexOffset: 1000,
-    }).bindPopup(`<b>🏨 Гостиница</b><br>${TRIP.hotel.address}<div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.hotel.lat},${TRIP.hotel.lng}" target="_blank">🗺 Открыть</a></div>`).addTo(leafletSpecialLayer);
+      icon: L.divIcon({ html: '<div class="sp-marker hotel">🏠</div>', className: "", iconSize: [46, 46], iconAnchor: [23, 23] }),
+      zIndexOffset: 2000,
+    }).bindPopup(`<b>🏠 ${TRIP.hotel.name}</b><br>${TRIP.hotel.address}<div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.hotel.lat},${TRIP.hotel.lng}" target="_blank">🗺 Открыть в Maps</a></div>`).addTo(leafletSpecialLayer);
 
-    // Friend
-    L.marker([TRIP.friend.lat, TRIP.friend.lng], {
-      icon: L.divIcon({ html: '<div class="sp-marker friend">👤</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
-      zIndexOffset: 1000,
-    }).bindPopup(`<b>👤 Друг (приблиз.)</b><br>${TRIP.friend.address}<br><small>Уточнить точный адрес</small>`).addTo(leafletSpecialLayer);
+    // Agus (Sat lunch)
+    L.marker([TRIP.agus.lat, TRIP.agus.lng], {
+      icon: L.divIcon({ html: '<div class="sp-marker agus">🥘</div>', className: "", iconSize: [34, 34], iconAnchor: [17, 17] }),
+      zIndexOffset: 1100,
+    }).bindPopup(`<b>🥘 ${TRIP.agus.name}</b><br>${TRIP.agus.address}<br><small>${TRIP.agus.note}</small><br><small>Меню: Paella + Empanadas + Jamón + Pan con tomate y alioli + Fuet + quesito</small><div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.agus.lat},${TRIP.agus.lng}" target="_blank">🗺 Maps</a></div>`).addTo(leafletSpecialLayer);
+
+    // Lena (Mon dinner)
+    L.marker([TRIP.lena.lat, TRIP.lena.lng], {
+      icon: L.divIcon({ html: '<div class="sp-marker lena">🌷</div>', className: "", iconSize: [34, 34], iconAnchor: [17, 17] }),
+      zIndexOffset: 1100,
+    }).bindPopup(`<b>🌷 ${TRIP.lena.name}</b><br>${TRIP.lena.address}<br><small>${TRIP.lena.note}</small><br><small>С собой: цветы + сладкое (не вино)</small><div class="popup-actions"><a href="https://www.google.com/maps/search/?api=1&query=${TRIP.lena.lat},${TRIP.lena.lng}" target="_blank">🗺 Maps</a></div>`).addTo(leafletSpecialLayer);
 
     // Airport
     L.marker([TRIP.airport.lat, TRIP.airport.lng], {
-      icon: L.divIcon({ html: '<div class="sp-marker airport">✈️</div>', className: "", iconSize: [32, 32], iconAnchor: [16, 16] }),
+      icon: L.divIcon({ html: '<div class="sp-marker airport">✈️</div>', className: "", iconSize: [34, 34], iconAnchor: [17, 17] }),
       zIndexOffset: 1000,
     }).bindPopup(`<b>✈️ Аэропорт VLC</b><br>${TRIP.airport.address}<br><small>Прилёт 30.05 · Вылет 03.06</small>`).addTo(leafletSpecialLayer);
 
@@ -2379,15 +2406,18 @@ function renderMap() {
   visiblePlaces.forEach(p => {
     const stat = getStatus(p.id);
     if (stat === "skip" && state.mapCatFilter === "all") return; // hide skipped places in 'all' view
-    const color = (CATEGORIES[p.cat] && CATEGORIES[p.cat].color) || "#888";
-    const borderColor = stat === "visited" ? "#5A8D54" : stat === "want" ? "#C9A227" : "#FFFFFF";
-    const m = L.circleMarker([p.lat, p.lng], {
-      radius: stat !== "none" ? 9 : 7,
-      fillColor: color,
-      color: borderColor,
-      weight: stat !== "none" ? 3 : 2,
-      fillOpacity: 1,
-      opacity: 1,
+    const catEmoji = (CATEGORIES[p.cat] && CATEGORIES[p.cat].emoji) || "📍";
+    // Place-specific emoji takes precedence if set
+    const ico = p.emoji || catEmoji;
+    const statusClass = stat === "visited" ? " is-visited" : stat === "want" ? " is-want" : "";
+    const m = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({
+        html: `<div class="pm${statusClass}" data-cat="${p.cat}"><span>${ico}</span></div>`,
+        className: "",
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      }),
+      riseOnHover: true,
     }).addTo(leafletMap);
     const popupHtml = `<b>${p.emoji} ${p.name}</b><br><small>${CATEGORIES[p.cat].ru} · ${p.district} · ${fmtDist(distFromHotel(p))} от отеля</small>${p.tip ? `<br><br><small>${p.tip.slice(0, 120)}${p.tip.length > 120 ? "…" : ""}</small>` : ""}<div class="popup-actions"><button onclick="openPlaceModal('${p.id}')">Подробнее</button><a class="alt" href="${mapsUrl(p)}" target="_blank">Google Maps</a></div>`;
     m.bindPopup(popupHtml, { maxWidth: 280 });
