@@ -392,6 +392,22 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 .w-day-tab .d { font-weight: 700; font-size: 13px; line-height: 1.1; }
 .w-day-tab .t { font-size: 11px; margin-top: 3px; opacity: 0.9; }
 .w-day-tab .e { font-size: 14px; margin-top: 2px; }
+
+/* Dish modal */
+.dish-photo { width: 100%; aspect-ratio: 16/10; background: var(--bg-soft); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 14px; position: relative; }
+.dish-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dish-photo .placeholder { font-size: 80px; opacity: 0.5; }
+.dish-section { margin-top: 16px; }
+.dish-section h4 { font-size: 13px; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px; font-weight: 700; }
+.dish-list { margin: 0; padding: 0; list-style: none; }
+.dish-list.ing li { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.dish-list.ing li::before { content: "•"; color: var(--primary); font-weight: 700; margin-right: 8px; }
+.dish-list.steps { counter-reset: step; }
+.dish-list.steps li { counter-increment: step; padding: 8px 0 8px 32px; border-bottom: 1px solid var(--border); font-size: 14px; position: relative; line-height: 1.5; }
+.dish-list.steps li::before { content: counter(step); position: absolute; left: 0; top: 8px; width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.dish-where { background: var(--accent-soft); color: var(--accent); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; }
+.dish-card { cursor: pointer; transition: transform 0.05s, background 0.15s; }
+.dish-card:active { transform: scale(0.99); }
 </style>
 </head>
 <body>
@@ -515,6 +531,15 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
   </div>
   <div class="modal-body" id="rm-body"></div>
   <div class="modal-foot" id="rm-foot"></div>
+</dialog>
+
+<dialog class="modal" id="dish-modal">
+  <div class="modal-head">
+    <div class="grip"></div>
+    <h3 id="dm-title">Блюдо</h3>
+    <button class="close" id="dm-close">✕</button>
+  </div>
+  <div class="modal-body" id="dm-body"></div>
 </dialog>
 
 <div class="toast" id="toast"></div>
@@ -689,18 +714,102 @@ const PHRASES = [
 ];
 
 const DISHES = [
-  { name: "Paella Valenciana", emoji: "🥘", desc: "Классика. Рис с курицей, кроликом, белой фасолью (garrofó), зелёной фасолью, шафраном — НИКОГДА с морепродуктами, это валенсийская паэлья. Готовят на дровах из апельсиновых веток.", where: "Casa Carmela, La Sastrería, Nou Racó (Albufera)" },
-  { name: "Arroz a Banda", emoji: "🍚", desc: "Рис с морепродуктами и крепким рыбным бульоном. То что часто ошибочно называют «паэльей с морепродуктами».", where: "Casa Carmela, Restaurant Secret" },
-  { name: "Fideuà", emoji: "🍝", desc: "Похоже на паэлью, но вместо риса — тонкая лапша фидеос. С морепродуктами. Подаётся с алиоли.", where: "La Sastrería, Casa Montaña" },
-  { name: "All i Pebre", emoji: "🐟", desc: "Тушёный угорь из Альбуферы с чесноком, паприкой и картошкой. Только в районе озера. Местный специалитет, который вне Валенсии не попробуете.", where: "Nou Racó, La Colonia de Carmela" },
-  { name: "Horchata + Fartons", emoji: "🥛", desc: "Холодный напиток из чуфы (тигровый орех — корнеплод) с сахаром. Подают со сладкими булочками-фартонами для макания. Ритуал полудня в Валенсии.", where: "Horchatería Daniel (Mercado de Colón), Santa Catalina, Sabores de España" },
-  { name: "Agua de Valencia", emoji: "🥂", desc: "Коктейль из апельсинового сока, кавы, водки и джина. ⚠ Алкогольный. Местный, его сюда из СПб не привезёшь.", where: "Café de las Horas, Sant Jaume" },
-  { name: "Buñuelos de Calabaza", emoji: "🍩", desc: "Жареные тыквенные шарики с сахаром. Сезон — март (Лас-Фальяс), но кое-где круглый год.", where: "Buñoleria El Contraste, рынки" },
-  { name: "Torrija", emoji: "🍞", desc: "Хлеб, замоченный в молоке/яйце с корицей, обжаренный, политый мёдом или сиропом. Подают с мороженым в Panou.", where: "Panou, Doux-Amer" },
-  { name: "Clochinas / Mejillones", emoji: "🦪", desc: "Валенсийские мидии в томатно-перцовом соусе. Сезон июнь-сентябрь — повезло, как раз ваше время.", where: "Любые морские рестораны Cabanyal, Casa Montaña" },
-  { name: "Coca de Llanda", emoji: "🥮", desc: "Пышный кекс на оливковом масле с корицей. Локальная сладость на завтрак.", where: "Семейные пекарни, Mercado Central" },
-  { name: "Pulpo a la gallega", emoji: "🐙", desc: "Не валенсийское (галисийское), но в Валенсии готовят отлично. Осьминог с оливковым маслом и копчёной паприкой.", where: "Casa Montaña, рынки" },
-  { name: "Naranjas Valencianas", emoji: "🍊", desc: "Те самые знаменитые валенсийские апельсины. Купите килограмм на рынке — попробуете разницу.", where: "Mercado Central, Mercado Colón" },
+  {
+    id: "paella", name: "Paella Valenciana", emoji: "🥘", wiki: "Paella",
+    desc: "Классика. Рис с курицей, кроликом, белой фасолью гарроффо, зелёной фасолью, шафраном — НИКОГДА с морепродуктами, это валенсийская паэлья. Готовят на дровах из апельсиновых веток.",
+    where: "Casa Carmela, La Sastrería, Nou Racó (Albufera)",
+    price: "25–35 €/чел",
+    ingredients: ["Рис бомба или senia (300 г на 4 порц.)", "Курица 250 г + кролик 250 г", "Гарроффо — белая плоская фасоль (100 г)", "Ферраура — зелёная стручковая фасоль (150 г)", "Тёртый помидор (1 шт)", "Чеснок (3 зубчика)", "Сладкая паприка (1 ч.л.)", "Шафран (щепотка) или колорантэ", "Розмарин (веточка)", "Оливковое масло, соль", "Вода/бульон (900 мл)"],
+    recipe: ["В широкой паэльере обжарить курицу и кролика в оливковом масле до золотистого (~10 мин)", "Добавить зелёную фасоль и гарроффо, тушить 5 мин", "Сдвинуть мясо к краям. В центр — тёртый помидор и паприку, прогреть 2 мин (паприка не должна сгореть!)", "Залить кипящей водой/бульоном до уровня ручек паэльеры. Добавить шафран, соль, розмарин", "Варить 10-15 мин до концентрации бульона", "Высыпать рис РОВНЫМ слоем (часто в форме креста). НЕ перемешивать с этого момента!", "Варить 18 мин: 10 мин сильный огонь, 8 мин средний", "Последние 1-2 мин — сильный огонь для socarrat (карамельной корочки на дне)", "Снять с огня, накрыть полотенцем, дать настояться 5 мин"]
+  },
+  {
+    id: "arroz-banda", name: "Arroz a Banda", emoji: "🍚", wiki: "Arroz_a_banda",
+    desc: "Рис с морепродуктами и крепким рыбным бульоном fumet. То что часто ошибочно называют «паэльей с морепродуктами». Альбуферская морская родственница.",
+    where: "Casa Carmela, Restaurant Secret",
+    price: "22–30 €/чел",
+    ingredients: ["Рис бомба (300 г)", "Креветки, мидии, кальмар", "Рыбный бульон fumet (1 л)", "Чеснок (4 зубчика)", "Сладкая паприка", "Шафран, тёртый помидор", "Оливковое масло, соль"],
+    recipe: ["Сварить fumet: рыбные головы/кости + лук + морковь + лавровый лист, 30 мин", "Обжарить в паэльере моллюсков и креветки, отложить", "В то же масло — чеснок и тёртый помидор, протомить", "Добавить паприку и шафран, сразу залить fumet'ом", "Кипящим залить рис, варить 18 мин", "За 3 мин до готовности вернуть морепродукты", "Подавать с алиоли"]
+  },
+  {
+    id: "fideua", name: "Fideuà", emoji: "🍝", wiki: "Fideuà",
+    desc: "Похоже на паэлью, но вместо риса — тонкая короткая лапша фидеос #2. С морепродуктами. Подаётся с алиоли.",
+    where: "La Sastrería, Casa Montaña",
+    price: "20–28 €/чел",
+    ingredients: ["Лапша фидеос #2 (300 г)", "Креветки и кальмары", "Тёртый помидор", "Чеснок, паприка", "Рыбный бульон fumet", "Оливковое масло", "Соус алиоли (для подачи)"],
+    recipe: ["В паэльере обжарить морепродукты, отложить", "В масле обжарить чеснок и помидор, паприку", "Высыпать сухую лапшу — обжарить 2 мин до золотистого", "Залить кипящим fumet'ом", "Варить 8-10 мин — лапша должна впитать жидкость", "Финиш — в духовку на 5 мин или гриль для корочки", "Подавать с алиоли"]
+  },
+  {
+    id: "all-i-pebre", name: "All i Pebre", emoji: "🐟", wiki: "Allipebre",
+    desc: "Тушёный угорь из Альбуферы с чесноком, паприкой и картошкой. ТОЛЬКО в районе озера. Уникальный местный специалитет, который вне Валенсии не попробуете.",
+    where: "Nou Racó (El Palmar), La Colonia de Carmela",
+    price: "18–25 €/чел",
+    ingredients: ["Угорь (свежий), 800 г", "Картофель (4 шт)", "Чеснок (1 целая головка)", "Сладкая паприка (2 ст.л.)", "Острый перец чили", "Миндаль молотый (1 ст.л.)", "Оливковое масло, лавровый лист"],
+    recipe: ["Угря почистить, нарезать кусками 5 см", "В кастрюле обжарить целую раздавленную головку чеснока в масле", "Снять с огня, добавить паприку и чили (важно — паприка горит на огне)", "Положить угря, картофель, миндаль", "Залить водой едва покрывая ингредиенты", "Тушить 15-20 мин до готовности картофеля", "Снять с огня, дать настояться 5 мин — соус загустится"]
+  },
+  {
+    id: "horchata", name: "Horchata + Fartons", emoji: "🥛", wiki: "Horchata_de_chufa",
+    desc: "Холодный напиток из чуфы (тигровый орех — корнеплод) с сахаром. Подают со сладкими булочками фартонами для макания. Ритуал полудня в Валенсии.",
+    where: "Horchatería Daniel (Mercado de Colón), Santa Catalina",
+    price: "3–5 €",
+    ingredients: ["Чуфа сушёная (250 г)", "Вода (1 л)", "Сахар (150 г)", "Корица (палочка)", "Цедра лимона"],
+    recipe: ["Чуфу замочить в воде на 24 часа, поменять воду 2 раза", "Слить и промыть", "Измельчить в блендере с 500 мл свежей воды", "Процедить через марлю — получится молочко", "Жмых выбросить (или замешать с сахаром в десерт)", "Добавить ещё 500 мл воды, сахар, цедру, палочку корицы", "Настаивать в холодильнике 2 часа", "Подавать со льдом, фартонами"]
+  },
+  {
+    id: "agua-valencia", name: "Agua de Valencia", emoji: "🥂", wiki: "Agua_de_Valencia",
+    desc: "Коктейль из апельсинового сока, кавы (исп. шампанское), водки и джина. ⚠ Алкогольный — вам не подойдёт, но описание оставлю для жены если интересно.",
+    where: "Café de las Horas, Sant Jaume",
+    price: "6–10 €/бокал",
+    ingredients: ["Свежий апельсиновый сок (1 л)", "Кава brut (1 бутылка)", "Водка (100 мл)", "Джин (100 мл)", "Сахар (50 г)", "Лёд"],
+    recipe: ["⚠ Алкогольный — пропускаем для непьющих", "Смешать сок с сахаром в кувшине", "Добавить водку и джин, перемешать", "Долить каву прямо перед подачей (чтобы пузырьки сохранились)", "Подавать со льдом в высоком бокале"]
+  },
+  {
+    id: "bunuelos", name: "Buñuelos de Calabaza", emoji: "🍩", wiki: "Buñuelo",
+    desc: "Жареные тыквенные шарики, обвалянные в сахаре. Сезон — март (Лас-Фальяс), но в некоторых местах круглый год.",
+    where: "Buñoleria El Contraste, рынки",
+    price: "5 €/порция",
+    ingredients: ["Тыква (300 г варёной)", "Мука (300 г)", "Дрожжи свежие (10 г)", "Сахар (50 г + ещё для обсыпки)", "Соль (щепотка)", "Подсолнечное масло для жарки"],
+    recipe: ["Тыкву отварить, размять в пюре", "Дрожжи развести в тёплой воде с сахаром", "Смешать с пюре + мукой + солью — гладкое тесто", "Накрыть, дать подняться 1 час", "Влажными руками сформировать шарики с дырочкой посередине", "Жарить в горячем масле 175°C до золотистого", "Обвалять в сахаре, подавать тёплыми"]
+  },
+  {
+    id: "torrija", name: "Torrija", emoji: "🍞", wiki: "Torrija",
+    desc: "Хлеб, замоченный в молоке с корицей, обжаренный, политый мёдом или сиропом. Пасхальная сладость, но в Panou всегда. Подают с мороженым.",
+    where: "Panou, Doux-Amer Cabanyal",
+    price: "4–7 €",
+    ingredients: ["Багет вчерашний (4 толстых ломтика)", "Молоко (500 мл)", "Сахар (3 ст.л.)", "Палочка корицы", "Цедра лимона", "2 яйца (взбитых)", "Сливочное масло", "Мёд или кленовый сироп"],
+    recipe: ["В кастрюльке нагреть молоко с сахаром, корицей и цедрой (не кипятить)", "Снять с огня, дать постоять 10 мин — настояться", "Замочить ломтики хлеба в молоке на 30 сек с каждой стороны", "Окунуть в взбитые яйца", "Жарить на сковороде на сливочном масле до золотистого", "Полить мёдом или сиропом, посыпать корицей", "Подавать тёплыми с шариком мороженого"]
+  },
+  {
+    id: "clochinas", name: "Clochinas", emoji: "🦪", wiki: "Mytilus_galloprovincialis",
+    desc: "Валенсийские мидии в томатно-перцовом соусе. Меньше обычных, очень ароматные. Сезон июнь-сентябрь — попадаете в самое начало.",
+    where: "Casa Montaña, рестораны Cabanyal",
+    price: "10–15 €/порция",
+    ingredients: ["Клочинас (1 кг)", "Лук-шалот (1 шт)", "Чеснок (3 зубчика)", "Острый перец гуиндилья (1)", "Лавровый лист", "Лимон", "Оливковое масло"],
+    recipe: ["Клочинас тщательно промыть, удалить «бороду»", "В широкой кастрюле обжарить чеснок и гуиндилью в масле", "Добавить нарезанный шалот, лавровый лист", "Положить мидии, накрыть крышкой", "Готовить 5-7 мин на сильном огне, периодически встряхивая", "Готовые мидии открываются. Не открывшиеся — выбросить", "Сбрызнуть лимоном перед подачей", "Подавать в той же кастрюле с хлебом для соуса"]
+  },
+  {
+    id: "coca-llanda", name: "Coca de Llanda", emoji: "🥮", wiki: "Coca_(pastry)",
+    desc: "Пышный валенсийский кекс на оливковом масле с корицей и лимонной цедрой. Локальная сладость на завтрак с кофе или орчатой.",
+    where: "Семейные пекарни, Mercado Central",
+    price: "2–4 €/кусок",
+    ingredients: ["Мука (250 г)", "Сахар (200 г)", "Яйца (3 шт)", "Оливковое масло (200 мл)", "Молоко (200 мл)", "Разрыхлитель (1 ч.л.)", "Цедра лимона", "Корица для посыпки"],
+    recipe: ["Взбить яйца с сахаром до пышной массы (5 мин миксером)", "Тонкой струйкой влить оливковое масло, продолжая взбивать", "Добавить молоко, перемешать", "Просеять муку с разрыхлителем, ввести аккуратно", "Добавить цедру лимона", "Вылить в форму, выстеленную пергаментом", "Посыпать сверху сахаром и корицей", "Выпекать 35-40 мин при 180°C"]
+  },
+  {
+    id: "pulpo-gallega", name: "Pulpo a la gallega", emoji: "🐙", wiki: "Polbo_á_feira",
+    desc: "Не валенсийское (галисийское блюдо), но в Валенсии готовят отлично. Осьминог отварной на деревянной дощечке, с оливковым маслом и копчёной паприкой.",
+    where: "Casa Montaña, рынки",
+    price: "15–22 €",
+    ingredients: ["Осьминог (1 кг)", "Картофель (4 шт)", "Крупная морская соль", "Копчёная паприка пиментон (сладкая или острая)", "Хорошее оливковое масло"],
+    recipe: ["Осьминога предварительно заморозить и разморозить — мясо станет нежнее", "Воду закипятить. «Напугать» осьминога — окунуть и вынуть 3 раза", "Варить 30-45 мин (зависит от размера). Готовность — вилкой легко входит", "Картофель отварить отдельно в той же воде", "Дать осьминогу остыть 10 мин", "Нарезать щупальца наискось 5 мм толщиной", "Выложить на деревянную дощечку или тарелку с картофелем", "Посыпать крупной солью, паприкой, обильно полить оливковым маслом"]
+  },
+  {
+    id: "naranjas", name: "Naranjas Valencianas", emoji: "🍊", wiki: "Naranja_valenciana",
+    desc: "Те самые знаменитые валенсийские апельсины. Сезон зимой-весной, в мае ещё на пике. Купите килограмм на рынке — почувствуете разницу с супермаркетными.",
+    where: "Mercado Central, Mercado Colón, рынки",
+    price: "2–4 €/кг",
+    ingredients: ["Апельсины валенсии или Navelina (свежий сезон)"],
+    recipe: ["1. Купить килограмм на рынке у фермера", "2. Сесть в Plaza de la Virgen на скамейку", "3. Очистить руками — кожура легко снимается", "4. Есть и понимать что такое настоящий апельсин 🍊", "Совет: сделать дома сок утром — это другой напиток по сравнению с супермаркетом."]
+  },
 ];
 
 const CHECKLIST_PRE_TRIP = [
@@ -1175,6 +1284,17 @@ function openDayInMaps(dayId) {
 // ============================================================
 //  PLACES — 75+ точек по Валенсии
 // ============================================================
+// Place IDs which are particularly Instagram-worthy / photo spots.
+// Applied as `photo: true` on PLACES at startup.
+const PHOTO_SPOTS = new Set([
+  "miguelete", "torres-serranos", "torres-quart", "lonja", "ceramica",
+  "san-nicolas", "estacion-norte", "mercado-central", "mercado-colon",
+  "plaza-redonda", "plaza-lope", "plaza-virgen", "casa-gatos",
+  "ciudad-artes", "hemisferic", "umbracle", "oceanografic",
+  "albufera", "port-saplaya", "patacona", "cabanyal", "monforte",
+  "gulliver", "bioparc", "peniscola-parrots", "marina",
+]);
+
 const PLACES = [
   // === АРХИТЕКТУРА И ИСТОРИЯ — Ciutat Vella ===
   { id: "catedral", name: "Catedral de València (La Seu)", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de l'Almoina, s/n, 46003 València", lat: 39.4756, lng: -0.3753,
@@ -1967,6 +2087,45 @@ function renderToday() {
   const c = $("#today-content");
   c.innerHTML = "";
 
+  // SPECIAL DAYS WIDGET — что особенного в этот день
+  const specials = getSpecialDayInfo(dayId);
+  if (specials.length) {
+    const sd = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+    sd.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:8px" }, "Сегодня особенное"));
+    specials.forEach(s => {
+      const row = el("div", { style: "display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:13px;line-height:1.4" });
+      row.appendChild(el("div", { style: "font-size:18px;flex-shrink:0;line-height:1.2" }, s.ico));
+      const body = el("div", { style: "flex:1" + (s.level === "highlight" ? ";font-weight:700;color:var(--primary)" : (s.level === "warning" ? ";color:var(--danger);font-weight:600" : "")) });
+      body.appendChild(document.createTextNode(s.text));
+      row.appendChild(body);
+      sd.appendChild(row);
+    });
+    c.appendChild(sd);
+  }
+
+  // SUN WIDGET — рассвет/закат/прогресс
+  const sun = getSunInfo(dayId);
+  if (sun) {
+    const sw = el("div", { class: "card-soft", style: "margin-bottom:10px" });
+    sw.appendChild(el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:8px" },
+      el("span", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600" }, "Световой день"),
+      el("span", { style: "font-size:12px;color:var(--text-soft)" }, sun.duration + " ч светло")
+    ));
+    sw.appendChild(el("div", { style: "display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px" },
+      el("span", { style: "font-size:14px" }, `🌅 ${sun.sunrise}`),
+      el("span", { style: "font-size:14px" }, `${sun.sunset} 🌇`),
+    ));
+    // Progress bar
+    const bar = el("div", { style: "background:var(--bg-soft);border-radius:999px;height:6px;overflow:hidden;position:relative" });
+    const fill = el("div", { style: `height:100%;background:linear-gradient(90deg,#FFB347,#FF7A39,#9D5BC8);width:${sun.progress}%` });
+    bar.appendChild(fill);
+    sw.appendChild(bar);
+    if (sun.message) {
+      sw.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px;text-align:center" }, sun.message));
+    }
+    c.appendChild(sw);
+  }
+
   // Daily tip card (compact)
   const tipCard = el("div", { class: "card-soft", style: "border-left:3px solid var(--accent);font-size:13px;line-height:1.5" });
   tipCard.innerHTML = `<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:4px">Совет дня</div>${getDailyTip()}`;
@@ -2055,6 +2214,91 @@ function renderToday() {
       c.appendChild(s);
     });
   }
+}
+
+// Special-days info per trip day. Keyed by dayId.
+const SPECIAL_DAYS_INFO = {
+  d1: [
+    { ico: "🥘", text: "Lunch у Агуса 12:00–20:00 (центр поездки сегодня)", level: "highlight" },
+    { ico: "🎨", text: "Рынок L'Escuraeta открыт (Plaza Reina, до 22:00)", level: "info" },
+    { ico: "🆓", text: "Museo Taurino и Bellas Artes — бесплатно", level: "info" },
+    { ico: "🎪", text: "Cirque du Soleil «Alegría» — предпоследний день", level: "info" },
+  ],
+  d2: [
+    { ico: "🆓", text: "ВОСКРЕСЕНЬЕ = БЕСПЛАТНЫЕ МУЗЕИ: Lonja, Cerámica, Torres, Fallero, IVAM, Bellas Artes, Almoina, Arroz, Taurino", level: "highlight" },
+    { ico: "🎨", text: "L'Escuraeta — лучший день для ремесленного рынка", level: "info" },
+    { ico: "🎵", text: "Бесплатные концерты в MuVIM", level: "info" },
+    { ico: "💃", text: "Фламенко в Café del Duende вечером (22:00)", level: "info" },
+  ],
+  d3: [
+    { ico: "🚫", text: "ПОНЕДЕЛЬНИК: большинство музеев ЗАКРЫТО (выходной)", level: "warning" },
+    { ico: "🏖", text: "Идеальный день для пляжа + Лена вечером", level: "highlight" },
+    { ico: "🎨", text: "L'Escuraeta работает", level: "info" },
+    { ico: "🌷", text: "20:30 — ужин у Лены, C/ dels Serrans, 10", level: "highlight" },
+  ],
+  d4: [
+    { ico: "🐠", text: "Океанариум — приоритет дня. Билет онлайн -5 €", level: "highlight" },
+    { ico: "✅", text: "Все музеи открыты после понедельника", level: "info" },
+    { ico: "🎷", text: "Среда: Jazz @ Restaurante Alegal (но не сегодня)", level: "info" },
+  ],
+  d5: [
+    { ico: "✈️", text: "ОТЪЕЗД — вылет 17:00. Чек-аут до 12:00", level: "warning" },
+    { ico: "🦜", text: "Если выбираете Jardín del Papagayo — выезд 09:00", level: "highlight" },
+    { ico: "🎨", text: "L'Escuraeta — последние дни (до 07.06)", level: "info" },
+    { ico: "🎷", text: "Среда — Jazz Wednesdays (но улетаете в 17)", level: "info" },
+  ],
+};
+
+function getSpecialDayInfo(dayId) {
+  return SPECIAL_DAYS_INFO[dayId] || [];
+}
+
+function getSunInfo(dayId) {
+  const day = DAYS.find(d => d.id === dayId);
+  if (!day || !state.weather || !state.weather.daily) return null;
+  const idx = state.weather.daily.time.indexOf(day.date);
+  if (idx < 0) return null;
+  const sunriseStr = state.weather.daily.sunrise[idx];
+  const sunsetStr = state.weather.daily.sunset[idx];
+  if (!sunriseStr || !sunsetStr) return null;
+  const sunriseT = sunriseStr.slice(11, 16);
+  const sunsetT = sunsetStr.slice(11, 16);
+  const sunriseDate = new Date(sunriseStr);
+  const sunsetDate = new Date(sunsetStr);
+  const durMs = sunsetDate - sunriseDate;
+  const durH = (durMs / 1000 / 60 / 60);
+  const durHours = Math.floor(durH);
+  const durMin = Math.round((durH - durHours) * 60);
+
+  // Progress (if today is the day, show how far through daylight we are)
+  const todayIs = todayIso() === day.date;
+  let progress = 0;
+  let message = "";
+  if (todayIs) {
+    const now = Date.now();
+    if (now < sunriseDate.getTime()) {
+      progress = 0;
+      const mins = Math.round((sunriseDate.getTime() - now) / 60000);
+      message = `Рассвет через ${Math.floor(mins/60)}ч ${mins%60}м`;
+    } else if (now > sunsetDate.getTime()) {
+      progress = 100;
+      message = "Ночь";
+    } else {
+      progress = Math.round((now - sunriseDate.getTime()) / durMs * 100);
+      const minsLeft = Math.round((sunsetDate.getTime() - now) / 60000);
+      message = `До заката ${Math.floor(minsLeft/60)}ч ${minsLeft%60}м`;
+    }
+  } else {
+    progress = 0;
+  }
+
+  return {
+    sunrise: sunriseT,
+    sunset: sunsetT,
+    duration: `${durHours}:${String(durMin).padStart(2,"0")}`,
+    progress,
+    message,
+  };
 }
 
 async function runGpsNearMe(card) {
@@ -2270,7 +2514,7 @@ function renderPlaces() {
   // Filters
   const catContainer = $("#cat-filters");
   catContainer.innerHTML = "";
-  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }];
+  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }, { id: "photo", ru: "Фото", emoji: "📸" }];
   for (const k in CATEGORIES) cats.push({ id: k, ru: CATEGORIES[k].ru, emoji: CATEGORIES[k].emoji });
   cats.forEach(c => {
     catContainer.appendChild(el("button", {
@@ -2300,6 +2544,7 @@ function renderPlaces() {
 
   let list = PLACES.slice();
   if (state.catFilter === "unique") list = list.filter(p => p.unique);
+  else if (state.catFilter === "photo") list = list.filter(p => p.photo);
   else if (state.catFilter !== "all") list = list.filter(p => p.cat === state.catFilter);
   if (state.statusFilter !== "all") {
     if (state.statusFilter === "none") list = list.filter(p => getStatus(p.id) === "none");
@@ -2355,6 +2600,7 @@ function openPlaceModal(id) {
   tagsRow.appendChild(el("span", { class: "tag" }, CATEGORIES[p.cat].ru));
   tagsRow.appendChild(el("span", { class: "tag" }, p.district));
   if (p.unique) tagsRow.appendChild(el("span", { class: "tag uniq" }, "💎 уникальное"));
+  if (p.photo) tagsRow.appendChild(el("span", { class: "tag iconic" }, "📸 фото-точка"));
   if (p.tags && p.tags.includes("must")) tagsRow.appendChild(el("span", { class: "tag iconic" }, "★ маст-си"));
   if (p.tags && p.tags.includes("hidden")) tagsRow.appendChild(el("span", { class: "tag" }, "🕵 спрятано"));
   if (p.tags && p.tags.includes("iconic")) tagsRow.appendChild(el("span", { class: "tag iconic" }, "🌟 культовое"));
@@ -2643,6 +2889,8 @@ function openItinModal(placeId) {
 $("#im-close").addEventListener("click", () => $("#itin-modal").close());
 $("#rm-close").addEventListener("click", () => $("#route-modal").close());
 $("#route-modal").addEventListener("click", (e) => { if (e.target === $("#route-modal")) $("#route-modal").close(); });
+$("#dm-close").addEventListener("click", () => $("#dish-modal").close());
+$("#dish-modal").addEventListener("click", (e) => { if (e.target === $("#dish-modal")) $("#dish-modal").close(); });
 
 // ============================================================
 //  MAP — Leaflet + OpenStreetMap (real tiles, cached by browser)
@@ -2656,7 +2904,7 @@ function renderMap() {
   // Cat filters (chip row above map)
   const cf = $("#map-cat-filters");
   cf.innerHTML = "";
-  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }];
+  const cats = [{ id: "all", ru: "Все", emoji: "📋" }, { id: "unique", ru: "Уникальное", emoji: "💎" }, { id: "photo", ru: "Фото", emoji: "📸" }];
   for (const k in CATEGORIES) cats.push({ id: k, ru: CATEGORIES[k].ru, emoji: CATEGORIES[k].emoji });
   cats.forEach(c => {
     cf.appendChild(el("button", {
@@ -2757,6 +3005,7 @@ function renderMap() {
   // Filter places
   let visiblePlaces = PLACES.slice();
   if (state.mapCatFilter === "unique") visiblePlaces = visiblePlaces.filter(p => p.unique);
+  else if (state.mapCatFilter === "photo") visiblePlaces = visiblePlaces.filter(p => p.photo);
   else if (state.mapCatFilter !== "all") visiblePlaces = visiblePlaces.filter(p => p.cat === state.mapCatFilter);
 
   visiblePlaces.forEach(p => {
@@ -2929,13 +3178,96 @@ function renderGuidePhrases(c) {
 }
 
 function renderGuideDishes(c) {
-  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Что обязательно попробовать в Валенсии. Местные специалитеты, без популярных банальностей."));
+  c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Что обязательно попробовать в Валенсии. Тапни по карточке — увидишь фото, состав и пошаговый рецепт."));
   DISHES.forEach(d => {
-    const row = el("div", { class: "card-soft", style: "margin-bottom:8px" });
-    row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px" }, d.emoji + " " + d.name));
+    const row = el("div", { class: "card-soft dish-card", style: "margin-bottom:8px", onclick: () => openDishModal(d.id) });
+    row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center" },
+      el("span", null, d.emoji + " " + d.name),
+      el("span", { style: "color:var(--text-soft);font-size:13px" }, "→")
+    ));
     row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text)" }, d.desc));
     row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;color:var(--text-soft)" }, "📍 " + d.where));
     c.appendChild(row);
+  });
+}
+
+async function fetchDishImage(wikiTitle) {
+  if (!wikiTitle) return null;
+  state.dishImageCache = state.dishImageCache || {};
+  if (state.dishImageCache[wikiTitle]) return state.dishImageCache[wikiTitle];
+  try {
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    const url = (data.thumbnail && data.thumbnail.source) || (data.originalimage && data.originalimage.source) || null;
+    if (url) {
+      state.dishImageCache[wikiTitle] = url;
+      saveState();
+    }
+    return url;
+  } catch (e) {
+    console.warn("Dish image fetch failed:", e.message);
+    return null;
+  }
+}
+
+function openDishModal(id) {
+  const dish = DISHES.find(d => d.id === id);
+  if (!dish) return;
+  $("#dm-title").textContent = dish.emoji + " " + dish.name;
+  const body = $("#dm-body");
+  body.innerHTML = "";
+
+  // Photo placeholder
+  const photo = el("div", { class: "dish-photo" });
+  photo.appendChild(el("div", { class: "placeholder" }, dish.emoji));
+  body.appendChild(photo);
+
+  // Description
+  body.appendChild(el("div", { class: "desc" }, dish.desc));
+
+  // Price
+  if (dish.price) {
+    body.appendChild(el("div", { class: "dish-where", style: "margin-top:8px" },
+      "💰 Средний чек: " + dish.price + " · 📍 Где попробовать: " + dish.where
+    ));
+  }
+
+  // Ingredients
+  if (dish.ingredients && dish.ingredients.length) {
+    const sec = el("div", { class: "dish-section" });
+    sec.appendChild(el("h4", null, "🥄 Состав"));
+    const ul = el("ul", { class: "dish-list ing" });
+    dish.ingredients.forEach(i => ul.appendChild(el("li", null, i)));
+    sec.appendChild(ul);
+    body.appendChild(sec);
+  }
+
+  // Recipe
+  if (dish.recipe && dish.recipe.length) {
+    const sec = el("div", { class: "dish-section" });
+    sec.appendChild(el("h4", null, "👨‍🍳 Рецепт"));
+    const ol = el("ol", { class: "dish-list steps" });
+    dish.recipe.forEach(step => ol.appendChild(el("li", null, step)));
+    sec.appendChild(ol);
+    body.appendChild(sec);
+  }
+
+  $("#dish-modal").showModal();
+
+  // Lazy-load photo from Wikipedia
+  fetchDishImage(dish.wiki).then(url => {
+    if (url && $("#dish-modal").open) {
+      const ph = body.querySelector(".dish-photo");
+      if (ph) {
+        ph.innerHTML = "";
+        const img = el("img", { src: url, alt: dish.name, loading: "lazy" });
+        img.addEventListener("error", () => {
+          ph.innerHTML = '<div class="placeholder">' + dish.emoji + '</div>';
+        });
+        ph.appendChild(img);
+      }
+    }
   });
 }
 
@@ -3108,6 +3440,9 @@ function renderAll() {
   // restore tab
   switchTab(state.activeTab || "today");
 }
+
+// Apply photo flag to places before initial render
+PLACES.forEach(p => { if (PHOTO_SPOTS.has(p.id)) p.photo = true; });
 
 renderAll();
 
