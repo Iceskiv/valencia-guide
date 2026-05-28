@@ -557,6 +557,21 @@ const TRIP = {
   agus: { name: "Агус (друг)", address: "C/ de Viver, 6, 5º 7ª, Benimaclet, 46020 València", lat: 39.4867, lng: -0.3657, note: "Сб 30.05, 12:00–20:00 · Этаж 5, дверь 7" },
   lena: { name: "Лена (подруга)", address: "C/ dels Serrans, 10, 46003 València", lat: 39.4775, lng: -0.3766, note: "Пн 01.06 вечером — ужин у неё" },
   airport: { name: "Аэропорт VLC (Manises)", address: "Aeropuerto de Valencia", lat: 39.4893, lng: -0.4815 },
+  // Flights
+  flights: {
+    out: {
+      airline: "airBaltic", flight: "BT697",
+      fromCode: "RIX", fromCity: "Рига", toCode: "VLC", toCity: "Валенсия",
+      depDate: "2026-05-30", depTime: "07:00", arrDate: "2026-05-30", arrTime: "10:00",
+      duration: "4ч 0мин"
+    },
+    back: {
+      airline: "airBaltic", flight: "BT698",
+      fromCode: "VLC", fromCity: "Валенсия", toCode: "RIX", toCity: "Рига",
+      depDate: "2026-06-03", depTime: "17:40", arrDate: "2026-06-03", arrTime: "22:30",
+      duration: "3ч 50мин"
+    },
+  },
 };
 
 const DAYS = [
@@ -588,38 +603,23 @@ const CATEGORIES = {
 //  GUIDE DATA: контакты, транспорт, фразы, блюда, чек-лист
 // ============================================================
 const CONTACTS = [
-  { group: "🆘 Экстренные", items: [
-    { name: "Единая экстренная служба (общая)", value: "112", tel: "112", note: "Полиция, скорая, пожарные. Есть английский." },
-    { name: "Скорая помощь", value: "061", tel: "061" },
-    { name: "Полиция национальная", value: "091", tel: "091" },
-    { name: "Местная полиция Валенсии", value: "092", tel: "092" },
-    { name: "Помощь туристам (англ.)", value: "902 102 112", tel: "902102112" },
+  { group: "🆘 Экстренное", items: [
+    { name: "Единая экстренная (полиция + скорая + пожарные)", value: "112", tel: "112", note: "Есть английский. Звонить только в реальной экстренной ситуации." },
+    { name: "Консул Украины — горячая линия 24/7", value: "+34 633 600 250", tel: "+34633600250", note: "Помощь украинцам за рубежом. Только серьёзные случаи." },
   ]},
-  { group: "🇺🇦 Украина", items: [
-    { name: "Посольство Украины в Мадриде", value: "+34 91 748 9360", tel: "+34917489360", note: "Calle de Ronda de la Abubilla, 52, 28043 Madrid" },
-    { name: "Консул (горячая линия 24/7)", value: "+34 633 600 250", tel: "+34633600250" },
-    { name: "Сайт посольства", value: "spain.mfa.gov.ua", url: "https://spain.mfa.gov.ua/" },
+  { group: "🏨 Гостиница", items: [
+    { name: "Адрес отеля (для таксиста)", value: "Carrer del Baró de San Petrillo, 10-12, Benimaclet", copy: "Carrer del Baró de San Petrillo, 10-12, 46020 València, España" },
   ]},
-  { group: "🏨 Размещение", items: [
-    { name: "Адрес отеля", value: "Carrer del Baró de San Petrillo, 10-12, Benimaclet", copy: "Carrer del Baró de San Petrillo, 10-12, 46020 València, España" },
+  { group: "🚖 Такси", items: [
+    { name: "Cabify", value: "Установить приложение", url: "https://cabify.com/es/valencia", note: "Главное такси Испании. Чёткие цены до поездки, оплата картой в приложении." },
+    { name: "FreeNow", value: "Установить приложение", url: "https://free-now.com/es/", note: "Запасной вариант. Иногда быстрее находит машину." },
   ]},
-  { group: "🚖 Такси-приложения", items: [
-    { name: "Cabify", value: "Установить", url: "https://cabify.com/es/valencia", note: "Самое популярное в Испании. Чёткие цены до поездки." },
-    { name: "FreeNow", value: "Установить", url: "https://free-now.com/es/", note: "Объединяет такси и лицензированных перевозчиков." },
-    { name: "Uber", value: "Установить", url: "https://m.uber.com/", note: "Работает в Валенсии. Цена иногда ниже Cabify." },
-    { name: "Bolt", value: "Установить", url: "https://bolt.eu/ru/", note: "Альтернатива, иногда дешевле." },
-    { name: "Радио-такси Валенсии", value: "+34 96 370 33 33", tel: "+34963703333", note: "Классическое такси по звонку." },
+  { group: "🚇 Транспорт", items: [
+    { name: "Metrovalencia (метро + трамвай)", value: "metrovalencia.es", url: "https://www.metrovalencia.es/", note: "Главное транспортное приложение. Маршруты, расписания, билеты." },
   ]},
-  { group: "🚇 Транспортные приложения", items: [
-    { name: "Metrovalencia (метро+трамвай)", value: "Установить", url: "https://www.metrovalencia.es/" },
-    { name: "EMT València (автобусы)", value: "Установить", url: "https://www.emtvalencia.es/" },
-    { name: "Valenbisi (велики)", value: "Установить", url: "https://www.valenbisi.es/" },
-  ]},
-  { group: "🗺 Карты и переводчик", items: [
-    { name: "Google Maps", value: "Скачать офлайн-карту Валенсии заранее", url: "https://www.google.com/maps" },
-    { name: "Organic Maps / maps.me", value: "Бесплатные оффлайн-карты", url: "https://organicmaps.app/" },
-    { name: "Google Translate", value: "Скачать испанский для оффлайн-перевода", url: "https://translate.google.com/" },
-    { name: "DeepL", value: "Лучше для длинных текстов", url: "https://www.deepl.com/translator" },
+  { group: "🌐 Перевод и карты", items: [
+    { name: "Google Translate", value: "Скачать испанский оффлайн", url: "https://translate.google.com/", note: "Камера-перевод меню в ресторанах. Скачайте «Spanish» для оффлайна." },
+    { name: "Google Maps", value: "Скачать карту Валенсии оффлайн", url: "https://www.google.com/maps", note: "В Maps → меню → «Офлайн-карты» → выбрать Валенсию." },
   ]},
 ];
 
@@ -714,8 +714,51 @@ const PHRASES = [
 ];
 
 const DISHES = [
+  // === МЕНЮ АГУСА (тапас + закуски) ===
   {
-    id: "paella", name: "Paella Valenciana", emoji: "🥘", wiki: "Paella",
+    id: "pan-tomate", name: "Pan con tomate y alioli", emoji: "🍅", wiki: "Pa_amb_tomàquet", wikiLang: "es", agusMenu: true,
+    desc: "Базовая каталонско-валенсийская тапас. Жареный или гриль-хлеб, натёртый разрезанным помидором и чесноком, политый оливковым маслом. Подаётся с алиоли (чесночный соус). Простое до гениальности.",
+    where: "Везде в Валенсии · Casa Montaña лучшее",
+    price: "3–6 €",
+    ingredients: ["Жёсткий деревенский хлеб (4 ломтика)", "Помидор очень зрелый (2 шт)", "Чеснок (2 зубчика)", "Оливковое масло extra virgin", "Морская соль", "Алиоли (1 ст.л.): чеснок + оливковое масло + соль, эмульсия"],
+    recipe: ["Хлеб подсушить на сковороде или гриле до золотистого", "Чеснок разрезать пополам, натереть им горячий хлеб (запах потрясающий)", "Помидор разрезать пополам и натереть мякотью по хлебу — кожура остаётся в руке", "Полить оливковым маслом, посыпать солью", "Алиоли: 1 зубчик чеснока растолочь в ступке с солью, тонкой струйкой влить ~100 мл оливкового масла, эмульгировать до густоты майонеза", "Подавать с алиоли отдельно"]
+  },
+  {
+    id: "jamon", name: "Jamón Ibérico", emoji: "🥩", wiki: "Jamón_ibérico", wikiLang: "es", agusMenu: true,
+    desc: "Сыровяленый окорок чёрной иберийской свиньи. Самый известный продукт Испании. Bellota (жёлудевого откорма) — высшая категория. Тонко нарезанный, тает во рту.",
+    where: "Mercado Central, любые бары и tabernas",
+    price: "Тапас 8-15 €, кг 60-300 €",
+    ingredients: ["Окорок иберийской свиньи", "Морская соль (для вяления)", "Время (24-48 месяцев)"],
+    recipe: ["Дома не приготовить — это многолетний процесс созревания.", "Что важно при покупке: смотреть на цвет (тёмно-рубиновый), мраморность (белые прожилки жира) и категорию (Bellota = жёлудем, Cebo = зерном)", "Подача: тонкие пластины комнатной температуры, прямо руками или вилочкой, с pan con tomate", "Никогда не охлаждайте — теряется аромат"]
+  },
+  {
+    id: "fuet", name: "Fuet", emoji: "🌭", wiki: "Fuet", wikiLang: "es", agusMenu: true,
+    desc: "Каталонская сухая колбаса из свинины с белой плесенью на оболочке. Меньше и тоньше чорисо, без паприки — нежный мясной вкус. Подаётся ломтиками, перед едой не убирать кожуру (она съедобна).",
+    where: "Mercado Central, La Plana (Cabanyal)",
+    price: "Тапас 5-9 €",
+    ingredients: ["Свиной фарш постный (70%) + сало (30%)", "Соль, перец чёрный", "Натуральная оболочка", "Благородная плесень Penicillium (для покрытия)"],
+    recipe: ["Дома сделать сложно — нужны контролируемая температура (12°C) и влажность (75%)", "Купить готовый. Нарезать наискось 3-4 мм", "Подавать комнатной температуры с pan con tomate, оливками, сыром", "В Каталонии есть традиция — есть пальцами, дольки чередуя с хлебом"]
+  },
+  {
+    id: "empanadas", name: "Empanadas", emoji: "🥟", wiki: "Empanada", wikiLang: "es", agusMenu: true,
+    desc: "Печёные пирожки с разной начинкой — мясной, рыбной, овощной. В Испании чаще тунец + помидор, или мясной фарш с овощами. Размеры — от мини-тапас до больших на компанию.",
+    where: "Любая пекарня · Mercado Central",
+    price: "1-3 €/шт",
+    ingredients: ["Тесто: мука 300 г, оливковое масло 60 мл, тёплая вода 100 мл, соль", "Начинка: лук + перец + помидоры + тунец/мясо/курица", "Сладкая паприка, соль", "Яйцо для смазки"],
+    recipe: ["Замесить тесто, дать отдохнуть 30 мин", "Лук, болгарский перец нарезать кубиками, обжарить", "Добавить помидор тёртый, тунец/мясо, паприку — потушить 10 мин", "Раскатать тесто, вырезать кружки 12 см", "В центр — ложка начинки, защипнуть края в форме полумесяца", "Смазать яйцом, выпечь 200°C, 20-25 мин до золотистого"]
+  },
+  {
+    id: "quesos", name: "Quesos españoles (Manchego, Quesito)", emoji: "🧀", wiki: "Queso_manchego", wikiLang: "es", agusMenu: true,
+    desc: "Испанские сыры — главное Manchego (овечий из Ла-Манчи, твёрдый, выдержка 3-12 месяцев). Quesito — мягкий козий или коровий малыми порциями. Часто как тапас с мёдом, орехами или айвовым джемом (membrillo).",
+    where: "Mercado Central, специализированные магазины",
+    price: "5-12 €/порция",
+    ingredients: ["Сыр Manchego curado (выдержка 6+ мес)", "Айвовый джем (membrillo)", "Грецкие орехи или миндаль", "Мёд", "Багет или хрустящие крекеры"],
+    recipe: ["Сыр достать из холодильника за 30 мин до подачи (комнатная температура)", "Нарезать треугольниками или брусками", "Подавать с membrillo (айва), мёдом, орехами на доске", "Сочетание сыра + айвы — классика. Сладкое+солёное+молочное"]
+  },
+
+  // === ОСНОВНЫЕ БЛЮДА ВАЛЕНСИИ ===
+  {
+    id: "paella", name: "Paella Valenciana", emoji: "🥘", wiki: "Paella", wikiLang: "es",
     desc: "Классика. Рис с курицей, кроликом, белой фасолью гарроффо, зелёной фасолью, шафраном — НИКОГДА с морепродуктами, это валенсийская паэлья. Готовят на дровах из апельсиновых веток.",
     where: "Casa Carmela, La Sastrería, Nou Racó (Albufera)",
     price: "25–35 €/чел",
@@ -753,14 +796,6 @@ const DISHES = [
     price: "3–5 €",
     ingredients: ["Чуфа сушёная (250 г)", "Вода (1 л)", "Сахар (150 г)", "Корица (палочка)", "Цедра лимона"],
     recipe: ["Чуфу замочить в воде на 24 часа, поменять воду 2 раза", "Слить и промыть", "Измельчить в блендере с 500 мл свежей воды", "Процедить через марлю — получится молочко", "Жмых выбросить (или замешать с сахаром в десерт)", "Добавить ещё 500 мл воды, сахар, цедру, палочку корицы", "Настаивать в холодильнике 2 часа", "Подавать со льдом, фартонами"]
-  },
-  {
-    id: "agua-valencia", name: "Agua de Valencia", emoji: "🥂", wiki: "Agua_de_Valencia",
-    desc: "Коктейль из апельсинового сока, кавы (исп. шампанское), водки и джина. ⚠ Алкогольный — вам не подойдёт, но описание оставлю для жены если интересно.",
-    where: "Café de las Horas, Sant Jaume",
-    price: "6–10 €/бокал",
-    ingredients: ["Свежий апельсиновый сок (1 л)", "Кава brut (1 бутылка)", "Водка (100 мл)", "Джин (100 мл)", "Сахар (50 г)", "Лёд"],
-    recipe: ["⚠ Алкогольный — пропускаем для непьющих", "Смешать сок с сахаром в кувшине", "Добавить водку и джин, перемешать", "Долить каву прямо перед подачей (чтобы пузырьки сохранились)", "Подавать со льдом в высоком бокале"]
   },
   {
     id: "bunuelos", name: "Buñuelos de Calabaza", emoji: "🍩", wiki: "Buñuelo",
@@ -803,12 +838,64 @@ const DISHES = [
     recipe: ["Осьминога предварительно заморозить и разморозить — мясо станет нежнее", "Воду закипятить. «Напугать» осьминога — окунуть и вынуть 3 раза", "Варить 30-45 мин (зависит от размера). Готовность — вилкой легко входит", "Картофель отварить отдельно в той же воде", "Дать осьминогу остыть 10 мин", "Нарезать щупальца наискось 5 мм толщиной", "Выложить на деревянную дощечку или тарелку с картофелем", "Посыпать крупной солью, паприкой, обильно полить оливковым маслом"]
   },
   {
-    id: "naranjas", name: "Naranjas Valencianas", emoji: "🍊", wiki: "Naranja_valenciana",
+    id: "naranjas", name: "Naranjas Valencianas", emoji: "🍊", wiki: "Naranja_valenciana", wikiLang: "es",
     desc: "Те самые знаменитые валенсийские апельсины. Сезон зимой-весной, в мае ещё на пике. Купите килограмм на рынке — почувствуете разницу с супермаркетными.",
     where: "Mercado Central, Mercado Colón, рынки",
     price: "2–4 €/кг",
     ingredients: ["Апельсины валенсии или Navelina (свежий сезон)"],
     recipe: ["1. Купить килограмм на рынке у фермера", "2. Сесть в Plaza de la Virgen на скамейку", "3. Очистить руками — кожура легко снимается", "4. Есть и понимать что такое настоящий апельсин 🍊", "Совет: сделать дома сок утром — это другой напиток по сравнению с супермаркетом."]
+  },
+
+  // === ОБЩЕИСПАНСКИЕ ТАПАС ===
+  {
+    id: "patatas-bravas", name: "Patatas Bravas", emoji: "🥔", wiki: "Patatas_bravas", wikiLang: "es",
+    desc: "Классические тапас в каждом баре Испании. Жареная картошка с двумя соусами: bravas (острый томатно-перцовый) и алиоли. В Валенсии bravas менее острые чем в Мадриде.",
+    where: "Любой бар, Casa Montaña, Tasca Ángel",
+    price: "5-8 €",
+    ingredients: ["Картофель (500 г)", "Оливковое масло для жарки", "Морская соль", "Соус bravas: томат + сладкая паприка + острая паприка + чеснок + бренди", "Алиоли (см. отдельно)"],
+    recipe: ["Картофель нарезать кубиками 3 см, отварить 10 мин до полуготовности", "Подсушить полотенцем — важно для хрустящей корочки", "Обжарить в большом количестве масла 180°C до золотистого", "Bravas соус: на сковороде обжарить чеснок, добавить паприку (не сжечь!), томатное пюре, ложку бренди, прокипятить, посолить", "Подавать сразу: картофель + ложка bravas + ложка алиоли"]
+  },
+  {
+    id: "tortilla", name: "Tortilla Española", emoji: "🍳", wiki: "Tortilla_de_patatas", wikiLang: "es",
+    desc: "Классический испанский омлет с картофелем и луком. Подают как тапас, как сэндвич bocadillo de tortilla, как основное. В Mercado Central — лучшая в городе у Bar Central.",
+    where: "Bar Central (Mercado Central), любой бар",
+    price: "Тапас 3-5 €",
+    ingredients: ["Яйца (6 шт)", "Картофель (500 г)", "Лук репчатый (1 средний)", "Оливковое масло", "Соль"],
+    recipe: ["Картофель нарезать тонкими кружками, лук — полукольцами", "Залить картофель и лук маслом так чтобы покрыло, готовить 20 мин на медленном огне — это не жарка, а томление до мягкости", "Слить масло (можно использовать снова)", "Яйца взбить с солью, смешать с картофелем", "Вылить в горячую сковороду с 1 ст.л. масла, готовить 3-4 мин на среднем огне", "Перевернуть с помощью тарелки или крышки — это ключевой момент", "Готовить ещё 2 мин с другой стороны до желаемой готовности — испанцы любят слегка влажную внутри"]
+  },
+  {
+    id: "croquetas", name: "Croquetas de Jamón", emoji: "🥖", wiki: "Croqueta", wikiLang: "es",
+    desc: "Хрустящие крокеты с бешамелью внутри — с хамоном, курицей или морепродуктами. Размер — на 2 укуса. Лучшие — домашние, но в правильных тапас-барах тоже отлично.",
+    where: "Casa Montaña, Tasca Ángel, La Pilareta",
+    price: "Тапас 6-10 €",
+    ingredients: ["Бешамель: 50 г сливочного масла, 50 г муки, 500 мл молока, мускатный орех, соль", "Хамон Serrano или Ibérico (150 г, мелко нарезан)", "Для панировки: мука, яйца, панировочные сухари panko", "Растительное масло для фритюра"],
+    recipe: ["Бешамель: растопить масло, добавить муку, протомить 2 мин, тонкой струйкой влить горячее молоко, постоянно помешивая до густоты", "Снять с огня, посолить, добавить мускатный орех и хамон", "Выложить в форму, накрыть плёнкой в контакт, охладить 4+ часа (важно — иначе развалятся)", "Сформировать колбаски/шарики, обвалять: мука → яйцо → панировка", "Жарить в горячем масле (175°C) до золотистого, ~2 мин", "Сразу подавать — внутри жидкое расплавленное"]
+  },
+  {
+    id: "gazpacho", name: "Gazpacho / Salmorejo", emoji: "🍅", wiki: "Gazpacho", wikiLang: "es",
+    desc: "Холодный томатный суп с овощами. В жару — спасение. Salmorejo (родной Кордове) гуще и сливочнее, с яйцом и хамоном сверху. Идеально на сухие 28°+ дни.",
+    where: "Любой ресторан летом",
+    price: "5-8 €",
+    ingredients: ["Помидоры (1 кг)", "Огурец (1 средний)", "Перец зелёный болгарский (1)", "Чеснок (1 зубчик)", "Уксус хересный (1 ст.л.)", "Оливковое масло (50 мл)", "Хлеб без корки (50 г) — для густоты", "Соль"],
+    recipe: ["Помидоры обдать кипятком, снять кожицу", "Все овощи нарезать крупно, замочить с хлебом в воде 30 мин", "Перебить блендером с уксусом, маслом, солью — гладкая текстура", "Процедить через сито для бархата (опционально)", "Охладить 2+ часа", "Подавать ледяным, украсить кубиками огурца/перца, каплей масла"]
+  },
+
+  // === НАПИТКИ БЕЗАЛКОГОЛЬНЫЕ ===
+  {
+    id: "mosto", name: "Mosto", emoji: "🍇", wiki: "Mosto", wikiLang: "es",
+    desc: "Свежий неферментированный виноградный сок — то, из чего делают вино, но без алкоголя. Сладкий, густой, ароматный. Идеальная замена вину в ресторане для непьющих — официанты приносят с гордостью.",
+    where: "Любой ресторан, тапас-бар",
+    price: "3-5 €/бокал",
+    ingredients: ["Свежий виноград (красный или белый)", "Кратко: винодельный пресс"],
+    recipe: ["Дома сделать просто: виноград перебить блендером, процедить через марлю", "В Испании — заказываете в ресторане. Скажите: «Un mosto, por favor — sin alcohol»", "Часто подаётся охлаждённым в бокале вина — выглядит как вино, но без алкоголя"]
+  },
+  {
+    id: "cafe-cortado", name: "Café Cortado", emoji: "☕", wiki: "Café_cortado", wikiLang: "es",
+    desc: "Эспрессо с маленьким количеством тёплого молока — испанский кофейный стандарт. Не путать с латте (там много молока) или капучино. Размер маленький — 50 мл.",
+    where: "Все кафе. Спешелти: Borja, Boscon, Blackbird",
+    price: "1.50–2.50 €",
+    ingredients: ["Эспрессо одинарный (30 мл)", "Тёплое молоко (20 мл)"],
+    recipe: ["Сварить эспрессо двойной экстракцией", "Молоко слегка вспенить (без жёсткой пены — просто тёплое)", "Налить молоко в эспрессо медленно", "Подавать в маленькой керамической чашке (~70 мл)"]
   },
 ];
 
@@ -1877,18 +1964,34 @@ function defaultState() {
     photos: {}, // placeId -> [dataURL, ...]
     dishSearch: "",
     openEvents: null, // dayId currently open in events accordion
+    expandedItems: {}, // "dayId:idx" -> bool
   };
+}
+
+async function shareItineraryItem(dayId, item) {
+  const day = DAYS.find(d => d.id === dayId);
+  const text = `${day.label} · ${item.time || ""}\n${item.title}\n\n${item.note || ""}${item.comment ? "\n\nМоя заметка: " + item.comment : ""}`;
+  if (navigator.share) {
+    try { await navigator.share({ title: item.title, text }); }
+    catch (e) { if (e.name !== "AbortError") { await navigator.clipboard.writeText(text); toast("Скопировано"); } }
+  } else {
+    await navigator.clipboard.writeText(text);
+    toast("Скопировано");
+  }
 }
 function defaultItinerary() {
   return {
     d1: [
-      { time: "10:00", title: "Прилёт VLC", note: "Терминал — забрать багаж. Метро L5+L3 до Benimaclet ~3.20 €/30 мин с пересадкой, или такси ~25 €/25 мин (Cabify дешевле).", placeId: null },
-      { time: "11:00", title: "Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12, Benimaclet. До дома Агуса — 10 мин пешком.", placeId: null },
-      { time: "11:45", title: "К Агусу (10 мин пешком)", note: "C/ de Viver, 6 · этаж 5, дверь 7. Идти лёгкой одеждой — будет жарко (28-32°).", placeId: null },
-      { time: "12:00", title: "🥘 Lunch у Агуса (12:00–~16:00)", note: "Меню Агуса: Paella + Empanadas + Jamón + Pan con tomate y alioli + Fuet + quesito. С собой — десерт/фрукты или подарок страны.", placeId: null },
-      { time: "16:00", title: "🚶 Прогулка по центру с Агусом", note: "Агус показывает Валенсию: Plaza de la Virgen, Cathedral, Plaza Redonda, La Lonja (бесплатно — суббота). Mercado Central работает до 15:00 (не успеваете), но снаружи здание модернизма красиво.", placeId: "plaza-virgen" },
-      { time: "19:00", title: "🍷 Ужин с Агусом в валенсийском месте", note: "Агус выберет ресторан. Готовьтесь к позднему ужину — испанцы реально начинают около 21:00. Tip Агусу: «Без алкоголя, мы не пьём».", placeId: null },
-      { time: "22:00", title: "Обратно в отель", note: "Такси из центра до Benimaclet ~7-10 €. Cabify дешевле уличных.", placeId: null },
+      { time: "07:00", title: "✈️ Вылет RIX → VLC", note: "airBaltic BT697 · 4 ч полёт · Online check-in за 24ч. Скачать boarding pass.", placeId: null },
+      { time: "10:00", title: "🛬 Прилёт в Валенсию (VLC)", note: "Время Валенсии (UTC+2). Забрать багаж, выйти из терминала.", placeId: null },
+      { time: "10:30", title: "🚇 Такси / Метро в Benimaclet", note: "Метро L5→L3, ~30 мин, 3.20 €. Или Cabify ~22-26 €, ~25 мин. С чемоданами проще такси.", placeId: null },
+      { time: "11:15", title: "🏠 Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12, Benimaclet. До Агуса — 10 мин пешком на юг.", placeId: null },
+      { time: "11:50", title: "🚶 К Агусу (10 мин пешком)", note: "C/ de Viver, 6 · ★ ЭТАЖ 5, ДВЕРЬ 7. Лёгкая одежда — днём 28-32°. С собой — десерт/фрукты/подарок.", placeId: null },
+      { time: "12:00", title: "🥘 Lunch у Агуса", note: "Меню от Агуса:\n• Paella\n• Empanadas\n• Jamón\n• Pan con tomate y alioli\n• Fuet\n• Quesito\n\nДолго и душевно — испанский обед это 2-3 часа.", placeId: null },
+      { time: "15:30", title: "🚶 Прогулка по центру с Агусом", note: "Агус ведёт по Валенсии. Возможные точки: Plaza de la Virgen, Cathedral, Plaza Redonda, La Lonja, Mercado Central снаружи (внутри закрыт с 15:00).", placeId: "plaza-virgen" },
+      { time: "18:30", title: "🍽 Ужин с Агусом в валенсийском месте", note: "Агус выберет ресторан в центре. Сразу скажи: «sin alcohol, не пьём» — закажут freshly squeezed соки или mosto.", placeId: null },
+      { time: "20:00", title: "👋 Прощание с Агусом", note: "Программа Агуса закончилась (он сказал 12-20).", placeId: null },
+      { time: "20:30", title: "🚇 Возврат в отель", note: "Такси Cabify ~7-10 € из центра в Benimaclet. Или метро L4/L6 → пешком 10 мин.", placeId: null },
     ],
     d2: [
       { time: "—", title: "🦜 ОПЦИЯ B: вместо центра — день в Peñíscola", note: "Если хотите попугаев+капибар: выезд 09:00 на машине (1.5ч) или поезд Cercanías C-1 до Benicarló. Парк работает 11:00–15:00. После — крепость Peñíscola и старый город. Обратно к вечеру. Тогда центр Валенсии переносим (см. ниже).", placeId: "peniscola-parrots" },
@@ -1927,10 +2030,11 @@ function defaultItinerary() {
       { time: "09:30", title: "🦜 ОПЦИЯ A: Jardín del Papagayo (попугаи + капибары)", note: "★ Самое уникальное. РИСКОВАННО: выезд 09:00 (1.5ч в одну сторону), парк 11:00–15:00, обратно к 14:30. Жёсткий тайминг к вылету 17:00 — заказывайте такси из Peñíscola сразу в аэропорт VLC (минуя отель — багаж заранее в lobby).", placeId: "peniscola-parrots" },
       { time: "10:00", title: "🦁 ОПЦИЯ B: Bioparc (зоопарк без клеток)", note: "Спокойнее. 3 часа достаточно. Гориллы, львы, жирафы на расстоянии 3 м.", placeId: "bioparc" },
       { time: "10:00", title: "🖼 ОПЦИЯ C: Bellas Artes + Jardín de Monforte", note: "Самое спокойное. Бесплатный музей + романтический сад. На обед — в центр.", placeId: "bellas-artes" },
-      { time: "13:00", title: "Поздний обед в центре", note: "Если выбрали B или C — успеете. Если A — обед в Peñíscola или быстрый сэндвич в дороге.", placeId: null },
-      { time: "14:30", title: "Забрать багаж в отеле (или такси прямо в аэропорт если A)", note: "", placeId: null },
-      { time: "15:30", title: "Такси в аэропорт", note: "Заложить минимум 1 ч до вылета. Cabify/FreeNow дешевле уличных.", placeId: null },
-      { time: "17:00", title: "Вылет VLC", note: "Посадочный талон скачать накануне.", placeId: null },
+      { time: "13:30", title: "Поздний обед в центре", note: "Если выбрали B или C — успеете спокойно. Если A — обед в Peñíscola или быстрый сэндвич в дороге.", placeId: null },
+      { time: "14:30", title: "Забрать багаж в отеле", note: "Если опция A (Peñíscola) — такси сразу в аэропорт минуя отель (заранее оставить багаж в lobby).", placeId: null },
+      { time: "15:30", title: "🚇 Такси в аэропорт VLC", note: "Заложить минимум 2 часа до вылета 17:40. Cabify ~22-26 €. На метро L5+L3 — 35 мин + чек-ин.", placeId: null },
+      { time: "16:00", title: "✈️ Регистрация и контроль", note: "airBaltic стойка / автомат. С ручной кладью только — быстрее.", placeId: null },
+      { time: "17:40", title: "✈️ Вылет VLC → RIX", note: "airBaltic BT698 · 3 ч 50 мин · Прилёт в Ригу 22:30.", placeId: null },
     ],
   };
 }
@@ -2114,6 +2218,234 @@ function daysUntil(dateIso) {
 // ============================================================
 //  HEADER
 // ============================================================
+function getTripPhase() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const start = TRIP.start;
+  const end = TRIP.end;
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const hm = hour * 60 + minute;
+  if (todayStr < start) return "pre";
+  if (todayStr > end) return "post";
+  // Day of out-flight (May 30): from 00:00 until landing 10:00
+  if (todayStr === start && hm < 10 * 60) return "flight-out";
+  // Day of back-flight (Jun 3): from ~14:30 (when need to leave hotel)
+  if (todayStr === end && hm >= 14 * 60 + 30) return "flight-back";
+  return "in-trip";
+}
+
+function renderPreTripDashboard(c) {
+  const now = new Date();
+  const depDate = new Date(TRIP.flights.out.depDate + "T" + TRIP.flights.out.depTime + ":00");
+  const totalMs = depDate.getTime() - now.getTime();
+  const days = Math.floor(totalMs / 86400000);
+  const hours = Math.floor((totalMs % 86400000) / 3600000);
+
+  // Big countdown
+  const cd = el("div", { class: "hero", style: "background:linear-gradient(135deg,var(--accent),#3A7B96)" });
+  cd.appendChild(el("h2", null, days > 0 ? `Через ${days} дн. ${hours} ч.` : `Через ${hours} ч.`));
+  cd.appendChild(el("p", null, "до вылета в Валенсию"));
+  c.appendChild(cd);
+
+  // Flight card
+  const fl = el("div", { class: "card", style: "border-left:4px solid var(--primary)" });
+  fl.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:8px" }, "Туда · airBaltic BT697"));
+  const flRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center;gap:10px" });
+  const fromB = el("div", null);
+  fromB.appendChild(el("div", { style: "font-size:11px;color:var(--text-soft)" }, "Сб 30.05 · 07:00"));
+  fromB.appendChild(el("div", { style: "font-size:22px;font-weight:700" }, "RIX"));
+  fromB.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft)" }, "Рига"));
+  flRow.appendChild(fromB);
+  flRow.appendChild(el("div", { style: "color:var(--text-soft);font-size:11px" }, "✈ 4ч 0мин"));
+  const toB = el("div", { style: "text-align:right" });
+  toB.appendChild(el("div", { style: "font-size:11px;color:var(--text-soft)" }, "Сб 30.05 · 10:00"));
+  toB.appendChild(el("div", { style: "font-size:22px;font-weight:700" }, "VLC"));
+  toB.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft)" }, "Валенсия"));
+  flRow.appendChild(toB);
+  fl.appendChild(flRow);
+  const checkInOpens = depDate.getTime() - 24 * 3600 * 1000;
+  const checkInMs = checkInOpens - now.getTime();
+  if (checkInMs > 0) {
+    const cih = Math.floor(checkInMs / 3600000);
+    fl.appendChild(el("div", { style: "margin-top:10px;font-size:13px;color:var(--text-soft)" }, `🎟 Регистрация откроется через ~${cih} ч`));
+  } else {
+    fl.appendChild(el("div", { style: "margin-top:10px;font-size:13px;color:var(--success);font-weight:600" }, "✓ Регистрация открыта — скачать boarding pass"));
+  }
+  c.appendChild(fl);
+
+  // Bookings
+  const activeBookings = getActiveBookings();
+  if (activeBookings.length) {
+    const bw = el("div", { class: "card-soft", style: "margin-bottom:10px;border-left:3px solid var(--warning)", onclick: () => { state.activeTab = "me"; state.guideSection = "bookings"; saveState(); switchTab("me"); }, role: "button" });
+    bw.style.cursor = "pointer";
+    bw.appendChild(el("div", { style: "display:flex;justify-content:space-between;align-items:center;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:6px" },
+      el("span", null, `📅 Подготовка · ${activeBookings.length} осталось`),
+      el("span", { style: "color:var(--accent)" }, "→")
+    ));
+    activeBookings.slice(0, 4).forEach(b => {
+      const row = el("div", { style: "display:flex;gap:8px;padding:4px 0;font-size:13px;line-height:1.4" });
+      row.appendChild(el("span", { style: "font-weight:700;color:var(--primary);font-size:12px;min-width:60px;flex-shrink:0" }, formatBookingDate(b.forDate)));
+      row.appendChild(el("span", { style: "flex:1" + (b.priority === "high" ? ";font-weight:600" : "") }, (b.priority === "high" ? "★ " : "") + b.title));
+      bw.appendChild(row);
+    });
+    c.appendChild(bw);
+  }
+
+  // Trip preview — 5 days
+  c.appendChild(el("h3", { style: "margin-top:20px" }, "Что ждёт в Валенсии"));
+  DAYS.forEach(d => {
+    const row = el("div", { class: "card-soft", style: "margin-bottom:6px;display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer", onclick: () => { state.activeTab = "plan"; state.selectedDay = d.id; saveState(); switchTab("plan"); } });
+    row.appendChild(el("div", { style: "font-weight:700;color:var(--primary);min-width:48px;font-size:13px" }, d.label.split(" ")[0] + " " + d.label.split(" ")[1]));
+    row.appendChild(el("div", { style: "flex:1;font-size:14px" }, d.title));
+    row.appendChild(el("span", { style: "color:var(--text-soft)" }, "→"));
+    c.appendChild(row);
+  });
+
+  // Pre-trip checklist
+  const checkDone = CHECKLIST_PRE_TRIP.filter(it => getCheck(it.id)).length;
+  c.appendChild(el("div", { class: "card-soft", style: "margin-top:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center", onclick: () => { state.activeTab = "me"; state.guideSection = "checklist"; saveState(); switchTab("me"); } },
+    el("div", null,
+      el("div", { style: "font-weight:600;font-size:14px" }, "✅ Чек-лист подготовки"),
+      el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:2px" }, `${checkDone} из ${CHECKLIST_PRE_TRIP.length} готово`),
+    ),
+    el("span", { style: "color:var(--accent);font-size:18px" }, "→")
+  ));
+}
+
+function renderFlightOutDashboard(c) {
+  const now = new Date();
+  const depDate = new Date(TRIP.flights.out.depDate + "T" + TRIP.flights.out.depTime + ":00");
+  const totalMs = depDate.getTime() - now.getTime();
+  const hours = Math.floor(totalMs / 3600000);
+  const mins = Math.floor((totalMs % 3600000) / 60000);
+
+  const cd = el("div", { class: "hero", style: "background:linear-gradient(135deg,var(--primary),#E89556)" });
+  if (totalMs > 0) {
+    cd.appendChild(el("h2", null, "Сегодня летим! ✈️"));
+    cd.appendChild(el("p", null, `До вылета ${hours}ч ${mins}м`));
+  } else {
+    cd.appendChild(el("h2", null, "Уже в воздухе 🛫"));
+    cd.appendChild(el("p", null, `Прибытие в Валенсию ~10:00 (UTC+2)`));
+  }
+  c.appendChild(cd);
+
+  // Flight card big
+  const fl = el("div", { class: "card", style: "border-left:4px solid var(--primary)" });
+  fl.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px" }, "airBaltic BT697 · 4ч 0мин"));
+  const flRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center" });
+  flRow.appendChild(el("div", null,
+    el("div", { style: "font-size:24px;font-weight:700" }, "07:00"),
+    el("div", { style: "font-size:20px;font-weight:700" }, "RIX"),
+    el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Рига")
+  ));
+  flRow.appendChild(el("div", { style: "font-size:24px;color:var(--text-soft)" }, "✈"));
+  flRow.appendChild(el("div", { style: "text-align:right" },
+    el("div", { style: "font-size:24px;font-weight:700" }, "10:00"),
+    el("div", { style: "font-size:20px;font-weight:700" }, "VLC"),
+    el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Валенсия")
+  ));
+  fl.appendChild(flRow);
+  c.appendChild(fl);
+
+  // Today's plan preview
+  c.appendChild(el("h3", { style: "margin-top:20px" }, "По прилёту"));
+  const items = state.itinerary.d1.filter(it => {
+    const m = (it.time || "").match(/(\d+):(\d+)/);
+    if (!m) return false;
+    return parseInt(m[1]) >= 10;
+  });
+  items.forEach(it => {
+    const row = el("div", { class: "itin-item" });
+    row.appendChild(el("div", { class: "time" }, it.time));
+    const body = el("div", { class: "body" });
+    body.appendChild(el("div", { class: "t" }, it.title));
+    if (it.note) body.appendChild(el("div", { class: "n" }, it.note.split("\n")[0]));
+    row.appendChild(body);
+    c.appendChild(row);
+  });
+  c.appendChild(el("div", { style: "margin-top:8px" }, el("button", { class: "btn full", onclick: () => switchTab("plan") }, "Открыть весь план дня →")));
+}
+
+function renderFlightBackDashboard(c) {
+  const now = new Date();
+  const depDate = new Date(TRIP.flights.back.depDate + "T" + TRIP.flights.back.depTime + ":00");
+  const totalMs = depDate.getTime() - now.getTime();
+  const hours = Math.floor(totalMs / 3600000);
+  const mins = Math.floor((totalMs % 3600000) / 60000);
+
+  const cd = el("div", { class: "hero", style: "background:linear-gradient(135deg,var(--accent),#1A4F66)" });
+  cd.appendChild(el("h2", null, "Пора домой 🏠"));
+  cd.appendChild(el("p", null, totalMs > 0 ? `До вылета ${hours}ч ${mins}м` : "Уже в дороге"));
+  c.appendChild(cd);
+
+  const fl = el("div", { class: "card", style: "border-left:4px solid var(--accent)" });
+  fl.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px" }, "airBaltic BT698 · 3ч 50мин"));
+  const flRow = el("div", { style: "display:flex;justify-content:space-between;align-items:center" });
+  flRow.appendChild(el("div", null,
+    el("div", { style: "font-size:24px;font-weight:700" }, "17:40"),
+    el("div", { style: "font-size:20px;font-weight:700" }, "VLC"),
+    el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Валенсия")
+  ));
+  flRow.appendChild(el("div", { style: "font-size:24px;color:var(--text-soft)" }, "✈"));
+  flRow.appendChild(el("div", { style: "text-align:right" },
+    el("div", { style: "font-size:24px;font-weight:700" }, "22:30"),
+    el("div", { style: "font-size:20px;font-weight:700" }, "RIX"),
+    el("div", { style: "font-size:13px;color:var(--text-soft)" }, "Рига")
+  ));
+  fl.appendChild(flRow);
+  c.appendChild(fl);
+
+  // Departure checklist
+  c.appendChild(el("h3", { style: "margin-top:20px" }, "Перед вылетом"));
+  const checklist = [
+    "📱 Boarding pass скачан и в Wallet",
+    "🛂 Паспорта у каждого",
+    "💧 Допить воду до контроля (после купите там)",
+    "💰 Сдать оставшиеся монеты или потратить в магазинах",
+    "📷 Фото в дневник: что понравилось/не понравилось",
+    "👋 Написать Агусу и Лене спасибо",
+    "🎁 Сувениры в ручной клади (керамика, оливковое масло)",
+  ];
+  checklist.forEach(t => {
+    const row = el("div", { class: "card-soft", style: "padding:10px;margin-bottom:6px;font-size:14px" }, t);
+    c.appendChild(row);
+  });
+}
+
+function renderPostTripDashboard(c) {
+  const visited = Object.values(state.places).filter(p => p.status === "visited").length;
+  const want = Object.values(state.places).filter(p => p.status === "want").length;
+  const photos = Object.values(state.photos || {}).reduce((s, arr) => s + arr.length, 0);
+  const diary = Object.values(state.diary || {}).filter(t => t && t.length).length;
+
+  const cd = el("div", { class: "hero", style: "background:linear-gradient(135deg,#9D5BC8,#5C3380)" });
+  cd.appendChild(el("h2", null, "Как съездили? 🍊"));
+  cd.appendChild(el("p", null, "Валенсия 30.05–03.06.2026"));
+  c.appendChild(cd);
+
+  // Stats grid
+  const stats = el("div", { class: "stat-grid", style: "margin-top:14px" });
+  stats.appendChild(el("div", { class: "stat" }, el("div", { class: "n" }, visited.toString()), el("div", { class: "l" }, "посетили")));
+  stats.appendChild(el("div", { class: "stat" }, el("div", { class: "n" }, photos.toString()), el("div", { class: "l" }, "фото")));
+  stats.appendChild(el("div", { class: "stat" }, el("div", { class: "n" }, diary.toString()), el("div", { class: "l" }, "дней дневника")));
+  c.appendChild(stats);
+
+  if (want > 0) {
+    c.appendChild(el("div", { class: "card-soft", style: "margin-top:14px;font-size:13px;line-height:1.5;border-left:3px solid var(--warning)" },
+      `⭐ Остались ${want} мест в списке «хочу» — следующий раз обязательно!`
+    ));
+  }
+
+  c.appendChild(el("h3", { style: "margin-top:18px" }, "Дальше"));
+  c.appendChild(el("div", { style: "margin-top:8px" },
+    el("button", { class: "btn full", onclick: () => { state.activeTab = "plan"; saveState(); switchTab("plan"); } }, "📔 Перечитать дневник"),
+  ));
+  c.appendChild(el("div", { style: "margin-top:6px" },
+    el("button", { class: "btn full", onclick: doExport }, "💾 Экспортнуть все данные на память"),
+  ));
+}
+
 function renderHeader() {
   const sub = $("#header-sub");
   const d = daysUntil(TRIP.start);
@@ -2138,6 +2470,30 @@ function renderHeader() {
 //  TODAY VIEW
 // ============================================================
 function renderToday() {
+  const phase = getTripPhase();
+  const c = $("#today-content");
+  const heroEl = document.querySelector("#view-today .hero");
+
+  // PHASE-SPECIFIC DASHBOARDS (override default in-trip)
+  if (phase === "pre" || phase === "flight-out" || phase === "flight-back" || phase === "post") {
+    // Hide default hero/tabs for these phases
+    if (heroEl) heroEl.style.display = "none";
+    const dayTabsEl = $("#today-day-tabs");
+    if (dayTabsEl) dayTabsEl.style.display = "none";
+
+    c.innerHTML = "";
+    if (phase === "pre") renderPreTripDashboard(c);
+    else if (phase === "flight-out") renderFlightOutDashboard(c);
+    else if (phase === "flight-back") renderFlightBackDashboard(c);
+    else if (phase === "post") renderPostTripDashboard(c);
+    return;
+  }
+
+  // IN-TRIP — show default day dashboard
+  if (heroEl) heroEl.style.display = "";
+  const dayTabsEl2 = $("#today-day-tabs");
+  if (dayTabsEl2) dayTabsEl2.style.display = "";
+
   const cd = currentTripDay();
   const dayId = cd || state.selectedDay || "d1";
   state.selectedDay = dayId;
@@ -2170,7 +2526,6 @@ function renderToday() {
   });
 
   // Day content — itinerary preview + suggestions
-  const c = $("#today-content");
   c.innerHTML = "";
 
   // SPECIAL DAYS WIDGET — что особенного в этот день
@@ -2498,26 +2853,70 @@ function renderPlan() {
   const items = state.itinerary[dayId] || [];
 
   items.forEach((it, idx) => {
-    const card = el("div", { class: "itin-item" });
+    const itemKey = `${dayId}:${idx}`;
+    const isExpanded = state.expandedItems && state.expandedItems[itemKey];
+    const card = el("div", { class: "itin-item" + (isExpanded ? " expanded" : "") });
     card.appendChild(el("div", { class: "time" }, it.time || ""));
-    const body = el("div", { class: "body" });
+    const body = el("div", { class: "body", style: "cursor:pointer", onclick: (e) => {
+      // Don't expand if clicked on a button inside body
+      if (e.target.closest("button") || e.target.closest("textarea") || e.target.closest("a")) return;
+      state.expandedItems = state.expandedItems || {};
+      state.expandedItems[itemKey] = !isExpanded;
+      saveState();
+      renderPlan();
+    }});
     body.appendChild(el("div", { class: "t" }, it.title));
-    if (it.note) body.appendChild(el("div", { class: "n" }, it.note));
-    if (it.placeId) {
-      const place = PLACES.find(p => p.id === it.placeId);
-      if (place) {
-        const ico = statusIcon(getStatus(place.id));
-        body.appendChild(el("div", { style: "margin-top:6px;display:flex;gap:6px;flex-wrap:wrap" },
-          el("button", { class: "btn tiny", onclick: () => openPlaceModal(it.placeId) }, "📍 " + place.name),
-          ico ? el("span", { style: "font-size:14px;align-self:center" }, ico) : null,
-        ));
-      }
+    if (it.note && !isExpanded) {
+      // Show only first line collapsed
+      const firstLine = it.note.split("\n")[0];
+      const hasMore = it.note.split("\n").length > 1 || it.note.length > firstLine.length;
+      body.appendChild(el("div", { class: "n" }, firstLine + (hasMore ? " …" : "")));
+    } else if (it.note && isExpanded) {
+      // Full note when expanded
+      const noteEl = el("div", { class: "n", style: "white-space:pre-wrap" }, it.note);
+      body.appendChild(noteEl);
     }
+
+    if (isExpanded) {
+      // Place link
+      if (it.placeId) {
+        const place = PLACES.find(p => p.id === it.placeId);
+        if (place) {
+          const ico = statusIcon(getStatus(place.id));
+          body.appendChild(el("div", { style: "margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center" },
+            el("button", { class: "btn tiny primary", onclick: (e) => { e.stopPropagation(); openPlaceModal(it.placeId); } }, "📍 " + place.name),
+            ico ? el("span", { style: "font-size:14px" }, ico) : null,
+            el("a", { class: "btn tiny", href: mapsUrl(place), target: "_blank", rel: "noopener", onclick: (e) => e.stopPropagation() }, "🗺 Карты"),
+          ));
+        }
+      }
+
+      // Personal comment textarea
+      body.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-soft);font-weight:600;margin-top:14px;margin-bottom:4px" }, "💬 Мой комментарий"));
+      const comment = el("textarea", { placeholder: "Заметка к этому пункту: бронь, время по факту, кто пришёл, что понравилось...", style: "font-size:13px;min-height:60px", onclick: (e) => e.stopPropagation() });
+      comment.value = it.comment || "";
+      comment.addEventListener("input", () => {
+        it.comment = comment.value;
+        saveState();
+      });
+      body.appendChild(comment);
+
+      // Edit / share actions inside expanded
+      const inActions = el("div", { class: "btn-row", style: "margin-top:10px" });
+      inActions.appendChild(el("button", { class: "btn tiny", onclick: (e) => { e.stopPropagation(); editItem(dayId, idx); } }, "✎ Редактировать"));
+      inActions.appendChild(el("button", { class: "btn tiny", onclick: (e) => { e.stopPropagation(); shareItineraryItem(dayId, it); } }, "📤 Поделиться"));
+      body.appendChild(inActions);
+    } else if (it.comment) {
+      // Show small badge if comment exists but item collapsed
+      body.appendChild(el("div", { style: "font-size:11px;color:var(--accent);margin-top:4px" }, "💬 есть заметка"));
+    }
+
     card.appendChild(body);
+
+    // Actions on right (always visible: up/down/delete)
     const actions = el("div", { class: "actions" });
     actions.appendChild(el("button", { onclick: () => moveItem(dayId, idx, -1), title: "Вверх" }, "↑"));
     actions.appendChild(el("button", { onclick: () => moveItem(dayId, idx, 1), title: "Вниз" }, "↓"));
-    actions.appendChild(el("button", { onclick: () => editItem(dayId, idx), title: "Изменить" }, "✎"));
     actions.appendChild(el("button", { onclick: () => removeItem(dayId, idx), title: "Удалить" }, "🗑"));
     card.appendChild(actions);
     c.appendChild(card);
@@ -3452,6 +3851,25 @@ function renderGuidePhrases(c) {
 function renderGuideDishes(c) {
   c.appendChild(el("p", { style: "margin:14px 0 8px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Что обязательно попробовать в Валенсии. Тапни по карточке — увидишь фото, состав и пошаговый рецепт."));
 
+  // Category filter chips
+  state.dishCategory = state.dishCategory || "all";
+  const filterRow = el("div", { class: "filters", style: "margin:0 -14px 10px;padding-left:14px;padding-right:14px" });
+  const filters = [
+    { id: "all", label: "Все", emoji: "🍽" },
+    { id: "agus", label: "Меню Агуса", emoji: "👨‍🍳" },
+    { id: "tapas", label: "Тапас", emoji: "🥘" },
+    { id: "main", label: "Основные", emoji: "🍚" },
+    { id: "sweet", label: "Сладкое", emoji: "🍰" },
+    { id: "drink", label: "Напитки", emoji: "☕" },
+  ];
+  filters.forEach(f => {
+    filterRow.appendChild(el("button", {
+      class: "chip" + (state.dishCategory === f.id ? " active" : ""),
+      onclick: () => { state.dishCategory = f.id; saveState(); renderGuideDishes(c.parentNode.parentNode ? c : c); renderMe(); }
+    }, f.emoji + " " + f.label));
+  });
+  c.appendChild(filterRow);
+
   // Search box
   const searchInp = el("input", { type: "text", placeholder: "🔍 Поиск: название, ингредиент, где...", style: "margin-bottom:10px" });
   searchInp.value = state.dishSearch || "";
@@ -3460,10 +3878,25 @@ function renderGuideDishes(c) {
   const listEl = el("div", { id: "dishes-list" });
   c.appendChild(listEl);
 
+  function categoryOf(d) {
+    // Categorize by id
+    if (d.agusMenu) return "agus";
+    if (["pan-tomate","jamon","fuet","empanadas","quesos","patatas-bravas","tortilla","croquetas","gazpacho"].includes(d.id)) return "tapas";
+    if (["paella","arroz-banda","fideua","all-i-pebre","clochinas","pulpo-gallega"].includes(d.id)) return "main";
+    if (["horchata","bunuelos","torrija","coca-llanda","naranjas"].includes(d.id)) return "sweet";
+    if (["mosto","cafe-cortado"].includes(d.id)) return "drink";
+    return "main";
+  }
+
   function renderList() {
     const q = (searchInp.value || "").trim().toLowerCase();
     state.dishSearch = q;
     let list = DISHES.slice();
+    // Category
+    if (state.dishCategory && state.dishCategory !== "all") {
+      list = list.filter(d => categoryOf(d) === state.dishCategory);
+    }
+    // Search
     if (q) {
       list = list.filter(d => {
         const ing = (d.ingredients || []).join(" ").toLowerCase();
@@ -3478,12 +3911,19 @@ function renderGuideDishes(c) {
       listEl.appendChild(el("div", { class: "empty" }, "Ничего не нашлось"));
       return;
     }
+    if (state.dishCategory === "agus") {
+      listEl.appendChild(el("div", { class: "card-soft", style: "border-left:3px solid var(--primary);margin-bottom:10px;font-size:13px;line-height:1.5" },
+        "Это меню которое Агус готовит в субботу. Изучи заранее чтобы знать что встретит — и подумай о вежливом комплименте на испанском после обеда: «¡Está buenísimo!» (Эста буэни́симо — «Очень вкусно!»)."
+      ));
+    }
     list.forEach(d => {
       const row = el("div", { class: "card-soft dish-card", style: "margin-bottom:8px", onclick: () => openDishModal(d.id) });
-      row.appendChild(el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center" },
-        el("span", null, d.emoji + " " + d.name),
-        el("span", { style: "color:var(--text-soft);font-size:13px" }, "→")
-      ));
+      const nameRow = el("div", { style: "font-weight:600;font-size:15px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:8px" });
+      const name = el("span", { style: "flex:1" }, d.emoji + " " + d.name);
+      if (d.agusMenu) name.appendChild(el("span", { class: "tag", style: "background:var(--primary-soft);color:var(--primary);margin-left:6px;font-size:10px" }, "👨‍🍳 Агус"));
+      nameRow.appendChild(name);
+      nameRow.appendChild(el("span", { style: "color:var(--text-soft);font-size:13px" }, "→"));
+      row.appendChild(nameRow);
       row.appendChild(el("div", { style: "font-size:13px;line-height:1.5;color:var(--text)" }, d.desc));
       row.appendChild(el("div", { style: "font-size:12px;margin-top:6px;color:var(--text-soft)" }, "📍 " + d.where));
       listEl.appendChild(row);
@@ -3494,24 +3934,29 @@ function renderGuideDishes(c) {
   renderList();
 }
 
-async function fetchDishImage(wikiTitle) {
+async function fetchDishImage(wikiTitle, preferredLang) {
   if (!wikiTitle) return null;
   state.dishImageCache = state.dishImageCache || {};
-  if (state.dishImageCache[wikiTitle]) return state.dishImageCache[wikiTitle];
-  try {
-    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`);
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const data = await r.json();
-    const url = (data.thumbnail && data.thumbnail.source) || (data.originalimage && data.originalimage.source) || null;
-    if (url) {
-      state.dishImageCache[wikiTitle] = url;
-      saveState();
+  const cacheKey = (preferredLang || "en") + ":" + wikiTitle;
+  if (state.dishImageCache[cacheKey]) return state.dishImageCache[cacheKey];
+  // Try preferred lang first, then ES, then EN as fallback
+  const langs = [preferredLang, "es", "en", "ca"].filter((v, i, a) => v && a.indexOf(v) === i);
+  for (const lang of langs) {
+    try {
+      const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`);
+      if (!r.ok) continue;
+      const data = await r.json();
+      const url = (data.thumbnail && data.thumbnail.source) || (data.originalimage && data.originalimage.source) || null;
+      if (url) {
+        state.dishImageCache[cacheKey] = url;
+        saveState();
+        return url;
+      }
+    } catch (e) {
+      // Try next lang
     }
-    return url;
-  } catch (e) {
-    console.warn("Dish image fetch failed:", e.message);
-    return null;
   }
+  return null;
 }
 
 function openDishModal(id) {
@@ -3558,8 +4003,8 @@ function openDishModal(id) {
 
   $("#dish-modal").showModal();
 
-  // Lazy-load photo from Wikipedia
-  fetchDishImage(dish.wiki).then(url => {
+  // Lazy-load photo from Wikipedia (prefer wikiLang if set, e.g. es)
+  fetchDishImage(dish.wiki, dish.wikiLang).then(url => {
     if (url && $("#dish-modal").open) {
       const ph = body.querySelector(".dish-photo");
       if (ph) {
