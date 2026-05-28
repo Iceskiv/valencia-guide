@@ -1593,23 +1593,23 @@ const PHOTO_SPOTS = new Set([
 const PLACES = [
   // === АРХИТЕКТУРА И ИСТОРИЯ — Ciutat Vella ===
   { id: "catedral", name: "Catedral de València (La Seu)", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de l'Almoina, s/n, 46003 València", lat: 39.4756, lng: -0.3753,
-    desc: "Кафедральный собор XIII в. — готика, барокко, неоклассика в одном здании. Главное — Святая Чаша (Santo Cáliz), которую Ватикан официально признал реликвией, использовавшейся на Тайной вечере. Внутри также два полотна Гойи.",
+    desc: "Кафедральный собор XIII в. — готика, барокко, неоклассика в одном здании. Головне — Святая Чаша (Santo Cáliz), которую Ватикан официально признал реликвией, использовавшейся на Тайной вечере. Усередині также два полотна Гойи.",
     tip: "Безкоштовно с 17:30 будни (только зал). Платный билет включает аудиогид. Чаша — в боковой капелле справа.",
     price: "Собор 9 € · с башней 11 €", hours: "Пн-Сб 10:30–18:30, Вс 14:00–18:30",
     web: "https://catedraldevalencia.es", tags: ["iconic", "unique", "must"], unique: true },
 
   { id: "miguelete", name: "Torre del Miguelete (Micalet)", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça de la Reina, 46001 València", lat: 39.4757, lng: -0.3754,
-    desc: "Колокольня собора XIV в., 51 м. 207 ступеней по винтовой лестнице — и сверху лучшая панорама старого города, крыш с черепицей и моря на горизонте.",
-    tip: "Подниматься перед закатом — небо становится оранжевым над оранжевыми крышами. Лестница узкая, без лифта.",
+    desc: "Дзвіниця собора XIV в., 51 м. 207 ступеней по винтовой лестнице — и сверху лучшая панорама старого міста, крыш с черепицей и моря на горизонте.",
+    tip: "Подниматься перед закатом — небо становится оранжевым над оранжевыми крышами. Сходи узкая, без лифта.",
     price: "8 €", hours: "10:00–19:00", tags: ["viewpoint", "iconic"], unique: false },
 
   { id: "basilica-virgen", name: "Basílica de la Virgen", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 6, 46001 València", lat: 39.4762, lng: -0.3752,
-    desc: "Барочная базилика XVII в. с овальным куполом и фресками Паломино. Главное — статуя Пресвятой Девы Заступницы (Mare de Déu dels Desamparats), покровительницы города.",
+    desc: "Барочная базилика XVII в. с овальным куполом и фресками Паломино. Головне — статуя Пресвятой Девы Заступницы (Mare de Déu dels Desamparats), покровительницы города.",
     tip: "Можно зайти безкоштовно. Прямо рядом — Plaza de la Virgen с фонтаном Турия.",
     price: "Безкоштовно", hours: "07:00–14:00, 16:30–21:00", tags: ["iconic"], unique: false },
 
   { id: "plaza-virgen", name: "Plaza de la Virgen", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 46001 València", lat: 39.4763, lng: -0.3754,
-    desc: "Атмосферное сердце старого города. В центре — фонтан Турия с возлежащим стариком (река) и нимфами (8 оросительных каналов). По периметру: базилика, собор, дворец Женералитат.",
+    desc: "Атмосферное сердце старого міста. В центре — фонтан Турия с возлежащим стариком (река) и нимфами (8 оросительных каналов). По периметру: базилика, собор, палац Женералитат.",
     tip: "Сесть на ступеньки фонтана с орчатой — лучший момент Валенсии. По четвергам в 12:00 — заседание Водяного трибунала под открытым небом, самая древняя действующая судебная инстанция Европы.",
     price: "Безкоштовно", hours: "Завжди", tags: ["iconic", "must"], unique: true },
 
@@ -1624,7 +1624,7 @@ const PLACES = [
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden", "unique"], unique: true },
 
   { id: "plaza-lope", name: "Plaza Lope de Vega · самый узкий дом Европы", emoji: "📐", cat: "monument", district: "Ciutat Vella", address: "Plaça de Lope de Vega, 46001 València", lat: 39.4747, lng: -0.3762,
-    desc: "Маленькая площадь между Plaza de la Reina и Plaza Redonda. На ней — самый узкий жилой дом в Европе: фасад всего 107 см. Внутри есть гастропаб.",
+    desc: "Маленькая площадь между Plaza de la Reina и Plaza Redonda. На ней — самый узкий жилой дом в Европе: фасад всего 107 см. Усередині есть гастропаб.",
     tip: "Найдите 5-этажный дом № 9 — это он. Хорошее место для нестандартного селфи.",
     price: "Безкоштовно", hours: "Завжди", tags: ["unique", "hidden"], unique: true },
 
@@ -1639,13 +1639,13 @@ const PLACES = [
     price: "Безкоштовно", hours: "Пн-Пт 09:00–14:00", tags: ["hidden"], unique: true },
 
   { id: "correos", name: "Palacio de Correos (Главпочтамт)", emoji: "✉️", cat: "sight", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 24, 46002 València", lat: 39.4702, lng: -0.3763,
-    desc: "Дворец связи 1922 г. — модернизм с стеклянным куполом, мраморной лестницей и витражами. Внутри — действующее почтовое отделение.",
+    desc: "Палац связи 1922 г. — модернизм с стеклянным куполом, мраморной лестницей и витражами. Усередині — действующее почтовое отделение.",
     tip: "Зайдите хотя бы в холл — поднимите голову на купол. Можно отправить открытку самому себе с настоящей валенсийской почты.",
     price: "Безкоштовно", hours: "Пн-Пт 08:30–20:30, Сб 09:30–13:00", tags: ["hidden", "unique"], unique: true },
 
   { id: "mercado-central", name: "Mercado Central", emoji: "🥖", cat: "market", district: "Ciutat Vella", address: "Plaça de la Ciutat de Bruges, s/n, 46001 València", lat: 39.4733, lng: -0.3779,
     desc: "Один из крупнейших крытых рынков Европы (8000 м²). Модернизм 1928 г.: витражи с апельсинами, купол с флюгером, керамика. 300 прилавков — хамон, морепродукты, фрукты, специи.",
-    tip: "Идти до 13:00, будни. Воскресенье ЗАКРЫТ. Внутри — Central Bar Рикарда Камареньи, лучший бутерброд с тортильей и устрицы.",
+    tip: "Идти до 13:00, будни. Воскресенье ЗАКРЫТ. Усередині — Central Bar Рикарда Камареньи, лучший бутерброд с тортильей и устрицы.",
     price: "Безкоштовно", hours: "Пн-Сб 07:30–15:00. Вс закрыто",
     web: "https://www.mercadocentralvalencia.es", tags: ["iconic", "must", "food"], unique: true },
 
@@ -1656,44 +1656,44 @@ const PLACES = [
     tags: ["iconic", "must", "unesco"], unique: true },
 
   { id: "san-nicolas", name: "Iglesia de San Nicolás · «Сикстинская Валенсии»", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Carrer dels Cavallers, 35, 46001 València", lat: 39.4757, lng: -0.3786,
-    desc: "Снаружи — обычная готическая церковь, внутри — взрыв барочных фресок Антонио Паломино: 1900 м² расписан полностью. После реставрации 2016 г. сияет как новый. Действительно достойно прозвища.",
+    desc: "Ззовні — обычная готическая церковь, усередині — взрыв барочных фресок Антонио Паломино: 1900 м² расписан полностью. После реставрации 2016 г. сияет как новый. Действительно достойно прозвища.",
     tip: "Возьмите аудиогид — без него часть смысла теряется. Зимой и в дни службы вход ограничен.",
     price: "8 € (с аудиогидом)", hours: "Пн-Сб 10:30–19:30, Вс 13:00–19:30",
     web: "https://sannicolasvalencia.com", tags: ["must", "unique", "iconic"], unique: true },
 
   { id: "torres-serranos", name: "Torres de Serranos", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça dels Furs, s/n, 46003 València", lat: 39.4795, lng: -0.3760,
-    desc: "Готические ворота XIV в. в стене старого города. На вершину можно подняться — открывается вид на парк Турия с одной стороны и черепичные крыши старого города с другой.",
+    desc: "Готичні ворота XIV в. в стене старого міста. На вершину можно подняться — открывается вид на парк Турия с одной стороны и черепичные крыши старого міста с другой.",
     tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО, иначе всего 2 €. Идеально на закате.",
     price: "2 € · Вс — безкоштовно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["viewpoint"], unique: false },
 
   { id: "torres-quart", name: "Torres de Quart", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Carrer de Guillem de Castro, 89, 46008 València", lat: 39.4757, lng: -0.3823,
-    desc: "Парные ворота XV в. на западной стороне старого города. На стенах — следы французских ядер 1808 г., их не реставрировали специально, как память.",
+    desc: "Парные ворота XV в. на западной стороне старого міста. На стенах — следы французских ядер 1808 г., их не реставрировали специально, как память.",
     tip: "Тоже можно подняться. Менее раскручены чем Serranos, очередей нет. Безкоштовно по воскресеньям.",
     price: "2 € · Вс — безкоштовно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["hidden"], unique: false },
 
   { id: "ceramica", name: "Museu de Ceràmica (Palau Marqués de Dos Aigües)", emoji: "🖼", cat: "museum", district: "Ciutat Vella", address: "Carrer del Poeta Querol, 2, 46002 València", lat: 39.4727, lng: -0.3736,
-    desc: "Дворец маркизов Дос-Агуас XVIII в. — самый барочный фасад Испании, вырезанный из алебастра (вода, грифоны, фигуры). Внутри — крупнейшая коллекция испанской керамики и интерьеры в стиле рококо.",
+    desc: "Палац маркизов Дос-Агуас XVIII в. — самый барочный фасад Испании, вырезанный из алебастра (вода, грифоны, фигуры). Усередині — крупнейшая коллекция испанской керамики и интерьеры в стиле рококо.",
     tip: "Уже только ради фасада стоит дойти. По субботам после 16:00 и в воскресенье — БЕСПЛАТНО.",
     price: "3 € · Сб 16:00+ и Вс — безкоштовно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00",
     tags: ["iconic", "unique"], unique: true },
 
   { id: "puerta-mar", name: "Puerta de la Mar", emoji: "🏛", cat: "monument", district: "Ciutat Vella", address: "Plaça de la Porta de la Mar, 46004 València", lat: 39.4707, lng: -0.3692,
     desc: "Триумфальная арка — копия утраченных средневековых ворот, восстановленная в 1946 г. в память о Гражданской войне.",
-    tip: "Рядом — гигантский столетний фикус (ficus macrophylla) с воздушными корнями. Зрелище.",
+    tip: "Рядом — гигантский столетний фикус (ficus macrophylla) с воздушными корнями. Видовище.",
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden"], unique: false },
 
   { id: "estacion-norte", name: "Estación del Norte", emoji: "🚂", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 24, 46007 València", lat: 39.4669, lng: -0.3771,
-    desc: "Вокзал 1917 г. в стиле валенсийского модернизма. Внутри: мозаики с апельсинами, цветочные мотивы, билетные кассы как театральные ложи. Сейчас действующий ж/д вокзал.",
-    tip: "Зайдите даже без поезда — за 5 минут увидите потолок и мозаики в зале ожидания. Снаружи: керамика «Bon Viatge» на 6 языках.",
+    desc: "Вокзал 1917 г. в стиле валенсийского модернизма. Усередині: мозаики с апельсинами, цветочные мотивы, билетные кассы как театральные ложи. Сейчас действующий ж/д вокзал.",
+    tip: "Зайдите даже без поезда — за 5 минут увидите потолок и мозаики в зале ожидания. Ззовні: керамика «Bon Viatge» на 6 языках.",
     price: "Безкоштовно", hours: "06:00–23:00", tags: ["hidden", "unique", "modernism"], unique: true },
 
   { id: "plaza-toros", name: "Plaza de Toros", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 28, 46004 València", lat: 39.4665, lng: -0.3758,
-    desc: "Арена 1859 г. как уменьшенная копия Колизея. Прямо рядом с вокзалом, кирпично-стеклянная. Внутри — Museo Taurino (безкоштовно).",
+    desc: "Арена 1859 г. как уменьшенная копия Колизея. Прямо рядом с вокзалом, кирпично-стеклянная. Усередині — Museo Taurino (безкоштовно).",
     tip: "Можно зайти на арену с экскурсией или просто в музей. Корриду не любят все — но архитектурно интересно.",
     price: "Музей безкоштовно · экскурсия 14 €", hours: "Музей: 10:00–19:00", tags: [], unique: false },
 
   { id: "mercado-colon", name: "Mercado de Colón", emoji: "🏛", cat: "sight", district: "Eixample", address: "Carrer de Jorge Juan, 19, 46004 València", lat: 39.4694, lng: -0.3697,
-    desc: "Модернизм 1916 г. Сейчас не рынок, а гастропространство: рестораны, кафе, дегустации. Внутри — Horchatería Daniel 1949 г. с лучшей орчатой Валенсии.",
+    desc: "Модернизм 1916 г. Сейчас не рынок, а гастропространство: рестораны, кафе, дегустации. Усередині — Horchatería Daniel 1949 г. с лучшей орчатой Валенсии.",
     tip: "Зайти на орчату с фартонами в Daniel. Дешевле и аутентичнее чем в туристическом центре. Очень атмосферно после заката с подсветкой.",
     price: "Вход бесплатный", hours: "07:30–01:00", tags: ["iconic", "modernism", "food"], unique: false },
 
@@ -1719,7 +1719,7 @@ const PLACES = [
     tags: ["hidden", "unique"], unique: true },
 
   { id: "cervello", name: "Palacio de Cervelló", emoji: "🏛", cat: "museum", district: "Ciutat Vella", address: "Plaça de Tetuan, 3, 46003 València", lat: 39.4782, lng: -0.3733,
-    desc: "Дворец XVIII в. с сохранившимся интерьером и библиотекой. Здесь жил король Фернандо VII после возвращения из французского плена.",
+    desc: "Палац XVIII в. с сохранившимся интерьером и библиотекой. Здесь жил король Фернандо VII после возвращения из французского плена.",
     tip: "Безкоштовно. Часто игнорируют — а зря, очень атмосферно.",
     price: "Безкоштовно", hours: "Пн-Сб 09:00–14:00", tags: ["hidden"], unique: false },
 
@@ -1769,8 +1769,8 @@ const PLACES = [
   // === ГОРОД ИСКУССТВ И НАУК ===
   { id: "ciudad-artes", name: "Ciudad de las Artes y las Ciencias", emoji: "🛸", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4546, lng: -0.3530,
     desc: "Футуристический комплекс Сантьяго Калатравы и Феликса Канделы — белые скелеты-конструкции в голубых бассейнах. Состоит из Hemisfèric, Museo de Ciencias, Umbracle, Ágora, Oceanogràfic, Palau de les Arts.",
-    tip: "Снаружи и вокруг безкоштовно — это и есть главное. Внутри билет от 16 €. Лучше всего к закату — белый бетон становится розовым.",
-    price: "Снаружи безкоштовно · вход в объекты от 16 €", hours: "Завжди", tags: ["iconic", "must"], unique: false },
+    tip: "Ззовні и вокруг безкоштовно — это и есть главное. Усередині билет от 16 €. Лучше всего к закату — белый бетон становится розовым.",
+    price: "Ззовні безкоштовно · вход в объекты от 16 €", hours: "Завжди", tags: ["iconic", "must"], unique: false },
 
   { id: "oceanografic", name: "Oceanogràfic", emoji: "🐠", cat: "sight", district: "Quatre Carreres", address: "Carrer d'Eduardo Primo Yúfera, 1B, 46013 València", lat: 39.4525, lng: -0.3486,
     desc: "Самый большой океанариум Европы — 7 морских зон, тоннель акул, белухи, моржи, пингвины. Архитектура Феликса Канделы, тонкие парусные крыши.",
@@ -1779,13 +1779,13 @@ const PLACES = [
     web: "https://www.oceanografic.org", tags: ["must", "iconic", "unique"], unique: false },
 
   { id: "hemisferic", name: "L'Hemisfèric · кинотеатр-глаз", emoji: "👁", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4554, lng: -0.3539,
-    desc: "Кинотеатр в форме гигантского глаза, который «моргает» — крыша поднимается. Внутри — IMAX и планетарий на 900 м² куполе.",
+    desc: "Кинотеатр в форме гигантского глаза, который «моргает» — крыша поднимается. Усередині — IMAX и планетарий на 900 м² куполе.",
     tip: "Если будете в океанариуме — берите комбо-билет, выходит выгоднее.",
     price: "9 €", hours: "11:00–19:30", tags: ["iconic"], unique: false },
 
   { id: "museo-ciencias", name: "Museo de las Ciencias Príncipe Felipe", emoji: "🦴", cat: "museum", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4548, lng: -0.3528,
-    desc: "Интерактивный музей науки, форма как скелет рыбы. Внутри — модели ДНК, динозавры, эксперименты — много для детей и взрослых.",
-    tip: "Снаружи — арки-«коммуникаторы»: говорите в одну, друг слышит в другой на расстоянии 50 м (без проводов, акустический фокус). Совершенно безумно. Безкоштовно.",
+    desc: "Интерактивный музей науки, форма как скелет рыбы. Усередині — модели ДНК, динозавры, эксперименты — много для детей и взрослых.",
+    tip: "Ззовні — арки-«коммуникаторы»: говорите в одну, друг слышит в другой на расстоянии 50 м (без проводов, акустический фокус). Совершенно безумно. Безкоштовно.",
     price: "8 €", hours: "10:00–19:00", tags: ["unique", "quirky"], unique: true },
 
   { id: "umbracle", name: "L'Umbracle · сад-аркада", emoji: "🌴", cat: "sight", district: "Quatre Carreres", address: "Av. del Professor López Piñero, 7, 46013 València", lat: 39.4559, lng: -0.3540,
@@ -1795,7 +1795,7 @@ const PLACES = [
 
   { id: "agora", name: "L'Àgora", emoji: "🏛", cat: "sight", district: "Quatre Carreres", address: "Av. del Saler, 5, 46013 València", lat: 39.4536, lng: -0.3500,
     desc: "Голубая «капля» — многофункциональный зал. Внешне самая загадочная часть комплекса. Чаще закрыта, проводят теннисные турниры и концерты.",
-    tip: "Хороший фон для фото снаружи.", price: "Только во время мероприятий", hours: "По расписанию", tags: [], unique: false },
+    tip: "Хороший фон для фото ззовні.", price: "Только во время мероприятий", hours: "По расписанию", tags: [], unique: false },
 
   // === МУЗЕИ ===
   { id: "bellas-artes", name: "Museo de Bellas Artes", emoji: "🖼", cat: "museum", district: "Pla del Real", address: "Carrer de Sant Pius V, 9, 46010 València", lat: 39.4793, lng: -0.3691,
@@ -1858,7 +1858,7 @@ const PLACES = [
 
   // === АКТИВНОСТИ И ВИДЫ ===
   { id: "roof-ateneo", name: "Rooftop Ateneo Sky Bar", emoji: "🌇", cat: "activity", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 18, 46002 València", lat: 39.4690, lng: -0.3763,
-    desc: "Терраса на крыше Ateneo Mercantil — лучший панорамный вид на Plaza del Ayuntamiento и крыши старого города. Не пьёте — берите свежевыжатый сок или мокатейль.",
+    desc: "Терраса на крыше Ateneo Mercantil — лучший панорамный вид на Plaza del Ayuntamiento и крыши старого міста. Не пьёте — берите свежевыжатый сок или мокатейль.",
     tip: "Лучше к закату. Иногда нужно бронировать.",
     price: "Напитки 5–10 €", hours: "12:00–01:00", tags: ["viewpoint"], unique: false },
 
@@ -1919,7 +1919,7 @@ const PLACES = [
     price: "25–35 €/чел", hours: "13:00–17:00", tags: ["unique"], unique: false },
 
   { id: "rest-secret", name: "Restaurant Secret", emoji: "🍽", cat: "food", district: "Ciutat Vella", address: "Carrer de la Llotgeta, 2, 46001 València", lat: 39.4733, lng: -0.3781,
-    desc: "Современный ресторан в самом центре старого города — атмосферный, дегустационные сеты.",
+    desc: "Современный ресторан в самом центре старого міста — атмосферный, дегустационные сеты.",
     tip: "Дегустационное меню — лучшее. Бронировать.", price: "40–60 €/чел",
     hours: "13:00–15:30, 20:00–23:00", tags: ["unique"], unique: false },
 
@@ -2017,12 +2017,12 @@ const PLACES = [
 
   // === СЛАДКОЕ И ОРЧАТА ===
   { id: "santa-catalina", name: "Horchatería Santa Catalina", emoji: "🥛", cat: "dessert", district: "Ciutat Vella", address: "Plaça de Santa Caterina, 6, 46001 València", lat: 39.4744, lng: -0.3750,
-    desc: "С 1814 г. — старейшая орчатерия в центре. Внутри — изразцы с историей Валенсии.",
+    desc: "С 1814 г. — старейшая орчатерия в центре. Усередині — изразцы с историей Валенсии.",
     tip: "Орчата + фартоны (длинные сахарные булочки) — макать. Это и есть классический полдник.",
     price: "Орчата 3–4 €", hours: "08:30–21:30", tags: ["iconic", "must"], unique: false },
 
   { id: "daniel", name: "Horchatería Daniel", emoji: "🥛", cat: "dessert", district: "Eixample", address: "Mercado de Colón, Carrer de Jorge Juan, 19, 46004 València", lat: 39.4694, lng: -0.3697,
-    desc: "С 1949 г. — внутри Mercado de Colón. Их орчата считается одной из лучших — более густая, естественно-сладкая.",
+    desc: "С 1949 г. — усередині Mercado de Colón. Их орчата считается одной из лучших — более густая, естественно-сладкая.",
     tip: "Идеально совмещать с осмотром Mercado de Colón. После прогулки — пауза.",
     price: "Орчата 3–4 €", hours: "08:00–22:00", tags: ["iconic", "must"], unique: false },
 
