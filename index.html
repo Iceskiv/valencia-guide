@@ -8,63 +8,36 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Valencia">
-<title>Валенсия · 30.05–03.06</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='28' font-size='28'%3E🍊%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23D4622D'/%3E%3Ctext x='50%25' y='62%25' text-anchor='middle' font-size='130' fill='white'%3E🍊%3C/text%3E%3C/svg%3E">
+<title>Валенсія · 30.05–03.06</title>
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
-// Inline manifest (registered after DOM ready)
+// Register service worker for offline + auto-update notification
 (function(){
-  const manifest = {
-    name: "Валенсия 30.05–03.06",
-    short_name: "Valencia",
-    description: "Персональный гид по Валенсии",
-    start_url: ".",
-    display: "standalone",
-    orientation: "portrait",
-    background_color: "#FBF6EC",
-    theme_color: "#D4622D",
-    icons: [
-      { src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23D4622D'/%3E%3Ctext x='50%25' y='62%25' text-anchor='middle' font-size='360' fill='white'%3E🍊%3C/text%3E%3C/svg%3E", sizes: "512x512", type: "image/svg+xml" },
-    ],
-  };
-  const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("link");
-  link.rel = "manifest";
-  link.href = url;
-  document.head.appendChild(link);
-
-  // Try registering a tiny service worker (runtime cache for tiles) if context permits.
-  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
-    const swCode = `
-      const CACHE = "valencia-v1";
-      self.addEventListener("install", e => { self.skipWaiting(); });
-      self.addEventListener("activate", e => { e.waitUntil(self.clients.claim()); });
-      self.addEventListener("fetch", event => {
-        const req = event.request;
-        if (req.method !== "GET") return;
-        const url = new URL(req.url);
-        // Cache OSM/Carto tiles + Leaflet CDN
-        if (url.hostname.includes("tile.openstreetmap.org") || url.hostname.includes("basemaps.cartocdn.com") || url.hostname.includes("unpkg.com")) {
-          event.respondWith(
-            caches.open(CACHE).then(cache =>
-              cache.match(req).then(cached => {
-                const fetchPromise = fetch(req).then(net => { if (net.ok) cache.put(req, net.clone()); return net; }).catch(() => cached);
-                return cached || fetchPromise;
-              })
-            )
-          );
+  if (!("serviceWorker" in navigator)) return;
+  if (location.protocol !== "https:" && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") return;
+  navigator.serviceWorker.register("sw.js").then(function(reg){
+    reg.addEventListener("updatefound", function(){
+      var sw = reg.installing;
+      if (!sw) return;
+      sw.addEventListener("statechange", function(){
+        if (sw.state === "installed" && navigator.serviceWorker.controller) {
+          if (confirm("Доступна нова версія застосунку. Оновити зараз?")) {
+            sw.postMessage("SKIP_WAITING");
+          }
         }
       });
-    `;
-    try {
-      const swBlob = new Blob([swCode], { type: "text/javascript" });
-      const swUrl = URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swUrl).catch(e => console.warn("SW reg failed:", e.message));
-    } catch (e) { console.warn("SW init failed:", e.message); }
-  }
+    });
+  }).catch(function(e){ console.warn("SW reg failed:", e.message); });
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if (refreshing) return;
+    refreshing = true;
+    location.reload();
+  });
 })();
 </script>
 <style>
