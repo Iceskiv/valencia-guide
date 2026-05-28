@@ -320,7 +320,9 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
   body { padding-bottom: 24px; padding-top: 70px; }
   nav.tabs { position: fixed; top: 0; bottom: auto; left: 0; right: 0; max-width: 720px; margin: 0 auto; border-top: none; border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); padding-bottom: 0; z-index: 30; }
   main { max-width: 720px; margin: 0 auto; }
-  .app-header { max-width: 720px; margin: 0 auto; }
+  /* Header is NOT sticky on desktop — tab bar already covers the role.
+     Otherwise sticky header gets eaten by the fixed tab bar above. */
+  .app-header { max-width: 720px; margin: 0 auto; position: relative; background: var(--bg); }
   dialog.modal { border-radius: var(--radius-lg); margin: auto; max-height: 88vh; }
 }
 
@@ -4366,14 +4368,22 @@ function renderGuideLife(c) {
 }
 
 function renderGuideData(c) {
-  c.appendChild(el("p", { style: "margin:14px 0 10px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Все ваши статусы, заметки, дневник и план хранятся в браузере (localStorage). Экспортируйте файл — можнаперенести себе на другое устройство или поделиться с женой."));
+  c.appendChild(el("p", { style: "margin:14px 0 10px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Усі ваші статуси, нотатки, щоденник і план зберігаються в браузері (localStorage). Експортуйте файл — можна перенести на інший пристрій або поділитись з дружиною."));
   c.appendChild(el("div", { class: "btn-row" },
-    el("button", { class: "btn", onclick: doExport }, "💾 Экспорт JSON"),
-    el("button", { class: "btn", onclick: () => $("#import-file").click() }, "📂 Импорт JSON"),
+    el("button", { class: "btn", onclick: doExport }, "💾 Експорт JSON"),
+    el("button", { class: "btn", onclick: () => $("#import-file").click() }, "📂 Імпорт JSON"),
   ));
-  c.appendChild(el("div", { style: "margin-top:8px" }, el("button", { class: "btn danger full", onclick: doReset }, "🗑 Полный сброс")));
+
+  // Cache clear — щоб отримати свіжу версію застосунку
+  c.appendChild(el("div", { style: "margin-top:14px;padding-top:10px;border-top:1px solid var(--border)" },
+    el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:6px;line-height:1.5" }, "Якщо застосунок виглядає старим або не оновлюється — очисти кеш. Особисті дані не торкнуться."),
+    el("button", { class: "btn full", onclick: clearAppCache }, "♻️ Очистити кеш (отримати свіжу версію)"),
+  ));
+
+  c.appendChild(el("div", { style: "margin-top:14px" }, el("button", { class: "btn danger full", onclick: doReset }, "🗑 Повне скидання (видалити всі мої дані)")));
+
   c.appendChild(el("div", { class: "card-soft", style: "margin-top:14px;font-size:12px;line-height:1.5;color:var(--text-soft)" },
-    "💡 Чтобы поделиться состоянием с женой: экспортируйте → пришлите файл в Telegram → она открывает приложение → Импорт → выбирает файл. Готово, у вас одинаковые планы и пометки.",
+    "💡 Щоб поділитися станом з дружиною: експортуй → надішли файл у Telegram → вона відкриває застосунок → Імпорт → обирає файл. Готово, у вас однакові плани і помітки.",
   ));
 }
 
@@ -4389,11 +4399,29 @@ function doExport() {
 }
 
 function doReset() {
-  if (!confirm("Сбросить ВСЁ: статусы, заметки, план, дневник, чек-лист? Это нельзя отменить.")) return;
+  if (!confirm("Скинути ВСЕ: статуси, нотатки, план, щоденник, чек-лист? Це не можна скасувати.")) return;
   localStorage.removeItem(STORE_KEY);
   state = defaultState();
   renderAll();
-  toast("Сброшено");
+  toast("Скинуто");
+}
+
+async function clearAppCache() {
+  if (!confirm("Очистити кеш застосунку?\n\nЦе НЕ видалить ваші статуси, нотатки, фото, щоденник — тільки кеш HTML і карти. Сторінка перезавантажиться зі свіжою версією.")) return;
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    }
+    if ("serviceWorker" in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map((r) => r.unregister()));
+    }
+    toast("Кеш очищено, перезавантажую...");
+    setTimeout(() => { location.reload(); }, 600);
+  } catch (e) {
+    toast("Помилка: " + e.message);
+  }
 }
 
 function renderGuideAbout(c) {
