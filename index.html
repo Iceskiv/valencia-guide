@@ -446,16 +446,16 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 
 <!-- PLAN -->
 <section class="view" id="view-plan">
-  <h2>План поездки</h2>
+  <h2 data-i18n="plan_title">План поїздки</h2>
   <div class="day-tabs" id="plan-day-tabs"></div>
   <div id="plan-content"></div>
 </section>
 
 <!-- PLACES -->
 <section class="view" id="view-places">
-  <h2>Места</h2>
+  <h2 data-i18n="places_title">Місця</h2>
   <div class="search-row">
-    <input id="search-input" type="text" placeholder="Поиск: название, район...">
+    <input id="search-input" type="text" data-i18n-ph="places_search_ph" placeholder="Пошук: назва, район...">
     <button class="ico-btn" id="search-clear" title="Очистить">✕</button>
   </div>
   <div class="filters" id="cat-filters"></div>
@@ -471,8 +471,8 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 
 <!-- MAP -->
 <section class="view" id="view-map">
-  <h2>Карта</h2>
-  <p class="map-notice">Карта подгружает плитки OpenStreetMap. Откройте раз в WiFi — браузер закеширует тайлы для оффлайн-использования.</p>
+  <h2 data-i18n="map_title">Карта</h2>
+  <p class="map-notice" data-i18n="map_hint">Карта підвантажує плитки OpenStreetMap. Відкрийте раз у WiFi — браузер закешує тайли для офлайну.</p>
   <div class="filters" id="map-cat-filters"></div>
   <div class="map-wrap">
     <div id="map-leaflet"></div>
@@ -483,7 +483,7 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 
 <!-- ME -->
 <section class="view" id="view-me">
-  <h2>Гид</h2>
+  <h2 data-i18n="guide_title">Гід</h2>
   <div class="stat-grid">
     <div class="stat"><div class="n" id="stat-visited">0</div><div class="l">Посетил</div></div>
     <div class="stat"><div class="n" id="stat-want">0</div><div class="l">Хочу</div></div>
@@ -497,11 +497,11 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 </main>
 
 <nav class="tabs">
-  <button data-tab="today" class="active"><div class="ico">🌅</div>Сегодня</button>
-  <button data-tab="plan"><div class="ico">📋</div>План</button>
-  <button data-tab="places"><div class="ico">📍</div>Места</button>
-  <button data-tab="map"><div class="ico">🗺</div>Карта</button>
-  <button data-tab="me"><div class="ico">📖</div>Гид</button>
+  <button data-tab="today" class="active"><div class="ico">🌅</div><span data-i18n="tab_today">Сьогодні</span></button>
+  <button data-tab="plan"><div class="ico">📋</div><span data-i18n="tab_plan">План</span></button>
+  <button data-tab="places"><div class="ico">📍</div><span data-i18n="tab_places">Місця</span></button>
+  <button data-tab="map"><div class="ico">🗺</div><span data-i18n="tab_map">Карта</span></button>
+  <button data-tab="me"><div class="ico">📖</div><span data-i18n="tab_guide">Гід</span></button>
 </nav>
 
 <dialog class="modal" id="place-modal">
@@ -546,6 +546,138 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 
 <script>
 "use strict";
+
+// ============================================================
+//  I18N — UI strings only. Content (descriptions, plans, recipes) stays as-is for now.
+// ============================================================
+const LANGS = [
+  { code: "uk", label: "🇺🇦 Українська", short: "UA" },
+  { code: "en", label: "🇬🇧 English", short: "EN" },
+  { code: "es", label: "🇪🇸 Español", short: "ES" },
+];
+
+const I18N = {
+  uk: {
+    // Tabs
+    tab_today: "Сьогодні", tab_plan: "План", tab_places: "Місця", tab_map: "Карта", tab_guide: "Гід",
+    // Common buttons
+    btn_open: "Відкрити", btn_close: "Закрити", btn_save: "Зберегти", btn_cancel: "Скасувати", btn_delete: "Видалити", btn_share: "Поділитися", btn_copy: "Копіювати", btn_call: "Подзвонити", btn_back: "Назад", btn_done: "Готово", btn_skip: "Пропустити", btn_more: "Докладніше", btn_edit: "Редагувати", btn_add: "Додати",
+    // Stats
+    stat_visited: "Відвідав", stat_want: "Хочу", stat_total: "Всього",
+    // Today widgets
+    today_special: "Сьогодні особливе", today_sun: "Світловий день", today_tip: "Порада дня", today_progress: "Прогрес must-си", today_gps: "Де я зараз?", today_gps_btn: "Визначити", today_gps_hint: "Натисніть «Визначити» — покажу що в 1,5 км від вас.", today_plan: "План дня", today_recs: "Рекомендації", today_qa: "Швидкі дії", today_bookings: "Бронювання",
+    // Quick actions
+    qa_random_unique: "Випадкове унікальне", qa_random_unique_sub: "Щось нетипове",
+    qa_nearby_hotel: "Поряд з готелем", qa_nearby_hotel_sub: "До 1 км від Benimaclet",
+    qa_wishlist: "Хочу відвідати", qa_wishlist_sub: "Список бажань",
+    qa_open_now: "Відкрито зараз", qa_open_now_sub: "За заявленими годинами",
+    // Plan
+    plan_title: "План поїздки", plan_diary: "Щоденник дня", plan_diary_ph: "Що було, де їли, що сподобалось, фото-точки, ціни...",
+    plan_add: "Додати подію", plan_by_time: "По часу", plan_by_geo: "По гео", plan_route_all: "Весь день у Google Maps (з поверненням у готель)", plan_route_custom: "Свій маршрут (вибрати точки)",
+    plan_my_comment: "Мій коментар", plan_comment_ph: "Замітка до цього пункту: бронь, час за фактом, хто прийшов, що сподобалось...",
+    plan_has_note: "є замітка", plan_events_today: "Події дня",
+    // Places
+    places_title: "Місця", places_search_ph: "Пошук: назва, район...", places_sort_dist: "📍 За відстанню", places_sort_name: "🔤 За назвою", places_sort_cat: "🏷 За категорією",
+    places_filter_all: "Всі", places_filter_unique: "Унікальне", places_filter_photo: "Фото", places_filter_status_all: "Всі статуси", places_filter_status_want: "Хочу", places_filter_status_visited: "Відвідав", places_filter_status_none: "Не відмічено",
+    // Place modal
+    place_address: "Адреса", place_dist_hotel: "Від готелю", place_price: "Ціна", place_hours: "Години", place_tel: "Телефон", place_web: "Сайт", place_status: "Статус", place_notes: "Нотатки", place_notes_ph: "Нотатки, бронь, час...", place_photos: "Мої фото", place_take_photo: "Я був тут — зняти фото", place_nearby: "Поряд (до 1 км)", place_open_maps: "Відкрити в Google Maps", place_call_taxi: "Викликати таксі",
+    place_status_want: "Хочу", place_status_visited: "Був", place_status_skip: "Скіп", place_status_clear: "Очистити",
+    place_in_plan: "В план", place_share: "Поділитись",
+    // Map
+    map_title: "Карта", map_open_google: "Відкрити все у Google Maps", map_hint: "Карта підвантажує плитки OpenStreetMap. Відкрийте раз у WiFi — браузер закешує тайли для офлайну.",
+    map_legend: "🏠 Готель · 🥘 Агус · 🌷 Лена · ✈️ Аеропорт · іконка = категорія місця",
+    // Guide
+    guide_title: "Гід",
+    sec_bookings: "📅 Бронювання", sec_contacts: "📞 Корисні контакти", sec_transport: "🚇 Транспорт і проїзні", sec_checklist: "✅ Чек-лист до поїздки", sec_phrases: "💬 Розмовник", sec_dishes: "🍽 Що спробувати (страви)", sec_life: "💡 Побут і безпека", sec_data: "💾 Дані застосунку", sec_about: "ℹ️ Про застосунок",
+    // Trip phases
+    phase_pre_count: "До вильоту в Валенсію", phase_pre_flight: "Туди · airBaltic BT697", phase_pre_checkin_in: "Реєстрація відкриється через ~{0} год", phase_pre_checkin_open: "✓ Реєстрація відкрита — завантажте boarding pass нижче",
+    phase_pre_prep: "Підготовка · {0} залишилось", phase_pre_whats_waiting: "Що чекає у Валенсії", phase_pre_checklist: "Чек-лист підготовки",
+    phase_flight_today: "Сьогодні летимо! ✈️", phase_flight_in_air: "Уже в повітрі 🛫", phase_flight_to_dep: "До вильоту {0}", phase_flight_after_arrival: "По прильоту",
+    phase_back_title: "Час додому 🏠", phase_back_to_dep: "До вильоту {0}", phase_back_in_road: "Уже в дорозі", phase_back_checklist: "Перед вильотом",
+    phase_post_title: "Як з'їздили? 🍊", phase_post_period: "Валенсія 30.05–03.06.2026", phase_post_visited: "відвідали", phase_post_photos: "фото", phase_post_diary: "днів щоденника", phase_post_want_left: "⭐ Залишились {0} місць у списку «хочу» — наступного разу обов'язково!", phase_post_next: "Далі", phase_post_diary_btn: "📔 Перечитати щоденник", phase_post_export_btn: "💾 Експортнути всі дані на пам'ять",
+    // Boarding pass
+    bp_out: "Boarding pass — туди (RIX → VLC)", bp_back: "Boarding pass — назад (VLC → RIX)",
+    bp_saved: "Збережено · працює офлайн", bp_load_prompt: "Завантажте PDF/скрін boarding pass — буде під рукою офлайн на будь-якому етапі поїздки.",
+    bp_load_btn: "📄 Завантажити boarding pass", bp_open: "👁 Відкрити", bp_replace: "🔄 Замінити",
+    // Toasts
+    toast_copied: "Скопійовано", toast_saved: "Збережено", toast_added: "Додано", toast_removed: "Видалено",
+    // Lang label
+    lang_label: "Мова",
+  },
+  en: {
+    tab_today: "Today", tab_plan: "Plan", tab_places: "Places", tab_map: "Map", tab_guide: "Guide",
+    btn_open: "Open", btn_close: "Close", btn_save: "Save", btn_cancel: "Cancel", btn_delete: "Delete", btn_share: "Share", btn_copy: "Copy", btn_call: "Call", btn_back: "Back", btn_done: "Done", btn_skip: "Skip", btn_more: "Details", btn_edit: "Edit", btn_add: "Add",
+    stat_visited: "Visited", stat_want: "Want", stat_total: "Total",
+    today_special: "Today's special", today_sun: "Daylight", today_tip: "Tip of the day", today_progress: "Must-see progress", today_gps: "Where am I?", today_gps_btn: "Locate me", today_gps_hint: "Tap «Locate me» — I'll show what's within 1.5 km of you.", today_plan: "Day plan", today_recs: "Recommendations", today_qa: "Quick actions", today_bookings: "Bookings",
+    qa_random_unique: "Random unique", qa_random_unique_sub: "Something offbeat",
+    qa_nearby_hotel: "Near the hotel", qa_nearby_hotel_sub: "Within 1 km of Benimaclet",
+    qa_wishlist: "My wishlist", qa_wishlist_sub: "Places I want to visit",
+    qa_open_now: "Open right now", qa_open_now_sub: "Per stated hours",
+    plan_title: "Trip plan", plan_diary: "Day diary", plan_diary_ph: "What happened, where we ate, what we loved, photo spots, prices...",
+    plan_add: "Add event", plan_by_time: "By time", plan_by_geo: "By geo", plan_route_all: "Open full day in Google Maps (ending at hotel)", plan_route_custom: "Custom route (pick points)",
+    plan_my_comment: "My comment", plan_comment_ph: "Note for this item: booking, actual time, who came, what was great...",
+    plan_has_note: "has a note", plan_events_today: "Today's events",
+    places_title: "Places", places_search_ph: "Search: name, district...", places_sort_dist: "📍 By distance", places_sort_name: "🔤 By name", places_sort_cat: "🏷 By category",
+    places_filter_all: "All", places_filter_unique: "Unique", places_filter_photo: "Photo", places_filter_status_all: "All statuses", places_filter_status_want: "Want", places_filter_status_visited: "Visited", places_filter_status_none: "Unmarked",
+    place_address: "Address", place_dist_hotel: "From hotel", place_price: "Price", place_hours: "Hours", place_tel: "Phone", place_web: "Website", place_status: "Status", place_notes: "Notes", place_notes_ph: "Notes, booking, time...", place_photos: "My photos", place_take_photo: "I was here — take a photo", place_nearby: "Nearby (within 1 km)", place_open_maps: "Open in Google Maps", place_call_taxi: "Call a taxi",
+    place_status_want: "Want", place_status_visited: "Been", place_status_skip: "Skip", place_status_clear: "Clear",
+    place_in_plan: "To plan", place_share: "Share",
+    map_title: "Map", map_open_google: "Open all in Google Maps", map_hint: "Map loads OpenStreetMap tiles. Open once on WiFi — browser caches tiles for offline use.",
+    map_legend: "🏠 Hotel · 🥘 Agus · 🌷 Lena · ✈️ Airport · icon = place category",
+    guide_title: "Guide",
+    sec_bookings: "📅 Bookings", sec_contacts: "📞 Useful contacts", sec_transport: "🚇 Transport & passes", sec_checklist: "✅ Pre-trip checklist", sec_phrases: "💬 Phrasebook", sec_dishes: "🍽 What to try (dishes)", sec_life: "💡 Daily life & safety", sec_data: "💾 App data", sec_about: "ℹ️ About",
+    phase_pre_count: "until departure to Valencia", phase_pre_flight: "Outbound · airBaltic BT697", phase_pre_checkin_in: "Check-in opens in ~{0}h", phase_pre_checkin_open: "✓ Check-in is open — load your boarding pass below",
+    phase_pre_prep: "Prep · {0} pending", phase_pre_whats_waiting: "What awaits in Valencia", phase_pre_checklist: "Prep checklist",
+    phase_flight_today: "Flying today! ✈️", phase_flight_in_air: "Already airborne 🛫", phase_flight_to_dep: "Departure in {0}", phase_flight_after_arrival: "After landing",
+    phase_back_title: "Time to fly home 🏠", phase_back_to_dep: "Departure in {0}", phase_back_in_road: "Already on the way", phase_back_checklist: "Before departure",
+    phase_post_title: "How was the trip? 🍊", phase_post_period: "Valencia 30.05–03.06.2026", phase_post_visited: "visited", phase_post_photos: "photos", phase_post_diary: "diary days", phase_post_want_left: "⭐ {0} places still on the «want» list — next time for sure!", phase_post_next: "What's next", phase_post_diary_btn: "📔 Reread the diary", phase_post_export_btn: "💾 Export all data as memory",
+    bp_out: "Boarding pass — outbound (RIX → VLC)", bp_back: "Boarding pass — return (VLC → RIX)",
+    bp_saved: "Saved · works offline", bp_load_prompt: "Upload a PDF/screenshot of your boarding pass — keep it handy offline at every stage of the trip.",
+    bp_load_btn: "📄 Upload boarding pass", bp_open: "👁 Open", bp_replace: "🔄 Replace",
+    toast_copied: "Copied", toast_saved: "Saved", toast_added: "Added", toast_removed: "Removed",
+    lang_label: "Language",
+  },
+  es: {
+    tab_today: "Hoy", tab_plan: "Plan", tab_places: "Lugares", tab_map: "Mapa", tab_guide: "Guía",
+    btn_open: "Abrir", btn_close: "Cerrar", btn_save: "Guardar", btn_cancel: "Cancelar", btn_delete: "Borrar", btn_share: "Compartir", btn_copy: "Copiar", btn_call: "Llamar", btn_back: "Atrás", btn_done: "Hecho", btn_skip: "Saltar", btn_more: "Detalles", btn_edit: "Editar", btn_add: "Añadir",
+    stat_visited: "Visitados", stat_want: "Quiero", stat_total: "Total",
+    today_special: "Hoy especial", today_sun: "Luz del día", today_tip: "Consejo del día", today_progress: "Progreso must-see", today_gps: "¿Dónde estoy?", today_gps_btn: "Ubicarme", today_gps_hint: "Pulsa «Ubicarme» — te muestro qué hay a 1,5 km.", today_plan: "Plan del día", today_recs: "Recomendaciones", today_qa: "Acciones rápidas", today_bookings: "Reservas",
+    qa_random_unique: "Aleatorio único", qa_random_unique_sub: "Algo poco típico",
+    qa_nearby_hotel: "Cerca del hotel", qa_nearby_hotel_sub: "A 1 km de Benimaclet",
+    qa_wishlist: "Mi lista de deseos", qa_wishlist_sub: "Lugares que quiero ver",
+    qa_open_now: "Abierto ahora", qa_open_now_sub: "Según horarios declarados",
+    plan_title: "Plan del viaje", plan_diary: "Diario del día", plan_diary_ph: "Qué pasó, dónde comimos, qué nos gustó, fotos, precios...",
+    plan_add: "Añadir evento", plan_by_time: "Por hora", plan_by_geo: "Por geo", plan_route_all: "Todo el día en Google Maps (vuelta al hotel)", plan_route_custom: "Ruta personal (elegir puntos)",
+    plan_my_comment: "Mi comentario", plan_comment_ph: "Nota para este punto: reserva, hora real, quién vino, qué tal...",
+    plan_has_note: "hay nota", plan_events_today: "Eventos del día",
+    places_title: "Lugares", places_search_ph: "Buscar: nombre, barrio...", places_sort_dist: "📍 Por distancia", places_sort_name: "🔤 Por nombre", places_sort_cat: "🏷 Por categoría",
+    places_filter_all: "Todos", places_filter_unique: "Únicos", places_filter_photo: "Foto", places_filter_status_all: "Todos los estados", places_filter_status_want: "Quiero", places_filter_status_visited: "Visitado", places_filter_status_none: "Sin marcar",
+    place_address: "Dirección", place_dist_hotel: "Del hotel", place_price: "Precio", place_hours: "Horario", place_tel: "Teléfono", place_web: "Web", place_status: "Estado", place_notes: "Notas", place_notes_ph: "Notas, reserva, hora...", place_photos: "Mis fotos", place_take_photo: "Estuve aquí — hacer foto", place_nearby: "Cerca (1 km)", place_open_maps: "Abrir en Google Maps", place_call_taxi: "Pedir taxi",
+    place_status_want: "Quiero", place_status_visited: "Visité", place_status_skip: "Saltar", place_status_clear: "Limpiar",
+    place_in_plan: "Al plan", place_share: "Compartir",
+    map_title: "Mapa", map_open_google: "Abrir todo en Google Maps", map_hint: "El mapa carga teselas de OpenStreetMap. Ábrelo una vez con WiFi — el navegador las guardará para usar sin conexión.",
+    map_legend: "🏠 Hotel · 🥘 Agus · 🌷 Lena · ✈️ Aeropuerto · icono = categoría del lugar",
+    guide_title: "Guía",
+    sec_bookings: "📅 Reservas", sec_contacts: "📞 Contactos útiles", sec_transport: "🚇 Transporte y abonos", sec_checklist: "✅ Lista antes del viaje", sec_phrases: "💬 Frases útiles", sec_dishes: "🍽 Qué probar (platos)", sec_life: "💡 Vida y seguridad", sec_data: "💾 Datos de la app", sec_about: "ℹ️ Sobre la app",
+    phase_pre_count: "hasta el vuelo a Valencia", phase_pre_flight: "Ida · airBaltic BT697", phase_pre_checkin_in: "El check-in abre en ~{0}h", phase_pre_checkin_open: "✓ Check-in abierto — sube tu boarding pass abajo",
+    phase_pre_prep: "Preparación · {0} pendiente", phase_pre_whats_waiting: "Qué te espera en Valencia", phase_pre_checklist: "Lista de preparación",
+    phase_flight_today: "¡Hoy volamos! ✈️", phase_flight_in_air: "Ya en el aire 🛫", phase_flight_to_dep: "Despegue en {0}", phase_flight_after_arrival: "Al aterrizar",
+    phase_back_title: "Hora de volver 🏠", phase_back_to_dep: "Despegue en {0}", phase_back_in_road: "Ya de camino", phase_back_checklist: "Antes del vuelo",
+    phase_post_title: "¿Qué tal el viaje? 🍊", phase_post_period: "Valencia 30.05–03.06.2026", phase_post_visited: "visitados", phase_post_photos: "fotos", phase_post_diary: "días de diario", phase_post_want_left: "⭐ Quedan {0} sitios en «quiero» — ¡próxima vez sin falta!", phase_post_next: "Qué hacer", phase_post_diary_btn: "📔 Releer el diario", phase_post_export_btn: "💾 Exportar todo como recuerdo",
+    bp_out: "Boarding pass — ida (RIX → VLC)", bp_back: "Boarding pass — vuelta (VLC → RIX)",
+    bp_saved: "Guardado · funciona sin conexión", bp_load_prompt: "Sube un PDF/captura de tu boarding pass — lo tendrás a mano sin conexión en cualquier momento del viaje.",
+    bp_load_btn: "📄 Subir boarding pass", bp_open: "👁 Abrir", bp_replace: "🔄 Reemplazar",
+    toast_copied: "Copiado", toast_saved: "Guardado", toast_added: "Añadido", toast_removed: "Eliminado",
+    lang_label: "Idioma",
+  },
+};
+
+function t(key, ...args) {
+  const lang = (state && state.lang) || "uk";
+  let str = (I18N[lang] && I18N[lang][key]) || I18N.uk[key] || key;
+  args.forEach((a, i) => { str = str.replace("{" + i + "}", a); });
+  return str;
+}
 
 // ============================================================
 //  TRIP META
@@ -603,10 +735,6 @@ const CATEGORIES = {
 //  GUIDE DATA: контакты, транспорт, фразы, блюда, чек-лист
 // ============================================================
 const CONTACTS = [
-  { group: "🆘 Экстренное", items: [
-    { name: "Единая экстренная (полиция + скорая + пожарные)", value: "112", tel: "112", note: "Есть английский. Звонить только в реальной экстренной ситуации." },
-    { name: "Консул Украины — горячая линия 24/7", value: "+34 633 600 250", tel: "+34633600250", note: "Помощь украинцам за рубежом. Только серьёзные случаи." },
-  ]},
   { group: "🏨 Гостиница", items: [
     { name: "Адрес отеля (для таксиста)", value: "Carrer del Baró de San Petrillo, 10-12, Benimaclet", copy: "Carrer del Baró de San Petrillo, 10-12, 46020 València, España" },
   ]},
@@ -617,9 +745,9 @@ const CONTACTS = [
   { group: "🚇 Транспорт", items: [
     { name: "Metrovalencia (метро + трамвай)", value: "metrovalencia.es", url: "https://www.metrovalencia.es/", note: "Главное транспортное приложение. Маршруты, расписания, билеты." },
   ]},
-  { group: "🌐 Перевод и карты", items: [
-    { name: "Google Translate", value: "Скачать испанский оффлайн", url: "https://translate.google.com/", note: "Камера-перевод меню в ресторанах. Скачайте «Spanish» для оффлайна." },
-    { name: "Google Maps", value: "Скачать карту Валенсии оффлайн", url: "https://www.google.com/maps", note: "В Maps → меню → «Офлайн-карты» → выбрать Валенсию." },
+  { group: "🆘 Экстренное", items: [
+    { name: "Единая экстренная (полиция + скорая + пожарные)", value: "112", tel: "112", note: "Есть английский. Звонить только в реальной экстренной ситуации." },
+    { name: "Консул Украины — горячая линия 24/7", value: "+34 633 600 250", tel: "+34633600250", note: "Помощь украинцам за рубежом. Только серьёзные случаи." },
   ]},
 ];
 
@@ -1965,7 +2093,84 @@ function defaultState() {
     dishSearch: "",
     openEvents: null, // dayId currently open in events accordion
     expandedItems: {}, // "dayId:idx" -> bool
+    lang: "uk", // default Ukrainian
   };
+}
+
+// Boarding pass helpers
+function getBoardingPass(direction) {
+  return state["boardingPass_" + direction] || null;
+}
+function setBoardingPass(direction, data) {
+  if (data) state["boardingPass_" + direction] = data;
+  else delete state["boardingPass_" + direction];
+  saveState();
+}
+function uploadBoardingPass(direction) {
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "application/pdf,image/jpeg,image/png,image/*";
+  inp.addEventListener("change", () => {
+    const file = inp.files && inp.files[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast("Файл больше 4 МБ. Сожмите PDF/фото.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        setBoardingPass(direction, { name: file.name, dataUrl: e.target.result, mime: file.type, savedAt: Date.now() });
+        toast("Boarding pass сохранён");
+        renderToday();
+      } catch (err) {
+        toast("Не удалось сохранить: " + err.message);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  inp.click();
+}
+function openBoardingPass(direction) {
+  const bp = getBoardingPass(direction);
+  if (!bp) return;
+  // Open in new window — works offline because it's a data URL
+  const w = window.open("", "_blank");
+  if (!w) { toast("Браузер заблокировал окно. Разрешите всплывающие."); return; }
+  const isPdf = bp.mime === "application/pdf";
+  w.document.write(`
+    <!DOCTYPE html><html><head><title>Boarding pass</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif}
+    iframe,img{max-width:100%;max-height:100vh;display:block}
+    .toolbar{position:fixed;top:8px;right:8px;z-index:9}
+    .toolbar a{background:#fff;color:#000;padding:8px 12px;border-radius:8px;text-decoration:none;font-size:13px;display:inline-block}</style>
+    </head><body>
+    <div class="toolbar"><a href="${bp.dataUrl}" download="${bp.name}">⬇ Сохранить</a></div>
+    ${isPdf ? `<iframe src="${bp.dataUrl}" style="width:100vw;height:100vh;border:none"></iframe>` : `<img src="${bp.dataUrl}">`}
+    </body></html>
+  `);
+  w.document.close();
+}
+
+// Render a Boarding Pass card (used in dashboards)
+function renderBoardingPassCard(direction, labelKey) {
+  const bp = getBoardingPass(direction);
+  const card = el("div", { class: "card", style: "border-left:4px solid var(--accent);margin-bottom:10px" });
+  card.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:6px" }, t(labelKey)));
+  if (bp) {
+    card.appendChild(el("div", { style: "font-size:14px;font-weight:600;margin-bottom:4px" }, bp.name));
+    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, t("bp_saved")));
+    const btns = el("div", { class: "btn-row" });
+    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, t("bp_open")));
+    btns.appendChild(el("button", { class: "btn", onclick: () => uploadBoardingPass(direction) }, t("bp_replace")));
+    btns.appendChild(el("button", { class: "btn ghost", onclick: () => { if (confirm("?")) { setBoardingPass(direction, null); renderToday(); } } }, "✕"));
+    card.appendChild(btns);
+  } else {
+    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.5" }, t("bp_load_prompt")));
+    card.appendChild(el("button", { class: "btn primary full", onclick: () => uploadBoardingPass(direction) }, t("bp_load_btn")));
+  }
+  return card;
 }
 
 async function shareItineraryItem(dayId, item) {
@@ -2270,9 +2475,16 @@ function renderPreTripDashboard(c) {
     const cih = Math.floor(checkInMs / 3600000);
     fl.appendChild(el("div", { style: "margin-top:10px;font-size:13px;color:var(--text-soft)" }, `🎟 Регистрация откроется через ~${cih} ч`));
   } else {
-    fl.appendChild(el("div", { style: "margin-top:10px;font-size:13px;color:var(--success);font-weight:600" }, "✓ Регистрация открыта — скачать boarding pass"));
+    fl.appendChild(el("div", { style: "margin-top:10px;font-size:13px;color:var(--success);font-weight:600" }, "✓ Регистрация открыта — загрузите boarding pass ниже"));
   }
   c.appendChild(fl);
+
+  // Boarding pass: outbound (always available pre-trip)
+  c.appendChild(renderBoardingPassCard("out", "bp_out"));
+  // Optionally also show return if user has it ready
+  if (getBoardingPass("back")) {
+    c.appendChild(renderBoardingPassCard("back", "bp_back"));
+  }
 
   // Bookings
   const activeBookings = getActiveBookings();
@@ -2348,6 +2560,9 @@ function renderFlightOutDashboard(c) {
   fl.appendChild(flRow);
   c.appendChild(fl);
 
+  // Boarding pass — приоритет в день вылета
+  c.appendChild(renderBoardingPassCard("out", "bp_out"));
+
   // Today's plan preview
   c.appendChild(el("h3", { style: "margin-top:20px" }, "По прилёту"));
   const items = state.itinerary.d1.filter(it => {
@@ -2395,6 +2610,9 @@ function renderFlightBackDashboard(c) {
   ));
   fl.appendChild(flRow);
   c.appendChild(fl);
+
+  // Boarding pass — приоритет в день обратного вылета
+  c.appendChild(renderBoardingPassCard("back", "bp_back"));
 
   // Departure checklist
   c.appendChild(el("h3", { style: "margin-top:20px" }, "Перед вылетом"));
@@ -2446,24 +2664,68 @@ function renderPostTripDashboard(c) {
   ));
 }
 
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    el.textContent = t(key);
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+    el.placeholder = t(el.getAttribute("data-i18n-ph"));
+  });
+}
+
+function setLang(code) {
+  state.lang = code;
+  saveState();
+  applyI18n();
+  // Re-render everything that uses t() in JS-generated content
+  renderHeader();
+  renderToday();
+  renderPlan();
+  renderPlaces();
+  renderMap();
+  renderMe();
+}
+
 function renderHeader() {
   const sub = $("#header-sub");
+  const lang = state.lang || "uk";
   const d = daysUntil(TRIP.start);
   let txt;
-  if (d > 0) txt = `Через ${d} дн.`;
-  else if (d === 0) txt = "Сегодня!";
+  const labels = {
+    in: { uk: "Через {0} дн.", en: "In {0} days", es: "En {0} días" },
+    today: { uk: "Сьогодні!", en: "Today!", es: "¡Hoy!" },
+    inTrip: { uk: "У Валенсії · день {0} з 5", en: "In Valencia · day {0} of 5", es: "En Valencia · día {0} de 5" },
+    done: { uk: "Поїздка завершена", en: "Trip is over", es: "Viaje terminado" },
+    weatherLoading: { uk: "⛅ погода…", en: "⛅ weather…", es: "⛅ clima…" },
+    placesVisited: { uk: "· {0} місць відвідано", en: "· {0} places visited", es: "· {0} lugares visitados" },
+  };
+  if (d > 0) txt = labels.in[lang].replace("{0}", d);
+  else if (d === 0) txt = labels.today[lang];
   else {
     const end = daysUntil(TRIP.end);
-    if (end >= 0) txt = `В Валенсии · день ${1 + Math.abs(d)} из 5`;
-    else txt = `Поездка завершена`;
+    if (end >= 0) txt = labels.inTrip[lang].replace("{0}", 1 + Math.abs(d));
+    else txt = labels.done[lang];
   }
   sub.innerHTML = "";
   sub.appendChild(el("span", { class: "pill" }, txt));
-  // Weather pill — open Open-Meteo modal on click
-  sub.appendChild(el("button", { class: "weather-pill loading", id: "weather-pill", onclick: openWeatherModal }, "⛅ погода…"));
+  sub.appendChild(el("button", { class: "weather-pill loading", id: "weather-pill", onclick: openWeatherModal }, labels.weatherLoading[lang]));
   renderWeatherPill();
+
+  // Language selector
+  const langBtn = el("button", { class: "weather-pill", id: "lang-pill", onclick: cycleLang, title: t("lang_label"), style: "background:var(--card-soft);color:var(--text-soft)" }, (LANGS.find(l => l.code === lang) || LANGS[0]).short + " ▾");
+  sub.appendChild(langBtn);
+
   const visited = Object.values(state.places).filter(p => p.status === "visited").length;
-  if (visited > 0) sub.appendChild(el("span", null, `· ${visited} мест посещено`));
+  if (visited > 0) sub.appendChild(el("span", null, labels.placesVisited[lang].replace("{0}", visited)));
+}
+
+function cycleLang() {
+  const cur = state.lang || "uk";
+  const idx = LANGS.findIndex(l => l.code === cur);
+  const next = LANGS[(idx + 1) % LANGS.length];
+  setLang(next.code);
+  toast(next.label);
 }
 
 // ============================================================
@@ -2527,6 +2789,18 @@ function renderToday() {
 
   // Day content — itinerary preview + suggestions
   c.innerHTML = "";
+
+  // Boarding pass — туда (если ещё не «улетели», т.е. до 30.05 10:00) или обратно (за 24ч до вылета 03.06 17:40)
+  const nowMs = Date.now();
+  const outDep = new Date(TRIP.flights.out.depDate + "T" + TRIP.flights.out.depTime + ":00").getTime();
+  const backDep = new Date(TRIP.flights.back.depDate + "T" + TRIP.flights.back.depTime + ":00").getTime();
+  if (nowMs < outDep + 4*3600*1000) {
+    // Still pre-arrival → show outbound
+    c.appendChild(renderBoardingPassCard("out", "bp_out"));
+  }
+  if (backDep - nowMs < 24*3600*1000 && backDep - nowMs > -2*3600*1000) {
+    c.appendChild(renderBoardingPassCard("back", "bp_back"));
+  }
 
   // SPECIAL DAYS WIDGET — что особенного в этот день
   const specials = getSpecialDayInfo(dayId);
@@ -4192,7 +4466,11 @@ function renderAll() {
 // Apply photo flag to places before initial render
 PLACES.forEach(p => { if (PHOTO_SPOTS.has(p.id)) p.photo = true; });
 
+// Migrate legacy state.lang (was missing for old users) and apply i18n on first paint
+state.lang = state.lang || "uk";
+
 renderAll();
+applyI18n();
 
 // Weather: fetch on load and show in header
 $("#wm-close").addEventListener("click", () => $("#weather-modal").close());
