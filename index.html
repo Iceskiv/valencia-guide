@@ -685,7 +685,18 @@ function t(key, ...args) {
 const TRIP = {
   start: "2026-05-30",
   end: "2026-06-03",
-  hotel: { name: "Гостиница", address: "Carrer del Baró de San Petrillo, 10-12, 46020 València", lat: 39.4838, lng: -0.3505 },
+  hotel: {
+    name: "BYPILLOW Sinfonia ⭐⭐⭐",
+    address: "Carrer del Baró de San Petrillo, 10-12, Benimaclet, 46020 València",
+    lat: 39.4838, lng: -0.3505,
+    tel: "+34 962 07 43 01",
+    checkIn: "30.05.2026 з 14:00",
+    checkOut: "03.06.2026 до 12:00",
+    booking: "Kyryl Pylypenko · 1 двомісний номер · 2 гостя",
+    wifi: "Wi-Fi включено в ціну",
+    breakfast: "Сніданок НЕ включено",
+    total: "€571.50 (з Genius -10%)",
+  },
   agus: { name: "Агус (друг)", address: "C/ de Viver, 6, 5º 7ª, Benimaclet, 46020 València", lat: 39.4867, lng: -0.3657, note: "Сб 30.05, 12:00–20:00 · Этаж 5, дверь 7" },
   lena: { name: "Лена (подруга)", address: "C/ dels Serrans, 10, 46003 València", lat: 39.4775, lng: -0.3766, note: "Пн 01.06 вечером — ужин у неё" },
   airport: { name: "Аэропорт VLC (Manises)", address: "Aeropuerto de Valencia", lat: 39.4893, lng: -0.4815 },
@@ -2187,59 +2198,59 @@ async function shareItineraryItem(dayId, item) {
 function defaultItinerary() {
   return {
     d1: [
-      { time: "07:00", title: "✈️ Вылет RIX → VLC", note: "airBaltic BT697 · 4 ч полёт · Online check-in за 24ч. Скачать boarding pass.", placeId: null },
-      { time: "10:00", title: "🛬 Прилёт в Валенсию (VLC)", note: "Время Валенсии (UTC+2). Забрать багаж, выйти из терминала.", placeId: null },
-      { time: "10:30", title: "🚇 Такси / Метро в Benimaclet", note: "Метро L5→L3, ~30 мин, 3.20 €. Или Cabify ~22-26 €, ~25 мин. С чемоданами проще такси.", placeId: null },
-      { time: "11:15", title: "🏠 Заселение в отель", note: "Carrer del Baró de San Petrillo, 10-12, Benimaclet. До Агуса — 10 мин пешком на юг.", placeId: null },
-      { time: "11:50", title: "🚶 К Агусу (10 мин пешком)", note: "C/ de Viver, 6 · ★ ЭТАЖ 5, ДВЕРЬ 7. Лёгкая одежда — днём 28-32°. С собой — десерт/фрукты/подарок.", placeId: null },
-      { time: "12:00", title: "🥘 Lunch у Агуса", note: "Меню от Агуса:\n• Paella\n• Empanadas\n• Jamón\n• Pan con tomate y alioli\n• Fuet\n• Quesito\n\nДолго и душевно — испанский обед это 2-3 часа.", placeId: null },
-      { time: "15:30", title: "🚶 Прогулка по центру с Агусом", note: "Агус ведёт по Валенсии. Возможные точки: Plaza de la Virgen, Cathedral, Plaza Redonda, La Lonja, Mercado Central снаружи (внутри закрыт с 15:00).", placeId: "plaza-virgen" },
-      { time: "18:30", title: "🍽 Ужин с Агусом в валенсийском месте", note: "Агус выберет ресторан в центре. Сразу скажи: «sin alcohol, не пьём» — закажут freshly squeezed соки или mosto.", placeId: null },
-      { time: "20:00", title: "👋 Прощание с Агусом", note: "Программа Агуса закончилась (он сказал 12-20).", placeId: null },
-      { time: "20:30", title: "🚇 Возврат в отель", note: "Такси Cabify ~7-10 € из центра в Benimaclet. Или метро L4/L6 → пешком 10 мин.", placeId: null },
+      { time: "07:00", title: "✈️ Виліт RIX → VLC", note: "airBaltic BT697 · 4 год політ · Online check-in за 24 год. Завантажити boarding pass.", placeId: null },
+      { time: "10:00", title: "🛬 Прильот в Валенсію (VLC)", note: "Час Валенсії (UTC+2). Забрати багаж, вийти з терміналу.", placeId: null },
+      { time: "10:30", title: "🚇 Таксі / Метро в Benimaclet", note: "Метро L5→L3, ~30 хв, 3.20 €. Або Cabify ~22-26 €, ~25 хв. З валізами простіше таксі.", placeId: null },
+      { time: "11:00", title: "🏠 Залишити багаж в отелі (чек-ін з 14:00)", note: "BYPILLOW Sinfonia, C/ del Baró de San Petrillo, 10-12. Прохання до reception: «¿Pueden guardar el equipaje? Llegamos antes del check-in.» — у всіх отелях це OK. Ключі отримаєте після 14:00 коли повернетесь.", placeId: null },
+      { time: "11:50", title: "🚶 До Агуса (10 хв пішки)", note: "C/ de Viver, 6 · ★ ПОВЕРХ 5, ДВЕРІ 7. Легкий одяг — вдень 28-32°. З собою — десерт/фрукти/сувенір з України.", placeId: null },
+      { time: "12:00", title: "🥘 Lunch у Агуса", note: "Меню від Агуса:\n• Paella\n• Empanadas\n• Jamón\n• Pan con tomate y alioli\n• Fuet\n• Quesito\n\nДовго і душевно — іспанський обід це 2-3 години.", placeId: null },
+      { time: "15:30", title: "🚶 Прогулянка центром з Агусом", note: "Агус веде Валенсією. Можливі точки: Plaza de la Virgen, Cathedral, Plaza Redonda, La Lonja, Mercado Central ззовні (всередині закритий з 15:00).", placeId: "plaza-virgen" },
+      { time: "18:30", title: "🍽 Вечеря з Агусом у валенсійському місці", note: "Агус обере ресторан. Скажи одразу: «sin alcohol, no bebemos» (не п'ємо алкоголь) — закажуть свіжовичавлений сік або mosto.", placeId: null },
+      { time: "20:00", title: "👋 Прощання з Агусом", note: "Програма Агуса закінчилась (він сказав 12-20).", placeId: null },
+      { time: "20:30", title: "🚇 Повернення в отель + повний чек-ін", note: "Таксі Cabify ~7-10 € з центру до Benimaclet. На рецепції — паспорти для реєстрації, отримати ключі.", placeId: null },
     ],
     d2: [
-      { time: "—", title: "🦜 ОПЦИЯ B: вместо центра — день в Peñíscola", note: "Если хотите попугаев+капибар: выезд 09:00 на машине (1.5ч) или поезд Cercanías C-1 до Benicarló. Парк работает 11:00–15:00. После — крепость Peñíscola и старый город. Обратно к вечеру. Тогда центр Валенсии переносим (см. ниже).", placeId: "peniscola-parrots" },
-      { time: "09:30", title: "Завтрак — Singular Coffee или Chantilly", note: "Singular = спешелти, Chantilly = классический локальный", placeId: "singular" },
-      { time: "11:00", title: "La Lonja de la Seda", note: "Воскресенье — БЕСПЛАТНО! ЮНЕСКО.", placeId: "lonja" },
-      { time: "12:00", title: "Iglesia de San Nicolás", note: "«Сикстинская капелла Валенсии», 8 €", placeId: "san-nicolas" },
-      { time: "13:00", title: "Plaza de la Virgen + базилика", note: "Сесть у фонтана Турия", placeId: "plaza-virgen" },
-      { time: "13:30", title: "Catedral + Чаша Грааля", note: "9 € или с башней 11 €", placeId: "catedral" },
-      { time: "15:00", title: "Обед — Casa Carmela", note: "ОБЯЗАТЕЛЬНО заранее бронь! Паэлья на дровах.", placeId: "casa-carmela" },
-      { time: "17:30", title: "Прогулка через старый город", note: "Plaza Redonda → Plaza Lope de Vega → Mercado Colón", placeId: "plaza-redonda" },
-      { time: "19:00", title: "Орчата у Daniel в Mercado de Colón", note: "С фартонами!", placeId: "daniel" },
-      { time: "20:30", title: "Закат с Torres de Serranos", note: "Воскресенье — бесплатно", placeId: "torres-serranos" },
+      { time: "—", title: "🦜 ОПЦІЯ B: замість центру — день у Peñíscola", note: "Якщо хочете папуг+капібар: виїзд 09:00 машиною (1.5 год) або потягом Cercanías C-1 до Benicarló. Парк працює 11:00–15:00. Після — фортеця Peñíscola і старе місто. Назад до вечора. Тоді центр Валенсії переносимо.", placeId: "peniscola-parrots" },
+      { time: "09:30", title: "Сніданок — Singular Coffee або Chantilly", note: "Singular = спешелті, Chantilly = класичне локальне", placeId: "singular" },
+      { time: "11:00", title: "La Lonja de la Seda", note: "Неділя — БЕЗКОШТОВНО! ЮНЕСКО.", placeId: "lonja" },
+      { time: "12:00", title: "Iglesia de San Nicolás", note: "«Сікстинська капела Валенсії», 8 €", placeId: "san-nicolas" },
+      { time: "13:00", title: "Plaza de la Virgen + базиліка", note: "Сісти біля фонтану Турія", placeId: "plaza-virgen" },
+      { time: "13:30", title: "Catedral + Чаша Грааля", note: "9 € або з вежею 11 €", placeId: "catedral" },
+      { time: "15:00", title: "Обід — Casa Carmela", note: "ОБОВ'ЯЗКОВО заздалегідь бронь! Паелья на дровах.", placeId: "casa-carmela" },
+      { time: "17:30", title: "Прогулянка старим містом", note: "Plaza Redonda → Plaza Lope de Vega → Mercado Colón", placeId: "plaza-redonda" },
+      { time: "19:00", title: "Орчата у Daniel в Mercado de Colón", note: "З фартонами!", placeId: "daniel" },
+      { time: "20:30", title: "Захід сонця з Torres de Serranos", note: "Неділя — безкоштовно", placeId: "torres-serranos" },
     ],
     d3: [
-      { time: "09:30", title: "Завтрак — Doux-Amer Cabanyal или La Más Bonita", note: "В сторону пляжа", placeId: "la-mas-bonita" },
-      { time: "11:00", title: "Пляж Patacona / Malvarrosa", note: "Встреча с Леной на пляже", placeId: "malvarrosa" },
-      { time: "14:00", title: "Обед — La Sastrería (Cabanyal)", note: "Бронировать. Понедельник работает.", placeId: "la-sastreria" },
-      { time: "16:00", title: "Прогулка по Cabanyal с Леной", note: "Модернистская плитка, старые таверны", placeId: "cabanyal" },
-      { time: "17:30", title: "Museo del Arroz", note: "Музей риса (2 € вт-сб, по вс бесплатно). Пн — закрыто, проверь.", placeId: "arroz" },
-      { time: "18:30", title: "Marina + Veles e Vents", note: "Кофе с видом на яхты", placeId: "marina" },
-      { time: "20:30", title: "Ужин у Лены", note: "C/ dels Serrans, 10. С собой: цветы + сладкое (вино не берём — не пьём). Можно из Sabores de España на той же улице.", placeId: null },
+      { time: "09:30", title: "Сніданок — Doux-Amer Cabanyal або La Más Bonita", note: "У бік пляжу", placeId: "la-mas-bonita" },
+      { time: "11:00", title: "Пляж Patacona / Malvarrosa", note: "Зустріч з Леною на пляжі", placeId: "malvarrosa" },
+      { time: "14:00", title: "Обід — La Sastrería (Cabanyal)", note: "Бронювати. Понеділок працює — уточнити по телефону.", placeId: "la-sastreria" },
+      { time: "16:00", title: "Прогулянка Cabanyal з Леною", note: "Модерністська плитка, старі таверни", placeId: "cabanyal" },
+      { time: "17:30", title: "Museo del Arroz", note: "Музей рису (2 € вт-сб, по нд безкоштовно). Пн — закрито, перевір.", placeId: "arroz" },
+      { time: "18:30", title: "Marina + Veles e Vents", note: "Кава з видом на яхти", placeId: "marina" },
+      { time: "20:30", title: "Вечеря у Лени", note: "C/ dels Serrans, 10. З собою: квіти + солодке (вино не беремо — не п'ємо). Можна з Sabores de España на тій же вулиці.", placeId: null },
     ],
     d4: [
-      { time: "09:00", title: "Завтрак — Coco Social House", note: "Рядом с отелем в Benimaclet", placeId: "coco-social" },
-      { time: "10:30", title: "Океанариум", note: "ПРИОРИТЕТ. Билет онлайн ~36 €. Минимум 4 часа.", placeId: "oceanografic" },
-      { time: "15:00", title: "Обед на территории или рядом", note: "Или такси до центра", placeId: null },
-      { time: "16:30", title: "Город искусств — снаружи", note: "Hemisfèric, Umbracle. Найти арки-шептуны!", placeId: "whisper-arches" },
-      { time: "18:00", title: "L'Umbracle прогулка", note: "Бесплатная аркада с садом", placeId: "umbracle" },
-      { time: "19:30", title: "Кофе с товарищем", note: "Boscon Coffee или место по его выбору", placeId: "boscon" },
-      { time: "21:00", title: "Ужин — El Trompo (такос)", note: "Аутентичные мексиканские такос в Russafa", placeId: "el-trompo" },
+      { time: "09:00", title: "Сніданок — Coco Social House", note: "Поруч з готелем в Benimaclet", placeId: "coco-social" },
+      { time: "10:30", title: "Океанаріум", note: "ПРІОРИТЕТ. Квиток онлайн ~36 €. Мінімум 4 години.", placeId: "oceanografic" },
+      { time: "15:00", title: "Обід на території або поруч", note: "Або таксі до центру", placeId: null },
+      { time: "16:30", title: "Місто мистецтв — ззовні", note: "Hemisfèric, Umbracle. Знайти арки-шептуни!", placeId: "whisper-arches" },
+      { time: "18:00", title: "L'Umbracle прогулянка", note: "Безкоштовна аркада з садом", placeId: "umbracle" },
+      { time: "19:30", title: "Кава з товаришем", note: "Boscon Coffee або місце за його вибором", placeId: "boscon" },
+      { time: "21:00", title: "Вечеря — El Trompo (такос)", note: "Автентичні мексиканські такос в Russafa", placeId: "el-trompo" },
     ],
     d5: [
-      { time: "08:00", title: "Ранний завтрак — Coco Social House", note: "Рядом с отелем. Сегодня выезд утром.", placeId: "coco-social" },
-      { time: "09:00", title: "Чек-аут из отеля", note: "Багаж можно оставить в lobby до 15:00.", placeId: null },
-      { time: "—", title: "Выбрать одну из 3 опций ниже:", note: "Решить с вечера вторника, исходя из настроения.", placeId: null },
-      { time: "09:30", title: "🦜 ОПЦИЯ A: Jardín del Papagayo (попугаи + капибары)", note: "★ Самое уникальное. РИСКОВАННО: выезд 09:00 (1.5ч в одну сторону), парк 11:00–15:00, обратно к 14:30. Жёсткий тайминг к вылету 17:00 — заказывайте такси из Peñíscola сразу в аэропорт VLC (минуя отель — багаж заранее в lobby).", placeId: "peniscola-parrots" },
-      { time: "10:00", title: "🦁 ОПЦИЯ B: Bioparc (зоопарк без клеток)", note: "Спокойнее. 3 часа достаточно. Гориллы, львы, жирафы на расстоянии 3 м.", placeId: "bioparc" },
-      { time: "10:00", title: "🖼 ОПЦИЯ C: Bellas Artes + Jardín de Monforte", note: "Самое спокойное. Бесплатный музей + романтический сад. На обед — в центр.", placeId: "bellas-artes" },
-      { time: "13:30", title: "Поздний обед в центре", note: "Если выбрали B или C — успеете спокойно. Если A — обед в Peñíscola или быстрый сэндвич в дороге.", placeId: null },
-      { time: "14:30", title: "Забрать багаж в отеле", note: "Если опция A (Peñíscola) — такси сразу в аэропорт минуя отель (заранее оставить багаж в lobby).", placeId: null },
-      { time: "15:30", title: "🚇 Такси в аэропорт VLC", note: "Заложить минимум 2 часа до вылета 17:40. Cabify ~22-26 €. На метро L5+L3 — 35 мин + чек-ин.", placeId: null },
-      { time: "16:00", title: "✈️ Регистрация и контроль", note: "airBaltic стойка / автомат. С ручной кладью только — быстрее.", placeId: null },
-      { time: "17:40", title: "✈️ Вылет VLC → RIX", note: "airBaltic BT698 · 3 ч 50 мин · Прилёт в Ригу 22:30.", placeId: null },
+      { time: "08:00", title: "Ранній сніданок — Coco Social House", note: "Поруч з готелем. Сьогодні виїзд вранці.", placeId: "coco-social" },
+      { time: "09:00", title: "Чек-аут з готелю", note: "Багаж можна залишити в lobby до 15:00. Чек-аут до 12:00.", placeId: null },
+      { time: "—", title: "Обрати одну з 3 опцій нижче:", note: "Вирішити з вечора вівторка, виходячи з настрою.", placeId: null },
+      { time: "09:30", title: "🦜 ОПЦІЯ A: Jardín del Papagayo (папуги + капібари)", note: "★ Найунікальніше. РИЗИК: виїзд 09:00 (1.5 год в один бік), парк 11:00–15:00, назад до 14:30. Жорсткий тайминг до вильоту 17:40 — замовляйте таксі з Peñíscola одразу в аеропорт VLC (минаючи готель — багаж заздалегідь в lobby).", placeId: "peniscola-parrots" },
+      { time: "10:00", title: "🦁 ОПЦІЯ B: Bioparc (зоопарк без кліток)", note: "Спокійніше. 3 години достатньо. Горили, леви, жирафи на відстані 3 м.", placeId: "bioparc" },
+      { time: "10:00", title: "🖼 ОПЦІЯ C: Bellas Artes + Jardín de Monforte", note: "Найспокійніше. Безкоштовний музей + романтичний сад. На обід — у центр.", placeId: "bellas-artes" },
+      { time: "13:30", title: "Пізній обід у центрі", note: "Якщо обрали B або C — встигнете спокійно. Якщо A — обід у Peñíscola або швидкий сендвіч у дорозі.", placeId: null },
+      { time: "14:30", title: "Забрати багаж у готелі", note: "Якщо опція A (Peñíscola) — таксі одразу в аеропорт минаючи готель (заздалегідь залишити багаж в lobby).", placeId: null },
+      { time: "15:30", title: "🚇 Таксі в аеропорт VLC", note: "Закласти мінімум 2 години до вильоту 17:40. Cabify ~22-26 €. Метро L5+L3 — 35 хв + чек-ін.", placeId: null },
+      { time: "16:00", title: "✈️ Реєстрація і контроль", note: "airBaltic стійка / автомат. З ручною поклажею тільки — швидше.", placeId: null },
+      { time: "17:40", title: "✈️ Виліт VLC → RIX", note: "airBaltic BT698 · 3 год 50 хв · Прильот в Ригу 22:30.", placeId: null },
     ],
   };
 }
@@ -3944,6 +3955,7 @@ function renderMe() {
   container.innerHTML = "";
 
   const sections = [
+    { id: "hotel", title: "🏨 Готель BYPILLOW Sinfonia", render: renderGuideHotel },
     { id: "bookings", title: "📅 Бронирования", render: renderGuideBookings },
     { id: "contacts", title: "📞 Полезные контакты", render: renderGuideContacts },
     { id: "transport", title: "🚇 Транспорт и проездные", render: renderGuideTransport },
@@ -3975,6 +3987,43 @@ function renderMe() {
 }
 
 // === Guide section renderers ===
+
+function renderGuideHotel(c) {
+  const h = TRIP.hotel;
+  c.appendChild(el("div", { class: "card-soft", style: "margin-bottom:10px;padding:14px" },
+    el("div", { style: "font-size:18px;font-weight:700;margin-bottom:6px" }, h.name),
+    el("div", { style: "font-size:13px;color:var(--text-soft);line-height:1.5" }, h.address)
+  ));
+
+  const kv = el("dl", { class: "kv", style: "font-size:14px" });
+  kv.appendChild(el("dt", null, "📅 Заїзд"));
+  kv.appendChild(el("dd", null, h.checkIn));
+  kv.appendChild(el("dt", null, "📅 Виїзд"));
+  kv.appendChild(el("dd", null, h.checkOut));
+  kv.appendChild(el("dt", null, "👥 Бронь"));
+  kv.appendChild(el("dd", null, h.booking));
+  kv.appendChild(el("dt", null, "📞 Телефон"));
+  const telCell = el("dd", null);
+  telCell.appendChild(el("a", { href: "tel:" + h.tel.replace(/\s/g, "") }, h.tel));
+  kv.appendChild(telCell);
+  kv.appendChild(el("dt", null, "📡 Wi-Fi"));
+  kv.appendChild(el("dd", null, h.wifi));
+  kv.appendChild(el("dt", null, "🥐 Сніданок"));
+  kv.appendChild(el("dd", null, h.breakfast));
+  kv.appendChild(el("dt", null, "💰 Сума"));
+  kv.appendChild(el("dd", null, h.total));
+  c.appendChild(kv);
+
+  c.appendChild(el("div", { class: "card-soft", style: "margin-top:10px;border-left:3px solid var(--warning);padding:12px;font-size:13px;line-height:1.5" },
+    "⚠ Чек-ін з 14:00 — а літак прилітає о 10:00. Залиш багаж в lobby (вони беруть на зберігання) і йди до Агуса. Ключі заберете коли повернетесь увечері.\n\nФразу для рецепції: «¿Pueden guardar el equipaje hasta el check-in, por favor?» — Чи можете зберегти багаж до чек-ину, будь ласка?"
+  ));
+
+  const btns = el("div", { class: "btn-row", style: "margin-top:10px" });
+  btns.appendChild(el("a", { class: "btn primary", href: "tel:" + h.tel.replace(/\s/g, "") }, "📞 Подзвонити"));
+  btns.appendChild(el("a", { class: "btn", href: `https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`, target: "_blank" }, "🗺 Карта"));
+  btns.appendChild(el("button", { class: "btn", onclick: () => { navigator.clipboard.writeText(h.address); toast(t("toast_copied")); } }, "📋 Адреса"));
+  c.appendChild(btns);
+}
 
 function renderGuideBookings(c) {
   const total = DEFAULT_BOOKINGS.length;
