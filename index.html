@@ -440,7 +440,7 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
     <button class="qa" data-action="random-unique"><div class="ico">🎲</div><div class="t">Случайное уникальное</div><div class="s">Что-то нетипичное</div></button>
     <button class="qa" data-action="nearby-hotel"><div class="ico">🏨</div><div class="t">Рядом с отелем</div><div class="s">До 1 км от Benimaclet</div></button>
     <button class="qa" data-action="wishlist"><div class="ico">⭐</div><div class="t">Хочу посетить</div><div class="s">Список желаний</div></button>
-    <button class="qa" data-action="open-now"><div class="ico">🕐</div><div class="t">Открыто сейчас</div><div class="s">По заявленным часам</div></button>
+    <button class="qa" data-action="open-now"><div class="ico">🕐</div><div class="t">Открыто зараз</div><div class="s">По заявленным часам</div></button>
   </div>
 </section>
 
@@ -552,8 +552,6 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 // ============================================================
 const LANGS = [
   { code: "uk", label: "🇺🇦 Українська", short: "UA" },
-  { code: "en", label: "🇬🇧 English", short: "EN" },
-  { code: "es", label: "🇪🇸 Español", short: "ES" },
 ];
 
 const I18N = {
@@ -1112,7 +1110,7 @@ const WEATHER_CODES = {
   77: { emoji: "🌨", text: "Снежные крупы" },
   80: { emoji: "🌦", text: "Ливень" },
   81: { emoji: "🌧", text: "Сильный ливень" },
-  82: { emoji: "⛈", text: "Очень сильный ливень" },
+  82: { emoji: "⛈", text: "Дужесильный ливень" },
   85: { emoji: "🌨", text: "Снежный шквал" },
   86: { emoji: "🌨", text: "Сильный снежный шквал" },
   95: { emoji: "⛈", text: "Гроза" },
@@ -1155,7 +1153,7 @@ function clothingTips(maxT, minT, rainProb, code, uvMax, windMax) {
 
   if (rainProb >= 70) tips.push("☔ Высокая вероятность дождя — зонт обязательно, водоотталкивающая обувь");
   else if (rainProb >= 40) tips.push("🌂 Возможен дождь — захватите зонт");
-  else if (rainProb >= 20) tips.push("🌦 Шанс дождя небольшой, можно без зонта");
+  else if (rainProb >= 20) tips.push("🌦 Шанс дождя небольшой, можнабез зонта");
 
   if (code >= 95) tips.push("⚡ Возможна гроза — лучше планы на крытое (музеи, рынки)");
   if (uvMax && uvMax >= 8) tips.push("☀️ UV высокий — крем SPF 30+, шляпа, в 12-16 не загорать");
@@ -1600,12 +1598,12 @@ const PLACES = [
 
   { id: "miguelete", name: "Torre del Miguelete (Micalet)", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça de la Reina, 46001 València", lat: 39.4757, lng: -0.3754,
     desc: "Дзвіниця собора XIV в., 51 м. 207 ступеней по винтовой лестнице — и сверху лучшая панорама старого міста, крыш с черепицей и моря на горизонте.",
-    tip: "Подниматься перед закатом — небо становится оранжевым над оранжевыми крышами. Сходи узкая, без лифта.",
+    tip: "Підніматись перед закатом — небо становится оранжевым над оранжевыми крышами. Сходи узкая, без лифта.",
     price: "8 €", hours: "10:00–19:00", tags: ["viewpoint", "iconic"], unique: false },
 
   { id: "basilica-virgen", name: "Basílica de la Virgen", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 6, 46001 València", lat: 39.4762, lng: -0.3752,
     desc: "Барочная базилика XVII в. с овальным куполом и фресками Паломино. Головне — статуя Пресвятой Девы Заступницы (Mare de Déu dels Desamparats), покровительницы города.",
-    tip: "Можно зайти безкоштовно. Прямо рядом — Plaza de la Virgen с фонтаном Турия.",
+    tip: "Можна зайти безкоштовно. Прямо рядом — Plaza de la Virgen с фонтаном Турия.",
     price: "Безкоштовно", hours: "07:00–14:00, 16:30–21:00", tags: ["iconic"], unique: false },
 
   { id: "plaza-virgen", name: "Plaza de la Virgen", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de la Mare de Déu, 46001 València", lat: 39.4763, lng: -0.3754,
@@ -1619,18 +1617,18 @@ const PLACES = [
     price: "Безкоштовно", hours: "Завжди", tags: [], unique: false },
 
   { id: "plaza-redonda", name: "Plaza Redonda", emoji: "⭕", cat: "plaza", district: "Ciutat Vella", address: "Plaça Redona, 46001 València", lat: 39.4742, lng: -0.3760,
-    desc: "Совершенно круглая «спрятанная» площадь XIX в. с фонтаном по центру. Раньше — рыбный рынок, сейчас лавочки с тканями, кружевом, керамикой. Заходишь через узкие проходы и попадаешь в другой мир.",
+    desc: "Совершенно круглая «спрятанная» площадь XIX в. с фонтаном по центру. Раньше — рыбный рынок, зараз лавочки с тканями, кружевом, керамикой. Заходишь через узкие проходы и попадаешь в другой мир.",
     tip: "По четвергам и воскресеньям утром — рынок ремесел. Идеально для аутентичного сувенира.",
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden", "unique"], unique: true },
 
   { id: "plaza-lope", name: "Plaza Lope de Vega · самый узкий дом Европы", emoji: "📐", cat: "monument", district: "Ciutat Vella", address: "Plaça de Lope de Vega, 46001 València", lat: 39.4747, lng: -0.3762,
     desc: "Маленькая площадь между Plaza de la Reina и Plaza Redonda. На ней — самый узкий жилой дом в Европе: фасад всего 107 см. Усередині есть гастропаб.",
-    tip: "Найдите 5-этажный дом № 9 — это он. Хорошее место для нестандартного селфи.",
+    tip: "Знайдіть 5-этажный дом № 9 — это он. Хорошее место для нестандартного селфи.",
     price: "Безкоштовно", hours: "Завжди", tags: ["unique", "hidden"], unique: true },
 
   { id: "plaza-ayto", name: "Plaza del Ayuntamiento", emoji: "🏛", cat: "plaza", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 46002 València", lat: 39.4699, lng: -0.3763,
     desc: "Главная парадная площадь — пешеходная с 2020 г. Огромный фонтан, цветочные киоски, здание мэрии и здание Главпочтамта по бокам.",
-    tip: "Во время Лас-Фальяс (март) тут масклета́ — оглушительный полуденный фейерверк. Сейчас можно подняться на балкон мэрии безкоштовно.",
+    tip: "Во время Лас-Фальяс (март) тут масклета́ — оглушительный полуденный фейерверк. Зараз можнапіднятись на балкон мэрии безкоштовно.",
     price: "Безкоштовно · балкон безкоштовно", hours: "Всегда · балкон Пн-Пт 09:00–14:00", tags: ["iconic"], unique: false },
 
   { id: "ayuntamiento", name: "Ayuntamiento de València", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 1, 46002 València", lat: 39.4697, lng: -0.3763,
@@ -1640,7 +1638,7 @@ const PLACES = [
 
   { id: "correos", name: "Palacio de Correos (Главпочтамт)", emoji: "✉️", cat: "sight", district: "Ciutat Vella", address: "Plaça de l'Ajuntament, 24, 46002 València", lat: 39.4702, lng: -0.3763,
     desc: "Палац связи 1922 г. — модернизм с стеклянным куполом, мраморной лестницей и витражами. Усередині — действующее почтовое отделение.",
-    tip: "Зайдите хотя бы в холл — поднимите голову на купол. Можно отправить открытку самому себе с настоящей валенсийской почты.",
+    tip: "Зайдіть хотя бы в холл — поднимите голову на купол. Можна отправить открытку самому себе с настоящей валенсийской почты.",
     price: "Безкоштовно", hours: "Пн-Пт 08:30–20:30, Сб 09:30–13:00", tags: ["hidden", "unique"], unique: true },
 
   { id: "mercado-central", name: "Mercado Central", emoji: "🥖", cat: "market", district: "Ciutat Vella", address: "Plaça de la Ciutat de Bruges, s/n, 46001 València", lat: 39.4733, lng: -0.3779,
@@ -1651,29 +1649,29 @@ const PLACES = [
 
   { id: "lonja", name: "La Lonja de la Seda", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Carrer de la Llotja, 2, 46001 València", lat: 39.4733, lng: -0.3784,
     desc: "Шёлковая биржа XV в. — высшая точка готики гражданского строительства, объект ЮНЕСКО. Зал контрактов с витыми колоннами как пальмы, башня для нарушителей, апельсиновый дворик.",
-    tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО. Иначе всего 2 €. Найдите эротические и сатирические резные фигурки на наружных стенах — горгульи XV в. с юмором.",
+    tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО. Иначе всего 2 €. Знайдіть эротические и сатирические резные фигурки на наружных стенах — горгульи XV в. с юмором.",
     price: "2 € · Сб с 14:00, Вс — безкоштовно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00",
     tags: ["iconic", "must", "unesco"], unique: true },
 
   { id: "san-nicolas", name: "Iglesia de San Nicolás · «Сикстинская Валенсии»", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Carrer dels Cavallers, 35, 46001 València", lat: 39.4757, lng: -0.3786,
     desc: "Ззовні — обычная готическая церковь, усередині — взрыв барочных фресок Антонио Паломино: 1900 м² расписан полностью. После реставрации 2016 г. сияет как новый. Действительно достойно прозвища.",
-    tip: "Возьмите аудиогид — без него часть смысла теряется. Зимой и в дни службы вход ограничен.",
+    tip: "Візьміть аудиогид — без него часть смысла теряется. Зимой и в дни службы вход ограничен.",
     price: "8 € (с аудиогидом)", hours: "Пн-Сб 10:30–19:30, Вс 13:00–19:30",
     web: "https://sannicolasvalencia.com", tags: ["must", "unique", "iconic"], unique: true },
 
   { id: "torres-serranos", name: "Torres de Serranos", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Plaça dels Furs, s/n, 46003 València", lat: 39.4795, lng: -0.3760,
-    desc: "Готичні ворота XIV в. в стене старого міста. На вершину можно подняться — открывается вид на парк Турия с одной стороны и черепичные крыши старого міста с другой.",
+    desc: "Готичні ворота XIV в. в стене старого міста. На вершину можнапіднятись — открывается вид на парк Турия с одной стороны и черепичные крыши старого міста с другой.",
     tip: "По воскресеньям и в субботу после 14:00 — БЕСПЛАТНО, иначе всего 2 €. Идеально на закате.",
     price: "2 € · Вс — безкоштовно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["viewpoint"], unique: false },
 
   { id: "torres-quart", name: "Torres de Quart", emoji: "🗼", cat: "monument", district: "Ciutat Vella", address: "Carrer de Guillem de Castro, 89, 46008 València", lat: 39.4757, lng: -0.3823,
     desc: "Парные ворота XV в. на западной стороне старого міста. На стенах — следы французских ядер 1808 г., их не реставрировали специально, как память.",
-    tip: "Тоже можно подняться. Менее раскручены чем Serranos, очередей нет. Безкоштовно по воскресеньям.",
+    tip: "Тоже можнапіднятись. Менее раскручены чем Serranos, очередей нет. Безкоштовно по воскресеньям.",
     price: "2 € · Вс — безкоштовно", hours: "Пн-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["hidden"], unique: false },
 
   { id: "ceramica", name: "Museu de Ceràmica (Palau Marqués de Dos Aigües)", emoji: "🖼", cat: "museum", district: "Ciutat Vella", address: "Carrer del Poeta Querol, 2, 46002 València", lat: 39.4727, lng: -0.3736,
     desc: "Палац маркизов Дос-Агуас XVIII в. — самый барочный фасад Испании, вырезанный из алебастра (вода, грифоны, фигуры). Усередині — крупнейшая коллекция испанской керамики и интерьеры в стиле рококо.",
-    tip: "Уже только ради фасада стоит дойти. По субботам после 16:00 и в воскресенье — БЕСПЛАТНО.",
+    tip: "Уже тількиради фасада стоит дойти. По субботам после 16:00 и в воскресенье — БЕСПЛАТНО.",
     price: "3 € · Сб 16:00+ и Вс — безкоштовно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00",
     tags: ["iconic", "unique"], unique: true },
 
@@ -1683,18 +1681,18 @@ const PLACES = [
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden"], unique: false },
 
   { id: "estacion-norte", name: "Estación del Norte", emoji: "🚂", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 24, 46007 València", lat: 39.4669, lng: -0.3771,
-    desc: "Вокзал 1917 г. в стиле валенсийского модернизма. Усередині: мозаики с апельсинами, цветочные мотивы, билетные кассы как театральные ложи. Сейчас действующий ж/д вокзал.",
-    tip: "Зайдите даже без поезда — за 5 минут увидите потолок и мозаики в зале ожидания. Ззовні: керамика «Bon Viatge» на 6 языках.",
+    desc: "Вокзал 1917 г. в стиле валенсийского модернизма. Усередині: мозаики с апельсинами, цветочные мотивы, билетные кассы как театральные ложи. Зараз действующий ж/д вокзал.",
+    tip: "Зайдіть даже без поезда — за 5 минут увидите потолок и мозаики в зале ожидания. Ззовні: керамика «Bon Viatge» на 6 языках.",
     price: "Безкоштовно", hours: "06:00–23:00", tags: ["hidden", "unique", "modernism"], unique: true },
 
   { id: "plaza-toros", name: "Plaza de Toros", emoji: "🏛", cat: "sight", district: "Ciutat Vella", address: "Carrer de Xàtiva, 28, 46004 València", lat: 39.4665, lng: -0.3758,
     desc: "Арена 1859 г. как уменьшенная копия Колизея. Прямо рядом с вокзалом, кирпично-стеклянная. Усередині — Museo Taurino (безкоштовно).",
-    tip: "Можно зайти на арену с экскурсией или просто в музей. Корриду не любят все — но архитектурно интересно.",
+    tip: "Можна зайти на арену с экскурсией или просто в музей. Корриду не любят все — но архитектурно интересно.",
     price: "Музей безкоштовно · экскурсия 14 €", hours: "Музей: 10:00–19:00", tags: [], unique: false },
 
   { id: "mercado-colon", name: "Mercado de Colón", emoji: "🏛", cat: "sight", district: "Eixample", address: "Carrer de Jorge Juan, 19, 46004 València", lat: 39.4694, lng: -0.3697,
-    desc: "Модернизм 1916 г. Сейчас не рынок, а гастропространство: рестораны, кафе, дегустации. Усередині — Horchatería Daniel 1949 г. с лучшей орчатой Валенсии.",
-    tip: "Зайти на орчату с фартонами в Daniel. Дешевле и аутентичнее чем в туристическом центре. Очень атмосферно после заката с подсветкой.",
+    desc: "Модернизм 1916 г. Зараз не рынок, а гастропространство: рестораны, кафе, дегустации. Усередині — Horchatería Daniel 1949 г. с лучшей орчатой Валенсии.",
+    tip: "Зайти на орчату с фартонами в Daniel. Дешевле и аутентичнее чем в туристическом центре. Дужеатмосферно после заката с подсветкой.",
     price: "Вход бесплатный", hours: "07:30–01:00", tags: ["iconic", "modernism", "food"], unique: false },
 
   { id: "casa-gatos", name: "Casa de los Gatos", emoji: "🐈", cat: "monument", district: "Ciutat Vella", address: "Carrer del Museu, 11, 46003 València", lat: 39.4775, lng: -0.3801,
@@ -1709,7 +1707,7 @@ const PLACES = [
 
   { id: "almoina", name: "L'Almoina · археологические раскопки", emoji: "🪨", cat: "museum", district: "Ciutat Vella", address: "Plaça de Dècim Juni Brut, s/n, 46003 València", lat: 39.4761, lng: -0.3753,
     desc: "Под стеклянным полом площади у собора — открытые римские, вестготские, мавританские слои. Видно фундаменты бань, форума, мечети. 2200 лет истории в одном слое.",
-    tip: "Безкоштовно по воскресеньям. Очень тихо и медитативно, особенно вечером.",
+    tip: "Безкоштовно по воскресеньям. Дужетихо и медитативно, особенно вечером.",
     price: "2 € · Вс — безкоштовно", hours: "Вт-Сб 10:00–19:00, Вс 10:00–14:00", tags: ["hidden", "unique"], unique: true },
 
   { id: "cripta-vicente", name: "Cripta de la Cárcel de San Vicente", emoji: "⛪", cat: "museum", district: "Ciutat Vella", address: "Plaça de l'Arquebisbe, 3, 46003 València", lat: 39.4762, lng: -0.3759,
@@ -1720,16 +1718,16 @@ const PLACES = [
 
   { id: "cervello", name: "Palacio de Cervelló", emoji: "🏛", cat: "museum", district: "Ciutat Vella", address: "Plaça de Tetuan, 3, 46003 València", lat: 39.4782, lng: -0.3733,
     desc: "Палац XVIII в. с сохранившимся интерьером и библиотекой. Здесь жил король Фернандо VII после возвращения из французского плена.",
-    tip: "Безкоштовно. Часто игнорируют — а зря, очень атмосферно.",
+    tip: "Безкоштовно. Часто игнорируют — а зря, дужеатмосферно.",
     price: "Безкоштовно", hours: "Пн-Сб 09:00–14:00", tags: ["hidden"], unique: false },
 
   { id: "san-esteban", name: "Iglesia de San Esteban", emoji: "⛪", cat: "religious", district: "Ciutat Vella", address: "Plaça de Sant Esteve, 1, 46003 València", lat: 39.4781, lng: -0.3724,
     desc: "Готический храм XIII в. с барочной отделкой. Здесь крестили Святого Винсента Феррера, покровителя Валенсии.",
-    tip: "Часто пустая — можно зайти и побыть наедине с тишиной.", price: "Безкоштовно", hours: "10:00–13:30, 17:30–20:30",
+    tip: "Часто пустая — можназайти и побыть наедине с тишиной.", price: "Безкоштовно", hours: "10:00–13:30, 17:30–20:30",
     tags: [], unique: false },
 
   { id: "atarazanas", name: "Atarazanas del Grao", emoji: "🚢", cat: "museum", district: "Poblats Marítims", address: "Plaça Joan Antoni Benlliure, s/n, 46011 València", lat: 39.4612, lng: -0.3268,
-    desc: "Готическая верфь XIV в. — 5 параллельных нефов, где строили и хранили галеры. Сейчас выставочный зал.",
+    desc: "Готическая верфь XIV в. — 5 параллельных нефов, где строили и хранили галеры. Зараз выставочный зал.",
     tip: "Сама архитектура впечатляющая. Безкоштовно. Совмещайте с прогулкой по порту или Cabanyal.",
     price: "Безкоштовно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–15:00", tags: ["hidden", "unique"], unique: true },
 
@@ -1746,7 +1744,7 @@ const PLACES = [
 
   { id: "monforte", name: "Jardín de Monforte", emoji: "🌹", cat: "park", district: "Pla del Real", address: "Carrer de Montfort, 1, 46010 València", lat: 39.4806, lng: -0.3625,
     desc: "Романтический сад XIX в. с фонтанами, статуями, лабиринтами из самшита и розами. Закрытое от глаз пространство — нужно знать вход.",
-    tip: "Идеально для разговоров и фотосессии. Очень тихо.", price: "Безкоштовно", hours: "10:30–21:00",
+    tip: "Идеально для разговоров и фотосессии. Дужетихо.", price: "Безкоштовно", hours: "10:30–21:00",
     tags: ["hidden", "unique"], unique: true },
 
   { id: "parque-oeste", name: "Parque del Oeste", emoji: "🌳", cat: "park", district: "Extramurs", address: "Carrer de Sant Vicent Màrtir, 254, 46007 València", lat: 39.4626, lng: -0.3956,
@@ -1795,7 +1793,7 @@ const PLACES = [
 
   { id: "agora", name: "L'Àgora", emoji: "🏛", cat: "sight", district: "Quatre Carreres", address: "Av. del Saler, 5, 46013 València", lat: 39.4536, lng: -0.3500,
     desc: "Голубая «капля» — многофункциональный зал. Внешне самая загадочная часть комплекса. Чаще закрыта, проводят теннисные турниры и концерты.",
-    tip: "Хороший фон для фото ззовні.", price: "Только во время мероприятий", hours: "По расписанию", tags: [], unique: false },
+    tip: "Хороший фон для фото ззовні.", price: "Тільки во время мероприятий", hours: "По расписанию", tags: [], unique: false },
 
   // === МУЗЕИ ===
   { id: "bellas-artes", name: "Museo de Bellas Artes", emoji: "🖼", cat: "museum", district: "Pla del Real", address: "Carrer de Sant Pius V, 9, 46010 València", lat: 39.4793, lng: -0.3691,
@@ -1806,7 +1804,7 @@ const PLACES = [
 
   { id: "fallero", name: "Museo Fallero", emoji: "🔥", cat: "museum", district: "Quatre Carreres", address: "Plaça de Montolivet, 4, 46006 València", lat: 39.4644, lng: -0.3654,
     desc: "Каждый год во время Лас-Фальяс сжигают сотни «фалл» — гигантских кукольных композиций. Одну фигурку (ninot) спасают голосованием. Здесь все спасённые с 1934 г.",
-    tip: "Очень яркие, остро-сатирические скульптуры. Идеально если не попали на сам праздник в марте.",
+    tip: "Дужеяркие, остро-сатирические скульптуры. Идеально если не попали на сам праздник в марте.",
     price: "2 € · Сб с 16:00, Вс — безкоштовно", hours: "Вт-Сб 10:00–14:00 и 16:00–20:00, Вс 10:00–14:00",
     tags: ["unique", "quirky"], unique: true },
 
@@ -1842,7 +1840,7 @@ const PLACES = [
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden"], unique: false },
 
   { id: "cabanyal", name: "El Cabanyal · морской район", emoji: "🏘", cat: "district", district: "Poblats Marítims", address: "El Cabanyal, 46011 València", lat: 39.4685, lng: -0.3320,
-    desc: "Бывшая рыбацкая деревня — узкие улицы, дома с керамической плиткой (модернизм), старые таверны. Сейчас оживает: галереи, барбершопы, гастро-проекты вперемешку с традиционными жителями.",
+    desc: "Бывшая рыбацкая деревня — узкие улицы, дома с керамической плиткой (модернизм), старые таверны. Зараз оживает: галереи, барбершопы, гастро-проекты вперемешку с традиционными жителями.",
     tip: "Просто прогуляться по улицам Reina, Doctor Lluch, Progrés. Casa Montaña — самый старый бар Валенсии (1836). Лучше всего днём в субботу.",
     price: "Безкоштовно", hours: "Завжди", tags: ["must", "unique", "iconic"], unique: true },
 
@@ -1889,13 +1887,13 @@ const PLACES = [
 
   { id: "whisper-arches", name: "Арки-шептуны у Museo de las Ciencias", emoji: "🗣", cat: "activity", district: "Quatre Carreres", address: "Перед Museo de las Ciencias", lat: 39.4548, lng: -0.3528,
     desc: "Две полусферы-арки на расстоянии 50 м. Один шепчет в одну, другой слышит в другой — без проводов, чистая акустика. Безкоштовно, всегда работает.",
-    tip: "Спрятано прямо перед входом в Museo de las Ciencias. Найдите две одинаковые конструкции на расстоянии — попробуйте. Дети офигеют.",
+    tip: "Спрятано прямо перед входом в Museo de las Ciencias. Знайдіть две одинаковые конструкции на расстоянии — попробуйте. Дети офигеют.",
     price: "Безкоштовно", hours: "Завжди", tags: ["hidden", "unique", "quirky"], unique: true },
 
   // === РЕСТОРАНЫ ===
   { id: "casa-carmela", name: "Casa Carmela · паэлья на дровах", emoji: "🥘", cat: "food", district: "Malvarrosa", address: "Carrer d'Isabel de Villena, 155, 46011 València", lat: 39.4751, lng: -0.3270,
     desc: "С 1922 г. — самая знаменитая паэлья Валенсии, готовится на апельсиновых дровах. Дорого, но один раз надо.",
-    tip: "БРОНИРОВАТЬ за 1-2 недели. Берите Paella Valenciana (классика) или Arroz a Banda. Только обеды.",
+    tip: "БРОНИРОВАТЬ за 1-2 недели. Берите Paella Valenciana (классика) или Arroz a Banda. Тільки обеды.",
     price: "Паэлья 28–35 €/чел", hours: "Вт-Вс 13:30–16:30 (только обед)",
     web: "https://casacarmela.com", tags: ["must", "iconic"], unique: false },
 
@@ -1914,7 +1912,7 @@ const PLACES = [
     tip: "Если едете в Albufera — идеальный обед по пути.", price: "25–35 €/чел", hours: "13:00–17:00", tags: ["unique"], unique: false },
 
   { id: "nou-raco", name: "Nou Racó", emoji: "🥘", cat: "food", district: "El Palmar", address: "Carretera CV-1045, km 3, 46012 El Palmar", lat: 39.3290, lng: -0.3155,
-    desc: "В El Palmar, прямо у озера Albufera. Большой ресторан, отличная паэлья, тапас. Можно прийти после лодочной прогулки.",
+    desc: "В El Palmar, прямо у озера Albufera. Большой ресторан, отличная паэлья, тапас. Можна прийти после лодочной прогулки.",
     tip: "Заказывать всегда All i Pebre (рагу из угря с чесноком и паприкой) — местный специалитет.",
     price: "25–35 €/чел", hours: "13:00–17:00", tags: ["unique"], unique: false },
 
@@ -1971,18 +1969,18 @@ const PLACES = [
 
   // === ЗАВТРАКИ И БРАНЧИ ===
   { id: "soho-brunch", name: "Soho Brunch", emoji: "🥑", cat: "food", district: "Russafa", address: "Carrer del Pintor Salvador Abril, 17, 46005 València", lat: 39.4642, lng: -0.3722,
-    desc: "Эстетичные бранчи с авокадо-розами и яйцами Бенедикт. Очень инстаграмно.",
+    desc: "Эстетичные бранчи с авокадо-розами и яйцами Бенедикт. Дужеинстаграмно.",
     tip: "По выходным очередь — приходить до 11:00.", price: "12–18 € бранч",
     hours: "09:00–16:00", tags: [], unique: false },
 
   { id: "la-mas-bonita", name: "La Más Bonita", emoji: "☕", cat: "food", district: "Patacona", address: "Passeig Marítim de la Patacona, 11, 46120 Alboraia", lat: 39.4861, lng: -0.3250,
     desc: "Кафе прямо на набережной Patacona. Большие завтраки, выпечка, кофе с видом на море.",
-    tip: "Лучшее воскресное утро Валенсии — кофе, тост, море. Можно прийти после Port Saplaya.",
+    tip: "Лучшее воскресное утро Валенсии — кофе, тост, море. Можна прийти после Port Saplaya.",
     price: "Завтрак 10–18 €", hours: "09:00–22:00", tags: ["iconic"], unique: false },
 
   { id: "alice-coffee", name: "Alice Coffee", emoji: "☕", cat: "food", district: "Russafa", address: "Carrer de Pere III el Gran, 16, 46005 València", lat: 39.4628, lng: -0.3725,
-    desc: "Симпатичный, очень женский интерьер. Завтраки с тостадами и фруктами. Чай тоже хороший.",
-    tip: "Если нет вай-фая нужного — оно тихое, можно работать.", price: "Завтрак 10–16 €",
+    desc: "Симпатичный, дужеженский интерьер. Завтраки с тостадами и фруктами. Чай тоже хороший.",
+    tip: "Если нет вай-фая нужного — оно тихое, можнаработать.", price: "Завтрак 10–16 €",
     hours: "09:00–16:00", tags: [], unique: false },
 
   { id: "chantilly", name: "Chantilly", emoji: "🥐", cat: "food", district: "Ciutat Vella", address: "Carrer de la Pau, 27, 46003 València", lat: 39.4717, lng: -0.3722,
@@ -2011,7 +2009,7 @@ const PLACES = [
     price: "Завтрак 10–16 €", hours: "09:00–17:00", tags: ["hidden"], unique: false },
 
   { id: "dulce-sofia", name: "Dulce Sofía Brunch de Jardín", emoji: "🌿", cat: "food", district: "Pinedo", address: "Carrer del Cap del Riu, 22, 46012 València", lat: 39.4322, lng: -0.3370,
-    desc: "Бранч в саду в районе Pinedo (между городом и Albufera). Очень атмосферно — стол под пальмами.",
+    desc: "Бранч в саду в районе Pinedo (между городом и Albufera). Дужеатмосферно — стол под пальмами.",
     tip: "Дальше от центра — на машине/такси. Идея на тихое утро.",
     price: "15–25 €", hours: "10:00–17:00", tags: ["unique", "hidden"], unique: true },
 
@@ -2036,7 +2034,7 @@ const PLACES = [
     price: "Мороженое 3–5 €", hours: "13:00–23:00", tags: ["unique"], unique: true },
 
   { id: "bassk", name: "BASSK Cheesecakes", emoji: "🍰", cat: "dessert", district: "Ciutat Vella", address: "Carrer de Sant Vicent Màrtir, 33, 46002 València", lat: 39.4719, lng: -0.3770,
-    desc: "Только баскский чизкейк — карамелизованный, как в Сан-Себастьяне. Разные топпинги.",
+    desc: "Тільки баскский чизкейк — карамелизованный, как в Сан-Себастьяне. Разные топпинги.",
     tip: "Кусок не дешёвый, но это правда лучший. Брать с собой не разваливается.",
     price: "Чизкейк 4–6 €", hours: "12:00–21:00", tags: ["unique"], unique: false },
 
@@ -2059,8 +2057,8 @@ const PLACES = [
     tags: ["unique", "daytrip"], unique: false },
 
   { id: "peniscola-parrots", name: "Jardín del Papagayo · парк с капибарами", emoji: "🦜", cat: "daytrip", district: "Peñíscola, ~130 км", address: "Av. del Maestrat, 1, 12598 Peñíscola, Castelló", lat: 40.3603, lng: 0.4007,
-    desc: "Интерактивный сад-зоопарк между Peñíscola и Benicarló. 50+ видов попугаев + капибары (можно подойти и погладить — реально дружелюбные), чёрные лемуры, оцелоты, канарские кенгуру, гигантские альдабрские черепахи, фламинго. Птиц можно кормить с руки, делать селфи.",
-    tip: "★ Маст-си если любите животных. ~130 км на север от Валенсии (1.5 часа на машине, или поезд Cercanías до Benicarló + 10 мин такси). Часы короткие — только 11:00-15:00. VIP+ опция (+5 €) — кормление лемуров. Чтобы реально пообщаться с капибарами — приходить к открытию, они активнее. Можно совместить с самой Peñíscola (крепость на скале, старый город).",
+    desc: "Интерактивный сад-зоопарк между Peñíscola и Benicarló. 50+ видов попугаев + капибары (можно подойти и погладить — реально дружелюбные), чёрные лемуры, оцелоты, канарские кенгуру, гигантские альдабрские черепахи, фламинго. Птиц можнакормить с руки, делать селфи.",
+    tip: "★ Маст-си если любите животных. ~130 км на север от Валенсии (1.5 часа на машине, или поезд Cercanías до Benicarló + 10 мин такси). Часы короткие — тільки11:00-15:00. VIP+ опция (+5 €) — кормление лемуров. Чтобы реально пообщаться с капибарами — приходить к открытию, они активнее. Можна совместить с самой Peñíscola (крепость на скале, старый город).",
     price: "22 € взрослый · 17 € льготный · +5 € VIP с лемурами", hours: "Ежедневно 11:00–15:00 (закр. 25.12, 01.01)",
     web: "https://jardindelpapagayo.com/",
     tel: "+34 722 42 50 30",
@@ -2724,9 +2722,11 @@ function renderHeader() {
   sub.appendChild(el("button", { class: "weather-pill loading", id: "weather-pill", onclick: openWeatherModal }, labels.weatherLoading[lang]));
   renderWeatherPill();
 
-  // Language selector
-  const langBtn = el("button", { class: "weather-pill", id: "lang-pill", onclick: cycleLang, title: t("lang_label"), style: "background:var(--card-soft);color:var(--text-soft)" }, (LANGS.find(l => l.code === lang) || LANGS[0]).short + " ▾");
-  sub.appendChild(langBtn);
+  // Language selector (only show if more than one language available)
+  if (LANGS.length > 1) {
+    const langBtn = el("button", { class: "weather-pill", id: "lang-pill", onclick: cycleLang, title: t("lang_label"), style: "background:var(--card-soft);color:var(--text-soft)" }, (LANGS.find(l => l.code === lang) || LANGS[0]).short + " ▾");
+    sub.appendChild(langBtn);
+  }
 
   const visited = Object.values(state.places).filter(p => p.status === "visited").length;
   if (visited > 0) sub.appendChild(el("span", null, labels.placesVisited[lang].replace("{0}", visited)));
@@ -2890,7 +2890,7 @@ function renderToday() {
   // GPS "Where am I" — show last result if recent, button to refresh
   const gpsCard = el("div", { class: "card-soft", style: "margin-bottom:14px" });
   const gpsHeader = el("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" });
-  gpsHeader.appendChild(el("div", { style: "font-weight:600;font-size:14px" }, "📍 Где я сейчас?"));
+  gpsHeader.appendChild(el("div", { style: "font-weight:600;font-size:14px" }, "📍 Где я зараз?"));
   const gpsBtn = el("button", { class: "btn tiny primary", onclick: () => runGpsNearMe(gpsCard) }, "Определить");
   gpsHeader.appendChild(gpsBtn);
   gpsCard.appendChild(gpsHeader);
@@ -3439,11 +3439,19 @@ function openPlaceModal(id) {
 
   // Maps button
   body.appendChild(el("div", { style: "margin:8px 0" },
-    el("a", { class: "btn primary full", href: mapsUrl(p), target: "_blank", rel: "noopener" }, "🗺 Открыть в Google Maps"),
+    el("a", { class: "btn primary full", href: mapsUrl(p), target: "_blank", rel: "noopener" }, "🗺 Відкрити в Google Maps"),
+  ));
+
+  // Google Translate buttons — for showing description to local
+  body.appendChild(el("h3", { style: "margin-top:14px;font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "🌐 Перекласти опис"));
+  const translateText = `${p.name}\n\n${p.desc}${p.tip ? "\n\nПорада: " + p.tip : ""}\nАдреса: ${p.address}`;
+  body.appendChild(el("div", { class: "btn-row" },
+    el("button", { class: "btn", style: "flex:1", onclick: () => openGoogleTranslate(translateText, "es") }, "🇪🇸 Español"),
+    el("button", { class: "btn", style: "flex:1", onclick: () => openGoogleTranslate(translateText, "en") }, "🇬🇧 English"),
   ));
 
   // Taxi deep-links
-  body.appendChild(el("h3", { style: "margin-top:14px;font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Вызвать такси"));
+  body.appendChild(el("h3", { style: "margin-top:14px;font-size:13px;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.05em" }, "Викликати таксі"));
   const taxiRow = el("div", { class: "btn-row" });
   getTaxiUrls(p.lat, p.lng, p.name).forEach(t => {
     const btn = el("a", { class: "btn", style: "flex:1;min-width:30%;font-size:13px", href: t.url, target: "_blank", rel: "noopener" }, t.app);
@@ -3576,7 +3584,7 @@ function renderCustomRouteModal() {
   }, "🏠 Отель"));
   orig.appendChild(origRow);
   if (routeBuilder.useGps && !gpsFresh) {
-    orig.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px" }, "Google Maps попросит разрешение когда откроется. Можно нажать на «Сегодня» → «Определить» заранее."));
+    orig.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-top:6px" }, "Google Maps попросит разрешение когда откроется. Можна нажать на «Сегодня» → «Определить» заранее."));
   }
   body.appendChild(orig);
 
@@ -3748,6 +3756,12 @@ async function capturePhotoForPlace(placeId) {
     }
   });
   inp.click();
+}
+
+function openGoogleTranslate(text, targetLang = "es") {
+  // sl=uk, tl=target, encoded text
+  const url = `https://translate.google.com/?sl=uk&tl=${targetLang}&text=${encodeURIComponent(text)}&op=translate`;
+  window.open(url, "_blank", "noopener");
 }
 
 async function sharePlace(p) {
@@ -4237,7 +4251,7 @@ function renderGuideDishes(c) {
     }
     if (state.dishCategory === "agus") {
       listEl.appendChild(el("div", { class: "card-soft", style: "border-left:3px solid var(--primary);margin-bottom:10px;font-size:13px;line-height:1.5" },
-        "Это меню которое Агус готовит в субботу. Изучи заранее чтобы знать что встретит — и подумай о вежливом комплименте на испанском после обеда: «¡Está buenísimo!» (Эста буэни́симо — «Очень вкусно!»)."
+        "Это меню которое Агус готовит в субботу. Изучи заранее чтобы знать что встретит — и подумай о вежливом комплименте на испанском после обеда: «¡Está buenísimo!» (Эста буэни́симо — «Дужевкусно!»)."
       ));
     }
     list.forEach(d => {
@@ -4325,6 +4339,16 @@ function openDishModal(id) {
     body.appendChild(sec);
   }
 
+  // Google Translate — для офіціанта в ресторані
+  const dishText = `${dish.name}\n\n${dish.desc}\n\nСклад: ${(dish.ingredients||[]).join(", ")}`;
+  const trSec = el("div", { class: "dish-section" });
+  trSec.appendChild(el("h4", null, "🌐 Показати офіціанту"));
+  trSec.appendChild(el("div", { class: "btn-row" },
+    el("button", { class: "btn", style: "flex:1", onclick: () => openGoogleTranslate(dishText, "es") }, "🇪🇸 Español"),
+    el("button", { class: "btn", style: "flex:1", onclick: () => openGoogleTranslate(dishText, "en") }, "🇬🇧 English"),
+  ));
+  body.appendChild(trSec);
+
   $("#dish-modal").showModal();
 
   // Lazy-load photo from Wikipedia (prefer wikiLang if set, e.g. es)
@@ -4369,7 +4393,7 @@ function renderGuideLife(c) {
 }
 
 function renderGuideData(c) {
-  c.appendChild(el("p", { style: "margin:14px 0 10px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Все ваши статусы, заметки, дневник и план хранятся в браузере (localStorage). Экспортируйте файл — можно перенести себе на другое устройство или поделиться с женой."));
+  c.appendChild(el("p", { style: "margin:14px 0 10px;font-size:13px;color:var(--text-soft);line-height:1.5" }, "Все ваши статусы, заметки, дневник и план хранятся в браузере (localStorage). Экспортируйте файл — можнаперенести себе на другое устройство или поделиться с женой."));
   c.appendChild(el("div", { class: "btn-row" },
     el("button", { class: "btn", onclick: doExport }, "💾 Экспорт JSON"),
     el("button", { class: "btn", onclick: () => $("#import-file").click() }, "📂 Импорт JSON"),
@@ -4462,8 +4486,8 @@ document.addEventListener("click", (e) => {
       const to = parseInt(m[3]) * 60 + parseInt(m[4]);
       return hm >= from && hm <= to;
     });
-    if (!open.length) { toast("По указанным часам сейчас ничего не нашлось"); return; }
-    toast(`Открыто сейчас (примерно): ${open.length} мест — см. список`);
+    if (!open.length) { toast("По указанным часам зараз ничего не нашлось"); return; }
+    toast(`Открыто зараз (примерно): ${open.length} мест — см. список`);
     state.activeTab = "places"; state.statusFilter = "all";
     switchTab("places");
   }
