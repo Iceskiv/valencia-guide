@@ -2177,9 +2177,9 @@ function renderBoardingPassCard(direction, labelKey) {
     if (isPkpass) nameRow.appendChild(el("span", { style: "background:#000;color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700" }, "Apple Wallet"));
     nameRow.appendChild(el("span", null, bp.name));
     card.appendChild(nameRow);
-    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, isPkpass ? "Збережено · тапни «Відкрити» — iOS додасть у Wallet" : t("bp_saved")));
+    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, isPkpass ? "Apple Wallet формат · тап «Відкрити» завантажить файл, далі додай у WalletPasses (Android) або Wallet (iOS)" : t("bp_saved")));
     const btns = el("div", { class: "btn-row" });
-    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, isPkpass ? "📲 У Wallet" : t("bp_open")));
+    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, isPkpass ? "📲 Відкрити" : t("bp_open")));
     btns.appendChild(el("button", { class: "btn", onclick: () => uploadBoardingPass(direction) }, t("bp_replace")));
     btns.appendChild(el("button", { class: "btn ghost", onclick: () => { if (confirm("Видалити boarding pass?")) { setBoardingPass(direction, null); renderToday(); } } }, "✕"));
     card.appendChild(btns);
