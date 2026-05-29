@@ -189,11 +189,12 @@ dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0
 .kv dt { color: var(--text-soft); font-weight: 500; }
 .kv dd { margin: 0; }
 
-/* Day picker — sticky so it stays accessible when scrolling through long day */
-.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: 88px; background: var(--bg); margin: 0 -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
+/* Day picker — sticky so it stays accessible when scrolling through long day.
+   `top` uses CSS var --header-h (set by JS from real header height) so there's no gap. */
+.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: var(--header-h, 70px); background: var(--bg); margin: 0 -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
 .day-tabs::-webkit-scrollbar { display: none; }
 @media (min-width: 720px) {
-  .day-tabs { top: 0; }
+  .day-tabs { top: 70px; }
 }
 .day-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-size: 13px; cursor: pointer; min-width: 78px; text-align: center; }
 .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
@@ -366,13 +367,13 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 /* Sticky guide section header when section is open */
 .guide-section.open .guide-section-head {
   position: sticky;
-  top: 88px;
+  top: var(--header-h, 70px);
   z-index: 4;
   border-bottom: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
 }
 @media (min-width: 720px) {
-  .guide-section.open .guide-section-head { top: 0; }
+  .guide-section.open .guide-section-head { top: 70px; }
 }
 
 /* Weather widget */
@@ -2822,6 +2823,14 @@ function renderPostTripDashboard(c) {
   ));
 }
 
+function updateHeaderHeight() {
+  const h = document.querySelector("header.app-header");
+  if (h) {
+    const px = Math.ceil(h.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--header-h", px + "px");
+  }
+}
+
 function applyI18n() {
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
@@ -2878,6 +2887,9 @@ function renderHeader() {
 
   const visited = Object.values(state.places).filter(p => p.status === "visited").length;
   if (visited > 0) sub.appendChild(el("span", null, labels.placesVisited[lang].replace("{0}", visited)));
+
+  // Header height changes (countdown ticks, weather appears) — update CSS var so sticky offsets stay accurate
+  requestAnimationFrame(updateHeaderHeight);
 }
 
 function cycleLang() {
@@ -4721,6 +4733,13 @@ state.lang = state.lang || "uk";
 
 renderAll();
 applyI18n();
+
+// Keep --header-h CSS var in sync with actual header height
+window.addEventListener("resize", updateHeaderHeight);
+window.addEventListener("orientationchange", updateHeaderHeight);
+// Initial measurement after first paint (when fonts and layout settled)
+requestAnimationFrame(updateHeaderHeight);
+setTimeout(updateHeaderHeight, 500);
 
 // Weather: fetch on load and show in header
 $("#wm-close").addEventListener("click", () => $("#weather-modal").close());
