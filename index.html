@@ -190,12 +190,11 @@ dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0
 .kv dd { margin: 0; }
 
 /* Day picker — sticky so it stays accessible when scrolling through long day.
-   `top` uses CSS var --header-h (set by JS from real header height) so there's no gap. */
-.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: var(--header-h, 70px); background: var(--bg); margin: 0 -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
+   `top` uses CSS var --header-h (set by JS from real height of currently-pinned top element)
+   so there's no gap on either mobile (sticky app-header) or desktop (fixed nav.tabs).
+   Negative margin-top: -1px ensures any subpixel gap is hidden by overlapping 1px. */
+.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: var(--header-h, 70px); background: var(--bg); margin: -1px -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
 .day-tabs::-webkit-scrollbar { display: none; }
-@media (min-width: 720px) {
-  .day-tabs { top: 70px; }
-}
 .day-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-size: 13px; cursor: pointer; min-width: 78px; text-align: center; }
 .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 .day-tab .d { font-weight: 700; font-size: 16px; line-height: 1.1; }
@@ -371,9 +370,7 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
   z-index: 4;
   border-bottom: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
-}
-@media (min-width: 720px) {
-  .guide-section.open .guide-section-head { top: 70px; }
+  margin-top: -1px; /* hide subpixel gap */
 }
 
 /* Weather widget */
@@ -2824,9 +2821,12 @@ function renderPostTripDashboard(c) {
 }
 
 function updateHeaderHeight() {
-  const h = document.querySelector("header.app-header");
-  if (h) {
-    const px = Math.ceil(h.getBoundingClientRect().height);
+  // On desktop (>=720px) the nav.tabs is fixed at the top; on mobile the app-header sticks at the top.
+  // Measure whichever is currently pinned and use its height for sticky offset of day-tabs etc.
+  const isDesktop = window.matchMedia("(min-width: 720px)").matches;
+  const target = isDesktop ? document.querySelector("nav.tabs") : document.querySelector("header.app-header");
+  if (target) {
+    const px = Math.ceil(target.getBoundingClientRect().height);
     document.documentElement.style.setProperty("--header-h", px + "px");
   }
 }
@@ -4695,6 +4695,7 @@ function switchTab(name) {
   if (name === "map") renderMap();
   if (name === "me") renderMe();
   window.scrollTo({ top: 0, behavior: "instant" });
+  requestAnimationFrame(updateHeaderHeight);
 }
 $$('nav.tabs button').forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
 
