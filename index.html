@@ -335,6 +335,31 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 
 .note-display { background: var(--card-soft); border-left: 3px solid var(--accent); padding: 10px 12px; border-radius: 6px; font-size: 13px; white-space: pre-wrap; margin: 8px 0; }
 
+/* Boarding pass thumbnails */
+.bp-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; }
+.bp-thumb { aspect-ratio: 3/4; background: var(--card-soft); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; cursor: pointer; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 0.05s; position: relative; }
+.bp-thumb:active { transform: scale(0.96); }
+.bp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bp-thumb-ico { font-size: 30px; line-height: 1; }
+.bp-thumb-label { font-size: 10px; color: var(--text-soft); margin-top: 4px; font-weight: 600; }
+
+/* Boarding pass fullscreen gallery */
+.bp-gallery { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; touch-action: none; }
+.bp-strip { display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; width: 100vw; height: 100vh; scrollbar-width: none; }
+.bp-strip::-webkit-scrollbar { display: none; }
+.bp-slide { flex: 0 0 100vw; height: 100vh; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; padding: 60px 8px; box-sizing: border-box; }
+.bp-slide img { max-width: 100%; max-height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.bp-slide iframe { width: 100%; height: 100%; }
+.bp-pkpass-card { background: var(--card); color: var(--text); padding: 28px 22px; border-radius: 16px; max-width: 320px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.bp-close { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.18); color: white; font-size: 22px; border: none; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2; }
+.bp-close:active { background: rgba(255,255,255,0.3); }
+.bp-indicator { position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2; }
+.bp-dots { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
+.bp-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); border: none; padding: 0; cursor: pointer; transition: background 0.15s, width 0.15s; }
+.bp-dot.active { background: white; width: 22px; border-radius: 4px; }
+.bp-del { position: fixed; bottom: max(56px, calc(env(safe-area-inset-bottom) + 36px)); right: 16px; padding: 8px 14px; background: rgba(255,255,255,0.18); color: white; border: none; border-radius: 999px; font-size: 12px; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2; }
+.bp-del:active { background: rgba(255,80,80,0.6); }
+
 /* Weather widget */
 .weather-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; line-height: 1.4; }
 .weather-pill:active { transform: scale(0.97); }
@@ -2082,110 +2107,211 @@ function defaultState() {
   };
 }
 
-// Boarding pass helpers
-function getBoardingPass(direction) {
-  return state["boardingPass_" + direction] || null;
+// Boarding pass helpers — array of items per direction with backward compat
+function getBoardingPasses(direction) {
+  const data = state["boardingPass_" + direction];
+  if (!data) return [];
+  if (Array.isArray(data.items)) return data.items;
+  // Legacy single-object form
+  if (data.dataUrl) return [data];
+  return [];
 }
-function setBoardingPass(direction, data) {
-  if (data) state["boardingPass_" + direction] = data;
-  else delete state["boardingPass_" + direction];
+function setBoardingPasses(direction, items) {
+  if (items && items.length) {
+    state["boardingPass_" + direction] = { items };
+  } else {
+    delete state["boardingPass_" + direction];
+  }
   saveState();
 }
+function addBoardingPassItem(direction, item) {
+  const items = getBoardingPasses(direction);
+  items.push(item);
+  setBoardingPasses(direction, items);
+}
+function removeBoardingPassItem(direction, idx) {
+  const items = getBoardingPasses(direction);
+  items.splice(idx, 1);
+  setBoardingPasses(direction, items);
+}
+
 function uploadBoardingPass(direction) {
   const inp = document.createElement("input");
   inp.type = "file";
-  // Accept PDF, images, AND Apple Wallet .pkpass
+  // Accept multiple files at once
+  inp.multiple = true;
   inp.accept = "application/pdf,application/vnd.apple.pkpass,image/*,.pkpass";
-  inp.addEventListener("change", () => {
-    const file = inp.files && inp.files[0];
-    if (!file) return;
-    if (file.size > 4 * 1024 * 1024) {
-      toast("Файл більше 4 МБ. Стисни PDF/фото.");
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = e => {
+  inp.addEventListener("change", async () => {
+    const files = Array.from(inp.files || []);
+    if (!files.length) return;
+    let added = 0;
+    for (const file of files) {
+      if (file.size > 4 * 1024 * 1024) {
+        toast(`«${file.name}» більше 4 МБ — пропущено`);
+        continue;
+      }
       try {
-        // Detect .pkpass even if browser didn't set MIME correctly
+        const dataUrl = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = (e) => res(e.target.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
         const isPkpass = /\.pkpass$/i.test(file.name) || file.type === "application/vnd.apple.pkpass";
         const mime = isPkpass ? "application/vnd.apple.pkpass" : file.type;
-        setBoardingPass(direction, { name: file.name, dataUrl: e.target.result, mime, savedAt: Date.now() });
-        toast(isPkpass ? "Apple Wallet білет збережено" : "Boarding pass збережено");
-        renderToday();
-      } catch (err) {
-        toast("Не вдалося зберегти: " + err.message);
+        addBoardingPassItem(direction, { name: file.name, dataUrl, mime, savedAt: Date.now() });
+        added++;
+      } catch (e) {
+        toast("Помилка з «" + file.name + "»: " + e.message);
       }
-    };
-    reader.readAsDataURL(file);
+    }
+    if (added > 0) {
+      toast(added === 1 ? "Білет додано" : `Додано ${added} білетів`);
+      renderToday();
+    }
   });
   inp.click();
 }
-function openBoardingPass(direction) {
-  const bp = getBoardingPass(direction);
-  if (!bp) return;
-  const isPkpass = bp.mime === "application/vnd.apple.pkpass" || /\.pkpass$/i.test(bp.name);
-  const isPdf = bp.mime === "application/pdf";
 
-  // For .pkpass — convert to Blob and trigger download. iOS Safari will open in Wallet.
-  if (isPkpass) {
-    try {
-      const bin = atob(bp.dataUrl.split(",")[1]);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const blob = new Blob([bytes], { type: "application/vnd.apple.pkpass" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = bp.name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      toast("Завантажую білет — додай в Apple Wallet");
-    } catch (e) {
-      toast("Помилка: " + e.message);
-    }
-    return;
+function downloadPkpassFile(bp) {
+  try {
+    const bin = atob(bp.dataUrl.split(",")[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: "application/vnd.apple.pkpass" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = bp.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    toast("Завантажую — далі додай в Wallet/WalletPasses");
+  } catch (e) {
+    toast("Помилка: " + e.message);
   }
-
-  // PDF / image — open in new window
-  const w = window.open("", "_blank");
-  if (!w) { toast("Браузер заблокував вікно. Дозвольте спливаючі."); return; }
-  w.document.write(`
-    <!DOCTYPE html><html><head><title>Boarding pass</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>body{margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif}
-    iframe,img{max-width:100%;max-height:100vh;display:block}
-    .toolbar{position:fixed;top:8px;right:8px;z-index:9}
-    .toolbar a{background:#fff;color:#000;padding:8px 12px;border-radius:8px;text-decoration:none;font-size:13px;display:inline-block}</style>
-    </head><body>
-    <div class="toolbar"><a href="${bp.dataUrl}" download="${bp.name}">⬇ Зберегти</a></div>
-    ${isPdf ? `<iframe src="${bp.dataUrl}" style="width:100vw;height:100vh;border:none"></iframe>` : `<img src="${bp.dataUrl}">`}
-    </body></html>
-  `);
-  w.document.close();
 }
 
-// Render a Boarding Pass card (used in dashboards)
-function renderBoardingPassCard(direction, labelKey) {
-  const bp = getBoardingPass(direction);
-  const card = el("div", { class: "card", style: "border-left:4px solid var(--accent);margin-bottom:10px" });
-  card.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:6px" }, t(labelKey)));
-  if (bp) {
+function openBoardingPassGallery(direction, startIdx = 0) {
+  const items = getBoardingPasses(direction);
+  if (!items.length) return;
+
+  const wrap = el("div", { class: "bp-gallery" });
+
+  // Strip with all slides
+  const strip = el("div", { class: "bp-strip" });
+  items.forEach((bp) => {
+    const slide = el("div", { class: "bp-slide" });
     const isPkpass = bp.mime === "application/vnd.apple.pkpass" || /\.pkpass$/i.test(bp.name);
-    const nameRow = el("div", { style: "font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px" });
-    if (isPkpass) nameRow.appendChild(el("span", { style: "background:#000;color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700" }, "Apple Wallet"));
-    nameRow.appendChild(el("span", null, bp.name));
-    card.appendChild(nameRow);
-    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, isPkpass ? "Apple Wallet формат · тап «Відкрити» завантажить файл, далі додай у WalletPasses (Android) або Wallet (iOS)" : t("bp_saved")));
-    const btns = el("div", { class: "btn-row" });
-    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, isPkpass ? "📲 Відкрити" : t("bp_open")));
-    btns.appendChild(el("button", { class: "btn", onclick: () => uploadBoardingPass(direction) }, t("bp_replace")));
-    btns.appendChild(el("button", { class: "btn ghost", onclick: () => { if (confirm("Видалити boarding pass?")) { setBoardingPass(direction, null); renderToday(); } } }, "✕"));
-    card.appendChild(btns);
+    const isPdf = bp.mime === "application/pdf";
+    if (isPkpass) {
+      const card = el("div", { class: "bp-pkpass-card" });
+      card.appendChild(el("div", { style: "font-size:64px;line-height:1;margin-bottom:8px" }, "📲"));
+      card.appendChild(el("div", { style: "font-weight:600;font-size:15px;text-align:center;margin-bottom:4px" }, bp.name));
+      card.appendChild(el("div", { style: "font-size:13px;opacity:0.8;text-align:center;margin-bottom:14px" }, "Apple Wallet файл — не показується в браузері"));
+      card.appendChild(el("button", { class: "btn primary lg", onclick: () => downloadPkpassFile(bp) }, "📥 Завантажити для Wallet"));
+      slide.appendChild(card);
+    } else if (isPdf) {
+      const iframe = el("iframe", { src: bp.dataUrl, style: "width:100%;height:100%;border:none;background:white" });
+      slide.appendChild(iframe);
+    } else {
+      const img = el("img", { src: bp.dataUrl, alt: bp.name });
+      slide.appendChild(img);
+    }
+    strip.appendChild(slide);
+  });
+  wrap.appendChild(strip);
+
+  // Close button
+  const close = el("button", { class: "bp-close", onclick: () => wrap.remove(), "aria-label": "Закрити" }, "✕");
+  wrap.appendChild(close);
+
+  // Indicator (1 / N)
+  const ind = el("div", { class: "bp-indicator" }, `1 / ${items.length}`);
+  wrap.appendChild(ind);
+
+  // Dots
+  const dots = el("div", { class: "bp-dots" });
+  items.forEach((_, i) => {
+    const dot = el("button", { class: "bp-dot" + (i === startIdx ? " active" : ""), onclick: () => { strip.scrollLeft = i * strip.clientWidth; } });
+    dots.appendChild(dot);
+  });
+  wrap.appendChild(dots);
+
+  // Delete current button
+  const delBtn = el("button", { class: "bp-del", onclick: () => {
+    const current = Math.round(strip.scrollLeft / strip.clientWidth);
+    if (!confirm(`Видалити білет «${items[current].name}»?`)) return;
+    removeBoardingPassItem(direction, current);
+    wrap.remove();
+    renderToday();
+    const remaining = getBoardingPasses(direction);
+    if (remaining.length > 0) openBoardingPassGallery(direction, Math.min(current, remaining.length - 1));
+  } }, "🗑 Видалити");
+  wrap.appendChild(delBtn);
+
+  // Update indicator on scroll
+  strip.addEventListener("scroll", () => {
+    const current = Math.round(strip.scrollLeft / strip.clientWidth);
+    ind.textContent = `${current + 1} / ${items.length}`;
+    dots.querySelectorAll(".bp-dot").forEach((d, i) => d.classList.toggle("active", i === current));
+  });
+
+  // Close on backdrop tap (but not on image/slide)
+  wrap.addEventListener("click", (e) => {
+    if (e.target === wrap) wrap.remove();
+  });
+
+  // ESC closes
+  const onEsc = (e) => {
+    if (e.key === "Escape") { wrap.remove(); document.removeEventListener("keydown", onEsc); }
+  };
+  document.addEventListener("keydown", onEsc);
+
+  document.body.appendChild(wrap);
+
+  // Snap to starting slide
+  requestAnimationFrame(() => { strip.scrollLeft = startIdx * strip.clientWidth; });
+}
+
+// Render a Boarding Pass card (used in dashboards) — supports multiple items with thumbnail gallery
+function renderBoardingPassCard(direction, labelKey) {
+  const items = getBoardingPasses(direction);
+  const card = el("div", { class: "card", style: "border-left:4px solid var(--accent);margin-bottom:10px" });
+
+  const head = el("div", { style: "display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px" });
+  head.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600" }, t(labelKey)));
+  if (items.length > 0) head.appendChild(el("div", { style: "font-size:11px;color:var(--text-soft);font-weight:600" }, items.length + " шт."));
+  card.appendChild(head);
+
+  if (items.length > 0) {
+    // Thumbnails grid
+    const grid = el("div", { class: "bp-thumbs" });
+    items.forEach((bp, idx) => {
+      const isPkpass = bp.mime === "application/vnd.apple.pkpass" || /\.pkpass$/i.test(bp.name);
+      const isPdf = bp.mime === "application/pdf";
+      const isImage = bp.mime && bp.mime.startsWith("image/");
+      const thumb = el("button", { class: "bp-thumb", onclick: () => openBoardingPassGallery(direction, idx), title: bp.name });
+      if (isImage) {
+        thumb.appendChild(el("img", { src: bp.dataUrl, alt: bp.name }));
+      } else if (isPdf) {
+        thumb.appendChild(el("div", { class: "bp-thumb-ico" }, "📄"));
+        thumb.appendChild(el("div", { class: "bp-thumb-label" }, "PDF"));
+      } else if (isPkpass) {
+        thumb.appendChild(el("div", { class: "bp-thumb-ico" }, "📲"));
+        thumb.appendChild(el("div", { class: "bp-thumb-label" }, "Wallet"));
+      } else {
+        thumb.appendChild(el("div", { class: "bp-thumb-ico" }, "📄"));
+      }
+      grid.appendChild(thumb);
+    });
+    card.appendChild(grid);
+    card.appendChild(el("div", { style: "font-size:11px;color:var(--text-soft);margin:8px 0 10px;line-height:1.4" }, "Тап будь-який — повноекранний перегляд зі свайпом між квитками."));
+    card.appendChild(el("button", { class: "btn full", onclick: () => uploadBoardingPass(direction) }, "+ Додати ще фото/файл"));
   } else {
-    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.5" }, "Завантаж PDF, фото або Apple Wallet .pkpass файл — буде під рукою офлайн."));
-    card.appendChild(el("button", { class: "btn primary full", onclick: () => uploadBoardingPass(direction) }, "📄 Завантажити (PDF · фото · .pkpass)"));
+    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:10px;line-height:1.5" }, "Завантаж фото/скріни своїх посадкових (PDF, фото, .pkpass). Можна декілька — твій + жінчин. Свайп для перегляду."));
+    card.appendChild(el("button", { class: "btn primary full", onclick: () => uploadBoardingPass(direction) }, "📄 Завантажити білет(и)"));
   }
   return card;
 }
@@ -2499,7 +2625,7 @@ function renderPreTripDashboard(c) {
   // Boarding pass: outbound (always available pre-trip)
   c.appendChild(renderBoardingPassCard("out", "bp_out"));
   // Optionally also show return if user has it ready
-  if (getBoardingPass("back")) {
+  if (getBoardingPasses("back").length) {
     c.appendChild(renderBoardingPassCard("back", "bp_back"));
   }
 

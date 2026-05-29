@@ -4,7 +4,7 @@
 //     This ensures users always get the latest version when online.
 //   - Map tiles (OSM/CARTO) and Leaflet CDN: cache-first → fast load, works offline once cached.
 
-const CACHE_NAME = 'valencia-v6';
+const CACHE_NAME = 'valencia-v7';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (event) => {
