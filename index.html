@@ -189,9 +189,12 @@ dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0
 .kv dt { color: var(--text-soft); font-weight: 500; }
 .kv dd { margin: 0; }
 
-/* Day picker */
-.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 12px; scrollbar-width: none; }
+/* Day picker — sticky so it stays accessible when scrolling through long day */
+.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: 88px; background: var(--bg); margin: 0 -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
 .day-tabs::-webkit-scrollbar { display: none; }
+@media (min-width: 720px) {
+  .day-tabs { top: 0; }
+}
 .day-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-size: 13px; cursor: pointer; min-width: 78px; text-align: center; }
 .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 .day-tab .d { font-weight: 700; font-size: 16px; line-height: 1.1; }
@@ -359,6 +362,18 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 .bp-dot.active { background: white; width: 22px; border-radius: 4px; }
 .bp-del { position: fixed; bottom: max(56px, calc(env(safe-area-inset-bottom) + 36px)); right: 16px; padding: 8px 14px; background: rgba(255,255,255,0.18); color: white; border: none; border-radius: 999px; font-size: 12px; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2; }
 .bp-del:active { background: rgba(255,80,80,0.6); }
+
+/* Sticky guide section header when section is open */
+.guide-section.open .guide-section-head {
+  position: sticky;
+  top: 88px;
+  z-index: 4;
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+@media (min-width: 720px) {
+  .guide-section.open .guide-section-head { top: 0; }
+}
 
 /* Weather widget */
 .weather-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; line-height: 1.4; }
@@ -4116,10 +4131,12 @@ function renderMe() {
   ];
 
   sections.forEach(s => {
-    const wrap = el("div", { class: "card", style: "padding:0;overflow:hidden;margin-bottom:8px" });
+    // No overflow:hidden — would break sticky positioning of the header button
+    const wrap = el("div", { class: "card guide-section" + (state.guideSection === s.id ? " open" : ""), style: "padding:0;margin-bottom:8px" });
     const isOpen = state.guideSection === s.id;
     const header = el("button", {
-      style: "width:100%;text-align:left;padding:14px;background:transparent;border:none;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:var(--text);cursor:pointer",
+      class: "guide-section-head",
+      style: "width:100%;text-align:left;padding:14px;background:var(--card);border:none;display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;border-radius:var(--radius)",
       onclick: () => { state.guideSection = isOpen ? null : s.id; saveState(); renderMe(); }
     });
     header.appendChild(el("span", null, s.title));
