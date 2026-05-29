@@ -2094,22 +2094,26 @@ function setBoardingPass(direction, data) {
 function uploadBoardingPass(direction) {
   const inp = document.createElement("input");
   inp.type = "file";
-  inp.accept = "application/pdf,image/jpeg,image/png,image/*";
+  // Accept PDF, images, AND Apple Wallet .pkpass
+  inp.accept = "application/pdf,application/vnd.apple.pkpass,image/*,.pkpass";
   inp.addEventListener("change", () => {
     const file = inp.files && inp.files[0];
     if (!file) return;
     if (file.size > 4 * 1024 * 1024) {
-      toast("Файл больше 4 МБ. Сожмите PDF/фото.");
+      toast("Файл більше 4 МБ. Стисни PDF/фото.");
       return;
     }
     const reader = new FileReader();
     reader.onload = e => {
       try {
-        setBoardingPass(direction, { name: file.name, dataUrl: e.target.result, mime: file.type, savedAt: Date.now() });
-        toast("Boarding pass сохранён");
+        // Detect .pkpass even if browser didn't set MIME correctly
+        const isPkpass = /\.pkpass$/i.test(file.name) || file.type === "application/vnd.apple.pkpass";
+        const mime = isPkpass ? "application/vnd.apple.pkpass" : file.type;
+        setBoardingPass(direction, { name: file.name, dataUrl: e.target.result, mime, savedAt: Date.now() });
+        toast(isPkpass ? "Apple Wallet білет збережено" : "Boarding pass збережено");
         renderToday();
       } catch (err) {
-        toast("Не удалось сохранить: " + err.message);
+        toast("Не вдалося зберегти: " + err.message);
       }
     };
     reader.readAsDataURL(file);
@@ -2119,10 +2123,34 @@ function uploadBoardingPass(direction) {
 function openBoardingPass(direction) {
   const bp = getBoardingPass(direction);
   if (!bp) return;
-  // Open in new window — works offline because it's a data URL
-  const w = window.open("", "_blank");
-  if (!w) { toast("Браузер заблокировал окно. Разрешите всплывающие."); return; }
+  const isPkpass = bp.mime === "application/vnd.apple.pkpass" || /\.pkpass$/i.test(bp.name);
   const isPdf = bp.mime === "application/pdf";
+
+  // For .pkpass — convert to Blob and trigger download. iOS Safari will open in Wallet.
+  if (isPkpass) {
+    try {
+      const bin = atob(bp.dataUrl.split(",")[1]);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], { type: "application/vnd.apple.pkpass" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = bp.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      toast("Завантажую білет — додай в Apple Wallet");
+    } catch (e) {
+      toast("Помилка: " + e.message);
+    }
+    return;
+  }
+
+  // PDF / image — open in new window
+  const w = window.open("", "_blank");
+  if (!w) { toast("Браузер заблокував вікно. Дозвольте спливаючі."); return; }
   w.document.write(`
     <!DOCTYPE html><html><head><title>Boarding pass</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -2131,7 +2159,7 @@ function openBoardingPass(direction) {
     .toolbar{position:fixed;top:8px;right:8px;z-index:9}
     .toolbar a{background:#fff;color:#000;padding:8px 12px;border-radius:8px;text-decoration:none;font-size:13px;display:inline-block}</style>
     </head><body>
-    <div class="toolbar"><a href="${bp.dataUrl}" download="${bp.name}">⬇ Сохранить</a></div>
+    <div class="toolbar"><a href="${bp.dataUrl}" download="${bp.name}">⬇ Зберегти</a></div>
     ${isPdf ? `<iframe src="${bp.dataUrl}" style="width:100vw;height:100vh;border:none"></iframe>` : `<img src="${bp.dataUrl}">`}
     </body></html>
   `);
@@ -2144,16 +2172,20 @@ function renderBoardingPassCard(direction, labelKey) {
   const card = el("div", { class: "card", style: "border-left:4px solid var(--accent);margin-bottom:10px" });
   card.appendChild(el("div", { style: "font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-soft);font-weight:600;margin-bottom:6px" }, t(labelKey)));
   if (bp) {
-    card.appendChild(el("div", { style: "font-size:14px;font-weight:600;margin-bottom:4px" }, bp.name));
-    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, t("bp_saved")));
+    const isPkpass = bp.mime === "application/vnd.apple.pkpass" || /\.pkpass$/i.test(bp.name);
+    const nameRow = el("div", { style: "font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:6px" });
+    if (isPkpass) nameRow.appendChild(el("span", { style: "background:#000;color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700" }, "Apple Wallet"));
+    nameRow.appendChild(el("span", null, bp.name));
+    card.appendChild(nameRow);
+    card.appendChild(el("div", { style: "font-size:12px;color:var(--text-soft);margin-bottom:8px" }, isPkpass ? "Збережено · тапни «Відкрити» — iOS додасть у Wallet" : t("bp_saved")));
     const btns = el("div", { class: "btn-row" });
-    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, t("bp_open")));
+    btns.appendChild(el("button", { class: "btn primary", onclick: () => openBoardingPass(direction) }, isPkpass ? "📲 У Wallet" : t("bp_open")));
     btns.appendChild(el("button", { class: "btn", onclick: () => uploadBoardingPass(direction) }, t("bp_replace")));
-    btns.appendChild(el("button", { class: "btn ghost", onclick: () => { if (confirm("?")) { setBoardingPass(direction, null); renderToday(); } } }, "✕"));
+    btns.appendChild(el("button", { class: "btn ghost", onclick: () => { if (confirm("Видалити boarding pass?")) { setBoardingPass(direction, null); renderToday(); } } }, "✕"));
     card.appendChild(btns);
   } else {
-    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.5" }, t("bp_load_prompt")));
-    card.appendChild(el("button", { class: "btn primary full", onclick: () => uploadBoardingPass(direction) }, t("bp_load_btn")));
+    card.appendChild(el("div", { style: "font-size:13px;color:var(--text-soft);margin-bottom:8px;line-height:1.5" }, "Завантаж PDF, фото або Apple Wallet .pkpass файл — буде під рукою офлайн."));
+    card.appendChild(el("button", { class: "btn primary full", onclick: () => uploadBoardingPass(direction) }, "📄 Завантажити (PDF · фото · .pkpass)"));
   }
   return card;
 }
