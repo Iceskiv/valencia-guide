@@ -189,12 +189,15 @@ dialog.modal[open] { display: flex; flex-direction: column; animation: slideUp 0
 .kv dt { color: var(--text-soft); font-weight: 500; }
 .kv dd { margin: 0; }
 
-/* Day picker — sticky so it stays accessible when scrolling through long day.
-   `top` uses CSS var --header-h (set by JS from real height of currently-pinned top element)
-   so there's no gap on either mobile (sticky app-header) or desktop (fixed nav.tabs).
-   Negative margin-top: -1px ensures any subpixel gap is hidden by overlapping 1px. */
-.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 8px 16px 10px; scrollbar-width: none; position: sticky; top: var(--header-h, 70px); background: var(--bg); margin: -1px -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
+/* Day picker — sticky so it stays accessible when scrolling.
+   Mobile: app-header is pinned top → use --header-h (fallback 73px).
+   Desktop: nav.tabs is pinned top → use --nav-h (fallback 57px).
+   Negative margin-top: -2px ensures slight overlap so any subpixel gap is invisible. */
+.day-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 10px 16px 10px; scrollbar-width: none; position: sticky; top: var(--header-h, 73px); background: var(--bg); margin: -2px -16px 4px; z-index: 5; border-bottom: 1px solid var(--border); }
 .day-tabs::-webkit-scrollbar { display: none; }
+@media (min-width: 720px) {
+  .day-tabs { top: var(--nav-h, 57px); }
+}
 .day-tab { flex-shrink: 0; padding: 8px 14px; border-radius: 10px; background: var(--card); border: 1px solid var(--border); font-size: 13px; cursor: pointer; min-width: 78px; text-align: center; }
 .day-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
 .day-tab .d { font-weight: 700; font-size: 16px; line-height: 1.1; }
@@ -366,11 +369,14 @@ ul.tight li { margin: 4px 0; font-size: 14px; }
 /* Sticky guide section header when section is open */
 .guide-section.open .guide-section-head {
   position: sticky;
-  top: var(--header-h, 70px);
+  top: var(--header-h, 73px);
   z-index: 4;
   border-bottom: 1px solid var(--border);
   border-radius: var(--radius) var(--radius) 0 0;
-  margin-top: -1px; /* hide subpixel gap */
+  margin-top: -2px;
+}
+@media (min-width: 720px) {
+  .guide-section.open .guide-section-head { top: var(--nav-h, 57px); }
 }
 
 /* Weather widget */
@@ -2820,15 +2826,44 @@ function renderPostTripDashboard(c) {
   ));
 }
 
+// Two separate CSS vars to avoid mobile/desktop value mix-up:
+//   --nav-h    → height of nav.tabs (pinned at top on desktop)
+//   --header-h → height of header.app-header (pinned at top on mobile)
+// Day-tabs/guide-section-head use the right one per media query.
+// Sanity bounds prevent corrupted measurements (e.g. transient layout before CSS applies).
 function updateHeaderHeight() {
-  // On desktop (>=720px) the nav.tabs is fixed at the top; on mobile the app-header sticks at the top.
-  // Measure whichever is currently pinned and use its height for sticky offset of day-tabs etc.
-  const isDesktop = window.matchMedia("(min-width: 720px)").matches;
-  const target = isDesktop ? document.querySelector("nav.tabs") : document.querySelector("header.app-header");
-  if (target) {
-    const px = Math.ceil(target.getBoundingClientRect().height);
-    document.documentElement.style.setProperty("--header-h", px + "px");
+  const nav = document.querySelector("nav.tabs");
+  const hdr = document.querySelector("header.app-header");
+  if (nav) {
+    const h = nav.getBoundingClientRect().height;
+    // Desktop nav.tabs is typically 50-80px. Reject obvious garbage.
+    if (h >= 30 && h <= 100) {
+      document.documentElement.style.setProperty("--nav-h", Math.max(0, Math.floor(h) - 1) + "px");
+    }
   }
+  if (hdr) {
+    const h = hdr.getBoundingClientRect().height;
+    // Mobile app-header is typically 60-130px. Reject obvious garbage.
+    if (h >= 30 && h <= 150) {
+      document.documentElement.style.setProperty("--header-h", Math.max(0, Math.floor(h) - 1) + "px");
+    }
+  }
+}
+
+// Observer keeps the vars fresh when content resizes. Stored globally to prevent GC collection.
+let _headerObserver = null;
+function setupHeaderObserver() {
+  if (typeof ResizeObserver === "undefined") return;
+  if (_headerObserver) { try { _headerObserver.disconnect(); } catch (e) {} }
+  _headerObserver = new ResizeObserver(() => updateHeaderHeight());
+  window.__headerObserver = _headerObserver; // strong ref so GC doesn't collect
+  const nav = document.querySelector("nav.tabs");
+  const hdr = document.querySelector("header.app-header");
+  if (nav) _headerObserver.observe(nav);
+  if (hdr) _headerObserver.observe(hdr);
+  const mq = window.matchMedia("(min-width: 720px)");
+  if (mq.addEventListener) mq.addEventListener("change", updateHeaderHeight);
+  else if (mq.addListener) mq.addListener(updateHeaderHeight);
 }
 
 function applyI18n() {
@@ -4735,12 +4770,16 @@ state.lang = state.lang || "uk";
 renderAll();
 applyI18n();
 
-// Keep --header-h CSS var in sync with actual header height
+// Keep --header-h CSS var in sync with the actually-pinned-at-top element
+setupHeaderObserver();
+updateHeaderHeight();
 window.addEventListener("resize", updateHeaderHeight);
 window.addEventListener("orientationchange", updateHeaderHeight);
-// Initial measurement after first paint (when fonts and layout settled)
+// After fonts load + layout settles
 requestAnimationFrame(updateHeaderHeight);
-setTimeout(updateHeaderHeight, 500);
+setTimeout(updateHeaderHeight, 200);
+setTimeout(updateHeaderHeight, 1000);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateHeaderHeight);
 
 // Weather: fetch on load and show in header
 $("#wm-close").addEventListener("click", () => $("#weather-modal").close());
